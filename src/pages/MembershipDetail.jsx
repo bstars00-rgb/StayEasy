@@ -7,6 +7,7 @@ import { getMembership, getPricing, isPaid } from '../data/memberships.js'
 import { getVoucherPack } from '../data/voucherPacks.js'
 import { formatMoney, formatDate } from '../utils/format.js'
 import PurchaseModal from '../components/PurchaseModal.jsx'
+import VoucherDetailModal from '../components/VoucherDetailModal.jsx'
 import { gradient } from '../components/brandTheme.js'
 import { BrandAvatar, Chip, ScoreBar } from '../components/ui.jsx'
 import ScoreBadge from '../components/ScoreBadge.jsx'
@@ -22,6 +23,7 @@ export default function MembershipDetail() {
   const { isSaved, addSaved, showToast, inCompare, toggleCompare, orders } = useApp()
   const { requireAuth } = useAuth()
   const [purchaseOpen, setPurchaseOpen] = useState(false)
+  const [voucherDetail, setVoucherDetail] = useState(null)
 
   const m = getMembership(id)
   if (!m) {
@@ -162,17 +164,23 @@ export default function MembershipDetail() {
             </div>
             <ul className="space-y-2">
               {pack.map((v) => (
-                <li key={v.templateId} className="card flex items-center gap-3 p-3">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
-                    <Icon name={PACK_ICON[v.category] || 'ticket'} size={18} />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-slate-800">{v.title}</p>
-                    <p className="text-xs text-slate-400">
-                      {t(`voucherCat.${v.category}`)} · {formatDate(v.validUntil, lang)}
-                    </p>
-                  </div>
-                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">×{v.quantity}</span>
+                <li key={v.templateId}>
+                  <button
+                    onClick={() => setVoucherDetail(v)}
+                    className="card flex w-full items-center gap-3 p-3 text-left transition hover:shadow-cardhover"
+                  >
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+                      <Icon name={PACK_ICON[v.category] || 'ticket'} size={18} />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-slate-800">{v.title}</p>
+                      <p className="text-xs text-slate-400">
+                        {t(`voucherCat.${v.category}`)} · {formatDate(v.validUntil, lang)}
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">×{v.quantity}</span>
+                    <Icon name="chevronRight" size={16} className="text-slate-300" />
+                  </button>
                 </li>
               ))}
             </ul>
@@ -280,6 +288,12 @@ export default function MembershipDetail() {
       </div>
 
       <PurchaseModal open={purchaseOpen} onClose={() => setPurchaseOpen(false)} membership={m} />
+      <VoucherDetailModal
+        open={!!voucherDetail}
+        onClose={() => setVoucherDetail(null)}
+        membership={m}
+        template={voucherDetail}
+      />
     </div>
   )
 }

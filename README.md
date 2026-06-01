@@ -15,7 +15,7 @@ StayEasy is a **frontend-only MVP** app that helps users discover, compare, and 
 
 - City-based hotel membership discovery (Ho Chi Minh, Da Nang, Hanoi, Seoul, Bangkok, Tokyo)
 - Membership comparison (side-by-side, up to 3)
-- Membership detail pages with benefits, hotels, notes, a value/ROI summary, and the included voucher pack
+- Membership detail pages with benefits, hotels, notes, a value/ROI summary, and the included voucher pack — tap any voucher for its full description, eligible hotels, on-site conditions, and terms
 - **Purchase flow** — paid memberships are bought through StayEasy while payment is settled at the hotel brand (invoice); orders move requested → invoiced → paid → activated, and activation issues the voucher pack to the wallet
 - **Commission BM** — each paid membership has a commission rate; an internal (demo) settlement view totals GMV and StayEasy commission
 - **Voucher wallet** — owned memberships become category-grouped e-vouchers with available / used counts

@@ -27,6 +27,8 @@ export const voucherPacks = {
       templateId: 'cm-stay2',
       category: 'room',
       title: 'Free 2-Night Stay',
+      description:
+        'Two complimentary nights at a Ho Chi Minh Marriott-brand hotel — ideal for a weekend staycation. Room type and dates are subject to availability and advance reservation.',
       quantity: 1,
       validUntil: '2026-11-30',
       hotels: ['Sheraton Saigon Grand Opera Hotel', 'Le Méridien Saigon'],
@@ -38,6 +40,8 @@ export const voucherPacks = {
       templateId: 'cm-upgrade',
       category: 'room',
       title: 'Free Room Upgrade',
+      description:
+        'A complimentary one-category room upgrade at check-in, from your booked room to the next higher type, based on availability on arrival.',
       quantity: 1,
       validUntil: '2026-11-30',
       hotels: [],
@@ -48,6 +52,8 @@ export const voucherPacks = {
       templateId: 'cm-breakfast',
       category: 'dining',
       title: 'Free Breakfast Coupon',
+      description:
+        'A complimentary breakfast for one person at the hotel’s all-day dining restaurant. Use one coupon per guest, per visit.',
       quantity: 3,
       validUntil: '2026-11-30',
       hotels: [],
@@ -58,6 +64,8 @@ export const voucherPacks = {
       templateId: 'cm-dinner',
       category: 'dining',
       title: 'Free Dinner Coupon',
+      description:
+        'A complimentary set dinner for one at participating restaurants. À la carte upgrades, wine and premium beverages are charged separately on site.',
       quantity: 2,
       validUntil: '2026-11-30',
       hotels: [],
@@ -68,6 +76,8 @@ export const voucherPacks = {
       templateId: 'cm-fnb50',
       category: 'discount',
       title: '50% Off Food & Beverage',
+      description:
+        'Half off the total food & beverage bill for up to four diners — a great everyday perk for lunches and dinners. Some premium beverages may be excluded.',
       quantity: 3,
       validUntil: '2026-06-20',
       hotels: [],
@@ -78,6 +88,8 @@ export const voucherPacks = {
       templateId: 'cm-spa',
       category: 'spa',
       title: 'Free Spa Treatment',
+      description:
+        'One complimentary 60-minute signature spa treatment. Advance reservation is required; weekend slots fill up quickly.',
       quantity: 1,
       validUntil: '2026-11-30',
       hotels: [],
@@ -88,6 +100,8 @@ export const voucherPacks = {
       templateId: 'cm-nhatrang40',
       category: 'discount',
       title: '40% Off — Sheraton Nha Trang',
+      description:
+        '40% off the best available room rate at Sheraton Nha Trang Resort, valid for up to three consecutive nights — ideal for a beach getaway.',
       quantity: 3,
       validUntil: '2026-11-30',
       hotels: ['Sheraton Nha Trang Resort'],
@@ -98,6 +112,8 @@ export const voucherPacks = {
       templateId: 'cm-cake',
       category: 'gift',
       title: 'Birthday Cake Gift',
+      description:
+        'A complimentary birthday cake to celebrate your special day. Please pre-order at least 48 hours in advance.',
       quantity: 1,
       validUntil: '2026-11-30',
       hotels: [],

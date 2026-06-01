@@ -13,7 +13,7 @@ const CAT = {
   other: { icon: 'dots', tone: 'text-slate-500 bg-slate-100' },
 }
 
-export default function VoucherCard({ membership, template, onRequest }) {
+export default function VoucherCard({ membership, template, onRequest, onDetails }) {
   const { t, lang } = useTranslation()
   const { getVoucherStats } = useApp()
 
@@ -30,12 +30,15 @@ export default function VoucherCard({ membership, template, onRequest }) {
         <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${cat.tone}`}>
           <Icon name={cat.icon} size={20} />
         </span>
-        <div className="min-w-0 flex-1">
-          <p className="font-bold leading-tight text-slate-900">{template.title}</p>
-          <p className="mt-0.5 text-xs text-slate-500">
+        <button onClick={() => onDetails?.(membership, template)} className="min-w-0 flex-1 text-left">
+          <p className="flex items-center gap-1 font-bold leading-tight text-slate-900">
+            <span className="truncate">{template.title}</span>
+            <Icon name="chevronRight" size={14} className="shrink-0 text-slate-300" />
+          </p>
+          <p className="mt-0.5 truncate text-xs text-slate-500">
             {membership.name} · {t(`voucherCat.${template.category}`)}
           </p>
-        </div>
+        </button>
         <span className={`chip ${template.transferable ? 'bg-slate-100 text-slate-500' : 'bg-slate-100 text-slate-400'}`}>
           {t(template.transferable ? 'voucher.transferable' : 'voucher.nonTransferable')}
         </span>
