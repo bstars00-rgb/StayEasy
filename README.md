@@ -23,6 +23,7 @@ StayEasy is a **frontend-only MVP** app that helps users discover, compare, and 
 - Voucher expiry tracking (days remaining, expiring-soon highlights) and home alerts
 - Recommendation quiz (5 questions → top 3 personalized matches)
 - Assistance requests via **WhatsApp** or **Email** (prefilled message)
+- **Easy sign-in** — one-tap "Continue with Google" (hybrid: a frontend-only demo by default; real Google Identity Services when `VITE_GOOGLE_CLIENT_ID` is set). Guests can browse/compare; saving, purchasing, and booking prompt sign-in and then resume.
 - **5-language support:** Korean, English, Vietnamese, Simplified Chinese, Japanese
   (한국어 / English / Tiếng Việt / 中文 / 日本語), with English fallback
 
@@ -88,6 +89,20 @@ npm run e2e      # Playwright E2E (purchase→activation→commission, free-join
 
 Unit tests run automatically in CI before each deploy. The first E2E run needs
 browsers: `npx playwright install chromium`.
+
+### Real Google sign-in (optional)
+
+By default sign-in is a frontend-only demo. To enable real Google sign-in,
+create an OAuth Client ID in Google Cloud (add your origin, e.g. the GitHub
+Pages URL, to Authorized JavaScript origins) and provide it at build time:
+
+```bash
+VITE_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com npm run build
+```
+
+The app then renders the official Google button and decodes the returned ID
+token client-side. For production, the token should also be verified by a
+backend.
 
 ## Deploy
 

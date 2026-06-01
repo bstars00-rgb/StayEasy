@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
 import { useTranslation } from '../i18n/useTranslation.js'
 import { getMembership } from '../data/memberships.js'
 import { getVoucherPack, voucherCategories } from '../data/voucherPacks.js'
@@ -17,6 +18,7 @@ export default function MyBenefits() {
   const navigate = useNavigate()
   const { t, lang } = useTranslation()
   const { savedIds, removeSaved, getVoucherStats, reservations, orders } = useApp()
+  const { requireAuth } = useAuth()
 
   const [tab, setTab] = useState('wallet')
   const [category, setCategory] = useState('all')
@@ -115,7 +117,7 @@ export default function MyBenefits() {
                   key={`${membership.id}:${template.templateId}`}
                   membership={membership}
                   template={template}
-                  onRequest={(m, tpl) => setBooking({ membership: m, template: tpl })}
+                  onRequest={(m, tpl) => requireAuth(() => setBooking({ membership: m, template: tpl }))}
                 />
               ))}
             </div>

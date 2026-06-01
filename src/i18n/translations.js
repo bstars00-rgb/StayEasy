@@ -338,6 +338,20 @@ const en = {
     rate: 'rate',
     internalNote: 'Payment is collected by the hotel brand. StayEasy earns a commission on the paid amount.',
   },
+  auth: {
+    signInTitle: 'Sign in to StayEasy',
+    signInSubtitle: 'Save benefits, purchase memberships, and sync across devices.',
+    continueWithGoogle: 'Continue with Google',
+    browseAsGuest: 'Browse as guest',
+    signIn: 'Sign in',
+    signOut: 'Sign out',
+    account: 'Account',
+    guest: 'Guest',
+    terms: 'By continuing you agree to our Terms and Privacy Policy.',
+    demoNote: 'Demo sign-in — no real Google account is used.',
+    signedIn: 'Signed in',
+    signedOut: 'Signed out',
+  },
 }
 
 const ko = {
@@ -660,6 +674,20 @@ const ko = {
     commission: '예상 수수료',
     rate: '요율',
     internalNote: '실제 결제는 호텔 브랜드에서 이루어지며, StayEasy는 결제액의 일부를 수수료로 받습니다.',
+  },
+  auth: {
+    signInTitle: 'StayEasy 로그인',
+    signInSubtitle: '혜택을 저장하고, 멤버십을 구매하고, 어디서나 동기화하세요.',
+    continueWithGoogle: 'Google로 계속',
+    browseAsGuest: '게스트로 둘러보기',
+    signIn: '로그인',
+    signOut: '로그아웃',
+    account: '계정',
+    guest: '게스트',
+    terms: '계속하면 이용약관 및 개인정보처리방침에 동의하는 것입니다.',
+    demoNote: '데모 로그인 — 실제 Google 계정은 사용되지 않습니다.',
+    signedIn: '로그인되었습니다',
+    signedOut: '로그아웃되었습니다',
   },
 }
 
@@ -984,6 +1012,20 @@ const vi = {
     rate: 'tỷ lệ',
     internalNote: 'Thanh toán do thương hiệu khách sạn thu. StayEasy nhận hoa hồng trên số tiền đã thanh toán.',
   },
+  auth: {
+    signInTitle: 'Đăng nhập StayEasy',
+    signInSubtitle: 'Lưu ưu đãi, mua thành viên và đồng bộ trên mọi thiết bị.',
+    continueWithGoogle: 'Tiếp tục với Google',
+    browseAsGuest: 'Xem với tư cách khách',
+    signIn: 'Đăng nhập',
+    signOut: 'Đăng xuất',
+    account: 'Tài khoản',
+    guest: 'Khách',
+    terms: 'Khi tiếp tục, bạn đồng ý với Điều khoản và Chính sách bảo mật của chúng tôi.',
+    demoNote: 'Đăng nhập demo — không dùng tài khoản Google thật.',
+    signedIn: 'Đã đăng nhập',
+    signedOut: 'Đã đăng xuất',
+  },
 }
 
 const zh = {
@@ -1307,6 +1349,20 @@ const zh = {
     rate: '费率',
     internalNote: '款项由酒店品牌收取。StayEasy 按付款金额获得佣金。',
   },
+  auth: {
+    signInTitle: '登录 StayEasy',
+    signInSubtitle: '保存权益、购买会员，并在各设备间同步。',
+    continueWithGoogle: '使用 Google 继续',
+    browseAsGuest: '以访客身份浏览',
+    signIn: '登录',
+    signOut: '退出登录',
+    account: '账户',
+    guest: '访客',
+    terms: '继续即表示您同意我们的条款和隐私政策。',
+    demoNote: '演示登录——不使用真实 Google 账户。',
+    signedIn: '已登录',
+    signedOut: '已退出',
+  },
 }
 
 const ja = {
@@ -1629,6 +1685,20 @@ const ja = {
     commission: '手数料収益',
     rate: '料率',
     internalNote: '支払いはホテルブランドが回収します。StayEasyは支払額に対して手数料を得ます。',
+  },
+  auth: {
+    signInTitle: 'StayEasyにログイン',
+    signInSubtitle: '特典を保存し、会員を購入し、どこでも同期できます。',
+    continueWithGoogle: 'Googleで続行',
+    browseAsGuest: 'ゲストとして見る',
+    signIn: 'ログイン',
+    signOut: 'ログアウト',
+    account: 'アカウント',
+    guest: 'ゲスト',
+    terms: '続行すると、利用規約とプライバシーポリシーに同意したことになります。',
+    demoNote: 'デモログイン — 実際のGoogleアカウントは使用しません。',
+    signedIn: 'ログインしました',
+    signedOut: 'ログアウトしました',
   },
 }
 

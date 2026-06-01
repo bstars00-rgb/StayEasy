@@ -5,8 +5,9 @@ import { test, expect } from '@playwright/test'
 test('join a free membership and book a voucher', async ({ page }) => {
   await page.goto('/membership/hilton-honors-vietnam')
 
-  // Free programs are joined instantly (no purchase).
+  // Joining is gated: sign in (demo) first, which resumes the free join.
   await page.getByRole('button', { name: 'Join for free' }).click()
+  await page.getByRole('button', { name: 'Continue with Google' }).click()
 
   // Wallet now holds the membership's vouchers.
   await page.goto('/my-benefits')

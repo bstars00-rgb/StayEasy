@@ -13,6 +13,7 @@ const KEYS = {
   usage: 'stayeasy.voucherUsage',
   reservations: 'stayeasy.reservations',
   orders: 'stayeasy.orders',
+  auth: 'stayeasy.auth',
   lang: 'stayeasy.lang',
   city: 'stayeasy.city',
 }
@@ -173,6 +174,26 @@ export function removeOrder(id) {
   const list = getOrders().filter((o) => o.id !== id)
   writeJSON(KEYS.orders, list)
   return list
+}
+
+/* -------------------------------- Auth --------------------------------- */
+// { id, provider, name, email, picture, signedInAt }
+
+export function getAuthUser() {
+  return readJSON(KEYS.auth, null)
+}
+
+export function setAuthUser(user) {
+  writeJSON(KEYS.auth, user)
+  return user
+}
+
+export function clearAuthUser() {
+  try {
+    window.localStorage.removeItem(KEYS.auth)
+  } catch {
+    /* ignore */
+  }
 }
 
 /* ----------------------------- Preferences ----------------------------- */

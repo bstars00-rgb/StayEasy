@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import AppHeader from './AppHeader.jsx'
 import BottomNavigation from './BottomNavigation.jsx'
 import Toast from './Toast.jsx'
+import SignInModal from './SignInModal.jsx'
 
 export default function Layout({ children }) {
   const { pathname } = useLocation()
@@ -18,6 +19,7 @@ export default function Layout({ children }) {
       <main className="flex-1">{children}</main>
       <BottomNavigation />
       <Toast />
+      <SignInModal />
     </div>
   )
 }

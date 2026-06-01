@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
 import { useTranslation } from '../i18n/useTranslation.js'
 import { getMembership } from '../data/memberships.js'
 import { formatMoney } from '../utils/format.js'
@@ -13,6 +14,7 @@ export default function Compare() {
   const navigate = useNavigate()
   const { t, lang } = useTranslation()
   const { compareIds, removeFromCompare, maxCompare, isSaved, addSaved, showToast } = useApp()
+  const { requireAuth } = useAuth()
 
   const items = compareIds.map(getMembership).filter(Boolean)
 
@@ -31,8 +33,10 @@ export default function Compare() {
 
   function handleAdd(m) {
     if (isSaved(m.id)) return showToast(t('common.alreadySaved'))
-    addSaved(m)
-    showToast(t('common.savedToast'))
+    requireAuth(() => {
+      addSaved(m)
+      showToast(t('common.savedToast'))
+    })
   }
 
   const discount = (v) => (v == null ? t('common.memberRate') : `${t('common.upTo')} ${v}%`)

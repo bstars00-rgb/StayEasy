@@ -10,6 +10,10 @@ test('purchase a paid membership and earn commission', async ({ page }) => {
   await expect(page.getByText("What's included")).toBeVisible()
   await page.getByRole('button', { name: /Purchase ·/ }).click()
 
+  // Purchasing is gated: sign in (demo) first, which resumes and opens the
+  // purchase modal.
+  await page.getByRole('button', { name: 'Continue with Google' }).click()
+
   // Purchase modal: brand-invoice notice + buyer details.
   await expect(page.getByText(/hotel brand via their invoice/)).toBeVisible()
   await page.getByPlaceholder('Name', { exact: true }).fill('Test Buyer')

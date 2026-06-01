@@ -1,5 +1,6 @@
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useApp } from '../context/AppContext.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
 import { useTranslation } from '../i18n/useTranslation.js'
 import { useState } from 'react'
 import { getMembership, getPricing, isPaid } from '../data/memberships.js'
@@ -19,6 +20,7 @@ export default function MembershipDetail() {
   const navigate = useNavigate()
   const { t, lang } = useTranslation()
   const { isSaved, addSaved, showToast, inCompare, toggleCompare, orders } = useApp()
+  const { requireAuth } = useAuth()
   const [purchaseOpen, setPurchaseOpen] = useState(false)
 
   const m = getMembership(id)
@@ -49,8 +51,10 @@ export default function MembershipDetail() {
   const yesNo = (b) => (b ? t('detail.included') : t('detail.notIncluded'))
 
   function joinFree() {
-    addSaved(m)
-    showToast(t('common.savedToast'))
+    requireAuth(() => {
+      addSaved(m)
+      showToast(t('common.savedToast'))
+    })
   }
 
   // Primary action depends on price + ownership + order state.
@@ -64,7 +68,7 @@ export default function MembershipDetail() {
       variant: 'primary',
       icon: 'tag',
       label: `${t('purchase.buy')} · ${formatMoney(pricing.paidAmount, pricing.currency, lang)}`,
-      onClick: () => setPurchaseOpen(true),
+      onClick: () => requireAuth(() => setPurchaseOpen(true)),
     }
   } else {
     cta = { variant: 'primary', icon: 'plus', label: t('purchase.joinFree'), onClick: joinFree }

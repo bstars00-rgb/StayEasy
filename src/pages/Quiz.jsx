@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
 import { useTranslation } from '../i18n/useTranslation.js'
 import { quizQuestions } from '../data/quiz.js'
 import { memberships } from '../data/memberships.js'
@@ -73,6 +74,7 @@ export default function Quiz() {
   const navigate = useNavigate()
   const { t, lang } = useTranslation()
   const { isSaved, addSaved, showToast } = useApp()
+  const { requireAuth } = useAuth()
 
   const [step, setStep] = useState(0)
   const [answers, setAnswers] = useState({})
@@ -93,8 +95,10 @@ export default function Quiz() {
 
   function handleAdd(m) {
     if (isSaved(m.id)) return showToast(t('common.alreadySaved'))
-    addSaved(m)
-    showToast(t('common.savedToast'))
+    requireAuth(() => {
+      addSaved(m)
+      showToast(t('common.savedToast'))
+    })
   }
 
   // --- Results view ---

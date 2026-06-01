@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
 import { useTranslation } from '../i18n/useTranslation.js'
 import { isPaid } from '../data/memberships.js'
 import { formatMoney } from '../utils/format.js'
@@ -12,6 +13,7 @@ export default function MembershipCard({ membership: m }) {
   const navigate = useNavigate()
   const { t, lang } = useTranslation()
   const { isSaved, addSaved, showToast } = useApp()
+  const { requireAuth } = useAuth()
 
   const saved = isSaved(m.id)
   const free = m.annualFee === 0
@@ -27,10 +29,11 @@ export default function MembershipCard({ membership: m }) {
       variant: 'primary',
       icon: 'plus',
       label: t('purchase.joinFree'),
-      onClick: () => {
-        addSaved(m)
-        showToast(t('common.savedToast'))
-      },
+      onClick: () =>
+        requireAuth(() => {
+          addSaved(m)
+          showToast(t('common.savedToast'))
+        }),
     }
   }
 
