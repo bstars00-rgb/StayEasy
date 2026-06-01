@@ -127,6 +127,8 @@ export const voucherPacks = {
       templateId: 'ap-stay1',
       category: 'room',
       title: 'Complimentary Stay Night',
+      description:
+        'One complimentary night per membership year at a participating Accor hotel in Vietnam. Reservation required and subject to availability; blackout dates may apply.',
       quantity: 1,
       validUntil: '2026-12-31',
       hotels: ['Sofitel Saigon Plaza', 'Pullman Saigon Centre'],
@@ -137,6 +139,8 @@ export const voucherPacks = {
       templateId: 'ap-dining50',
       category: 'discount',
       title: '50% Off Dining',
+      description:
+        'Half off dining for the member plus up to three guests at participating Accor restaurants. Beverages and set promotions may be excluded.',
       quantity: 4,
       validUntil: '2026-12-31',
       hotels: [],
@@ -147,6 +151,8 @@ export const voucherPacks = {
       templateId: 'ap-breakfast',
       category: 'dining',
       title: 'Free Breakfast for Two',
+      description:
+        'Complimentary breakfast for two, valid when added to a paid stay at a participating hotel.',
       quantity: 2,
       validUntil: '2026-07-15',
       hotels: [],
@@ -157,6 +163,8 @@ export const voucherPacks = {
       templateId: 'ap-upgrade',
       category: 'room',
       title: 'Room Upgrade',
+      description:
+        'A complimentary one-category room upgrade at check-in, subject to availability.',
       quantity: 1,
       validUntil: '2026-12-31',
       hotels: [],
@@ -170,6 +178,8 @@ export const voucherPacks = {
       templateId: 'hh-lateco',
       category: 'room',
       title: 'Late Check-out (4pm)',
+      description:
+        'Check out as late as 4pm on departure day, subject to availability — no need to rush your morning.',
       quantity: 3,
       validUntil: '2026-12-31',
       hotels: [],
@@ -180,6 +190,8 @@ export const voucherPacks = {
       templateId: 'hh-fnb15',
       category: 'discount',
       title: '15% Off Food & Beverage',
+      description:
+        '15% off your food & beverage bill at participating Hilton outlets across Vietnam.',
       quantity: 5,
       validUntil: '2026-12-31',
       hotels: [],
@@ -190,6 +202,8 @@ export const voucherPacks = {
       templateId: 'hh-welcome',
       category: 'gift',
       title: 'Welcome Amenity',
+      description:
+        'A welcome amenity delivered to your room on a qualifying stay — a small touch to start your trip.',
       quantity: 2,
       validUntil: '2026-12-31',
       hotels: [],
@@ -203,6 +217,8 @@ export const voucherPacks = {
       templateId: 'ihg-4thnight',
       category: 'room',
       title: 'Fourth Night Free',
+      description:
+        'On a four-night reward stay, the fourth night is free — great value for longer trips.',
       quantity: 1,
       validUntil: '2026-12-31',
       hotels: [],
@@ -213,6 +229,8 @@ export const voucherPacks = {
       templateId: 'ihg-dining20',
       category: 'discount',
       title: '20% Off Dining',
+      description:
+        '20% off dining at select IHG hotel restaurants. Some outlets and promotions may be excluded.',
       quantity: 3,
       validUntil: '2026-12-31',
       hotels: [],
@@ -223,6 +241,8 @@ export const voucherPacks = {
       templateId: 'ihg-welcomedrink',
       category: 'dining',
       title: 'Welcome Drink',
+      description:
+        'One complimentary welcome drink per coupon at the lobby bar on arrival.',
       quantity: 2,
       validUntil: '2026-08-31',
       hotels: [],
@@ -236,6 +256,8 @@ export const voucherPacks = {
       templateId: 'slc-dining30',
       category: 'discount',
       title: '30% Off Dining',
+      description:
+        '30% off the dining bill at participating Shangri-La restaurants. Beverages may be excluded.',
       quantity: 3,
       validUntil: '2026-12-31',
       hotels: [],
@@ -246,6 +268,8 @@ export const voucherPacks = {
       templateId: 'slc-spa',
       category: 'spa',
       title: 'Spa Treatment Discount',
+      description:
+        'A members-only discount on treatments at CHI, The Spa. Advance reservation required.',
       quantity: 2,
       validUntil: '2026-12-31',
       hotels: [],
@@ -256,6 +280,8 @@ export const voucherPacks = {
       templateId: 'slc-upgrade',
       category: 'room',
       title: 'Room Upgrade',
+      description:
+        'A complimentary room upgrade at check-in for eligible tiers, based on availability.',
       quantity: 1,
       validUntil: '2026-12-31',
       hotels: [],
@@ -269,6 +295,8 @@ export const voucherPacks = {
       templateId: 'nk-buffet25',
       category: 'discount',
       title: '25% Off Buffet',
+      description:
+        '25% off the lunch or dinner buffet at Hotel Nikko Saigon — a favourite for families and groups.',
       quantity: 4,
       validUntil: '2026-09-30',
       hotels: ['Hotel Nikko Saigon'],
@@ -280,6 +308,8 @@ export const voucherPacks = {
       templateId: 'nk-cake',
       category: 'gift',
       title: 'Birthday Cake',
+      description:
+        'A complimentary birthday cake at Hotel Nikko Saigon. Please pre-order at least 48 hours ahead.',
       quantity: 1,
       validUntil: '2026-11-30',
       hotels: ['Hotel Nikko Saigon'],
@@ -290,6 +320,8 @@ export const voucherPacks = {
       templateId: 'nk-welcome',
       category: 'dining',
       title: 'Welcome Drink',
+      description:
+        'A complimentary welcome drink at the lobby lounge — perfect to unwind after arrival.',
       quantity: 2,
       validUntil: '2026-11-30',
       hotels: ['Hotel Nikko Saigon'],
@@ -303,6 +335,8 @@ export const voucherPacks = {
       templateId: 'woh-upgrade',
       category: 'room',
       title: 'Room Upgrade',
+      description:
+        'A complimentary upgrade at check-in, including standard suites where available, for eligible members.',
       quantity: 2,
       validUntil: '2026-12-31',
       hotels: [],
@@ -313,6 +347,8 @@ export const voucherPacks = {
       templateId: 'woh-lateco',
       category: 'room',
       title: 'Late Check-out',
+      description:
+        'Late check-out on departure day, subject to availability — ideal for late flights.',
       quantity: 2,
       validUntil: '2026-12-31',
       hotels: [],
@@ -323,6 +359,8 @@ export const voucherPacks = {
       templateId: 'woh-spa',
       category: 'spa',
       title: 'Spa Credit',
+      description:
+        'A spa credit toward treatments at participating Hyatt spas. Reservation required.',
       quantity: 1,
       validUntil: '2026-12-31',
       hotels: [],
@@ -336,6 +374,8 @@ export const voucherPacks = {
       templateId: 'lh-dining15',
       category: 'discount',
       title: '15% Off Dining',
+      description:
+        '15% off dining at participating Lotte Hotel restaurants in Korea and Vietnam.',
       quantity: 4,
       validUntil: '2026-12-31',
       hotels: [],
@@ -346,6 +386,8 @@ export const voucherPacks = {
       templateId: 'lh-earlyci',
       category: 'room',
       title: 'Early Check-in',
+      description:
+        'Check in early on arrival day, subject to availability — settle in before your plans begin.',
       quantity: 2,
       validUntil: '2026-12-31',
       hotels: [],
@@ -356,6 +398,8 @@ export const voucherPacks = {
       templateId: 'lh-spa',
       category: 'spa',
       title: 'Spa Discount',
+      description:
+        'A members-only discount on spa services. Advance reservation recommended.',
       quantity: 1,
       validUntil: '2026-10-31',
       hotels: [],
