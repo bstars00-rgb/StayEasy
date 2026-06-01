@@ -2,12 +2,15 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useApp } from '../context/AppContext.jsx'
 import { useTranslation } from '../i18n/useTranslation.js'
 import { getMembership } from '../data/memberships.js'
-import { formatMoney } from '../utils/format.js'
+import { getVoucherPack } from '../data/voucherPacks.js'
+import { formatMoney, formatDate } from '../utils/format.js'
 import { gradient } from '../components/brandTheme.js'
 import { BrandAvatar, Chip, ScoreBar } from '../components/ui.jsx'
 import ScoreBadge from '../components/ScoreBadge.jsx'
 import CTAButton from '../components/CTAButton.jsx'
 import Icon from '../components/Icon.jsx'
+
+const PACK_ICON = { dining: 'utensils', room: 'bed', spa: 'flower', discount: 'tag', gift: 'gift', other: 'dots' }
 
 export default function MembershipDetail() {
   const { id } = useParams()
@@ -31,6 +34,7 @@ export default function MembershipDetail() {
   const comparing = inCompare(m.id)
   const free = m.annualFee === 0
   const worthwhile = m.estimatedSavings > m.annualFee
+  const pack = getVoucherPack(m.id)
 
   const discountLabel = (v) => (v == null ? t('common.memberRate') : `${t('common.upTo')} ${v}%`)
   const yesNo = (b) => (b ? t('detail.included') : t('detail.notIncluded'))
@@ -120,6 +124,34 @@ export default function MembershipDetail() {
             ))}
           </ul>
         </section>
+
+        {/* Voucher pack preview */}
+        {pack.length > 0 && (
+          <section>
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-base font-bold text-slate-900">{t('voucher.packPreview')}</h2>
+              <span className="text-xs font-semibold text-slate-400">
+                {t('voucher.totalVouchers', { count: pack.reduce((s, v) => s + v.quantity, 0) })}
+              </span>
+            </div>
+            <ul className="space-y-2">
+              {pack.map((v) => (
+                <li key={v.templateId} className="card flex items-center gap-3 p-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+                    <Icon name={PACK_ICON[v.category] || 'ticket'} size={18} />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-slate-800">{v.title}</p>
+                    <p className="text-xs text-slate-400">
+                      {t(`voucherCat.${v.category}`)} · {formatDate(v.validUntil, lang)}
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">×{v.quantity}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {/* 3. Participating Hotels */}
         <section>

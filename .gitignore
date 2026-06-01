@@ -2,6 +2,9 @@ node_modules
 dist
 dist-ssr
 *.local
+
+# Reference material (not part of the app)
+photo/
 .DS_Store
 .vscode/*
 !.vscode/extensions.json

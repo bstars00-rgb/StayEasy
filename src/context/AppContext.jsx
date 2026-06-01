@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback, useRef, useMemo } from 'react'
 import { translate, DEFAULT_LANG } from '../i18n/translations.js'
 import { DEFAULT_CITY } from '../data/cities.js'
+import { getVoucherTemplate } from '../data/voucherPacks.js'
 import * as storage from '../utils/storage.js'
 
 const MAX_COMPARE = 3
@@ -33,6 +34,8 @@ export function AppProvider({ children }) {
   const [savedIds, setSavedIds] = useState(() => storage.getSavedMemberships())
   const [benefits, setBenefits] = useState(() => storage.getSavedBenefits())
   const [compareIds, setCompareIds] = useState(() => readCompare())
+  const [usage, setUsage] = useState(() => storage.getVoucherUsage())
+  const [reservations, setReservations] = useState(() => storage.getReservations())
   const [toast, setToast] = useState(null)
   const toastTimer = useRef(null)
 
@@ -115,12 +118,52 @@ export function AppProvider({ children }) {
     })
   }, [])
 
+  /* ----- voucher usage ----- */
+  const usedCount = useCallback(
+    (membershipId, templateId) => usage[`${membershipId}:${templateId}`] || 0,
+    [usage]
+  )
+
+  // Consume one unit of a voucher (cap at its quantity).
+  const consumeVoucher = useCallback((membershipId, templateId) => {
+    const tpl = getVoucherTemplate(membershipId, templateId)
+    const max = tpl ? tpl.quantity : Infinity
+    const current = storage.getVoucherUsage()[`${membershipId}:${templateId}`] || 0
+    if (current >= max) return
+    setUsage(storage.setVoucherUsedCount(membershipId, templateId, current + 1))
+  }, [])
+
+  /* ----- reservations ----- */
+  const createReservation = useCallback((reservation) => {
+    const entry = storage.addReservation(reservation)
+    setReservations(storage.getReservations())
+    return entry
+  }, [])
+
+  const setReservationStatus = useCallback(
+    (id, status) => {
+      const res = storage.getReservations().find((r) => r.id === id)
+      setReservations(storage.updateReservation(id, { status }))
+      // Completing a reservation consumes one unit of its voucher.
+      if (status === 'completed' && res && res.membershipId && res.templateId) {
+        consumeVoucher(res.membershipId, res.templateId)
+      }
+    },
+    [consumeVoucher]
+  )
+
+  const deleteReservation = useCallback((id) => {
+    setReservations(storage.removeReservation(id))
+  }, [])
+
   const value = useMemo(
     () => ({
       lang, setLang, city, setCity, t,
       savedIds, isSaved, addSaved, removeSaved, toggleSaved,
       benefits, addBenefit, editBenefit, deleteBenefit, markBenefitUsed,
       compareIds, inCompare, toggleCompare, removeFromCompare, maxCompare: MAX_COMPARE,
+      usage, usedCount, consumeVoucher,
+      reservations, createReservation, setReservationStatus, deleteReservation,
       toast, showToast,
     }),
     [
@@ -128,6 +171,8 @@ export function AppProvider({ children }) {
       savedIds, isSaved, addSaved, removeSaved, toggleSaved,
       benefits, addBenefit, editBenefit, deleteBenefit, markBenefitUsed,
       compareIds, inCompare, toggleCompare, removeFromCompare,
+      usage, usedCount, consumeVoucher,
+      reservations, createReservation, setReservationStatus, deleteReservation,
       toast, showToast,
     ]
   )

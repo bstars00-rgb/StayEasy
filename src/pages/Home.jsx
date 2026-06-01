@@ -1,7 +1,9 @@
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext.jsx'
 import { useTranslation } from '../i18n/useTranslation.js'
-import { memberships } from '../data/memberships.js'
+import { memberships, getMembership } from '../data/memberships.js'
+import { getVoucherPack } from '../data/voucherPacks.js'
+import { daysUntil, formatDate } from '../utils/format.js'
 import MembershipCard from '../components/MembershipCard.jsx'
 import CitySelector from '../components/CitySelector.jsx'
 import CTAButton from '../components/CTAButton.jsx'
@@ -10,14 +12,37 @@ import Icon from '../components/Icon.jsx'
 
 export default function Home() {
   const navigate = useNavigate()
-  const { t } = useTranslation()
-  const { city } = useApp()
+  const { t, lang } = useTranslation()
+  const { city, savedIds, reservations, usedCount } = useApp()
 
   const cityName = t(`cities.${city}`)
   const popular = memberships
     .filter((m) => m.cities.includes(city))
     .sort((a, b) => b.scores.overall - a.scores.overall)
     .slice(0, 2)
+
+  // Alerts: vouchers expiring within 30 days + in-progress reservations.
+  const owned = savedIds.map(getMembership).filter(Boolean)
+  const expiringAlerts = owned
+    .flatMap((m) => getVoucherPack(m.id).map((tpl) => ({ m, tpl })))
+    .filter(({ m, tpl }) => {
+      const avail = tpl.quantity - usedCount(m.id, tpl.templateId)
+      const d = daysUntil(tpl.validUntil)
+      return avail > 0 && d != null && d >= 0 && d <= 30
+    })
+    .map(({ tpl }) => ({
+      kind: 'expiring',
+      key: `e-${tpl.templateId}`,
+      text: t('alerts.expiring', { title: tpl.title, date: formatDate(tpl.validUntil, lang) }),
+    }))
+  const pendingAlerts = reservations
+    .filter((r) => r.status === 'requested' || r.status === 'confirmed')
+    .map((r) => ({
+      kind: 'pending',
+      key: `p-${r.id}`,
+      text: t('alerts.pending', { title: r.title, status: t(`reservation.status${r.status[0].toUpperCase()}${r.status.slice(1)}`) }),
+    }))
+  const alerts = [...expiringAlerts, ...pendingAlerts].slice(0, 4)
 
   return (
     <div className="page-pad space-y-6">
@@ -27,6 +52,27 @@ export default function Home() {
         <h1 className="mt-2 text-2xl font-extrabold leading-snug">{t('home.headline')}</h1>
         <p className="mt-2 text-sm leading-relaxed text-brand-50/90">{t('home.subtitle')}</p>
       </section>
+
+      {/* Alerts */}
+      {alerts.length > 0 && (
+        <section className="rounded-xl2 border border-amber-200 bg-amber-50/60 p-4">
+          <div className="mb-2 flex items-center gap-2">
+            <Icon name="bell" size={18} className="text-amber-600" />
+            <h2 className="text-sm font-bold text-amber-800">{t('alerts.title')}</h2>
+          </div>
+          <ul className="space-y-1.5">
+            {alerts.map((a) => (
+              <li key={a.key} className="flex items-start gap-2 text-sm text-amber-900">
+                <Icon name={a.kind === 'expiring' ? 'clock' : 'calendar'} size={15} className="mt-0.5 shrink-0 text-amber-500" />
+                {a.text}
+              </li>
+            ))}
+          </ul>
+          <button onClick={() => navigate('/my-benefits')} className="mt-3 text-sm font-semibold text-amber-800 underline">
+            {t('nav.myBenefits')}
+          </button>
+        </section>
+      )}
 
       {/* City selector */}
       <section>

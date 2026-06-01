@@ -11,6 +11,8 @@
 const KEYS = {
   memberships: 'stayeasy.savedMemberships',
   benefits: 'stayeasy.benefits',
+  usage: 'stayeasy.voucherUsage',
+  reservations: 'stayeasy.reservations',
   lang: 'stayeasy.lang',
   city: 'stayeasy.city',
 }
@@ -106,6 +108,55 @@ export function removeBenefit(benefitId) {
 
 export function markBenefitAsUsed(benefitId) {
   return updateBenefit(benefitId, { status: 'used' })
+}
+
+/* --------------------------- Voucher usage ----------------------------- */
+// Map of `${membershipId}:${templateId}` -> number of vouchers consumed.
+
+export function getVoucherUsage() {
+  const u = readJSON(KEYS.usage, {})
+  return u && typeof u === 'object' ? u : {}
+}
+
+export function setVoucherUsedCount(membershipId, templateId, count) {
+  const usage = getVoucherUsage()
+  usage[`${membershipId}:${templateId}`] = Math.max(0, count)
+  writeJSON(KEYS.usage, usage)
+  return usage
+}
+
+/* ----------------------------- Reservations ---------------------------- */
+// Each: { id, membershipId, templateId, title, date, guests, hotel, note,
+//         status: 'requested'|'confirmed'|'completed'|'cancelled', createdAt }
+
+export function getReservations() {
+  const list = readJSON(KEYS.reservations, [])
+  return Array.isArray(list) ? list : []
+}
+
+export function addReservation(reservation) {
+  const list = getReservations()
+  const entry = {
+    id: uniqueId('r'),
+    status: 'requested',
+    createdAt: new Date().toISOString(),
+    ...reservation,
+  }
+  list.unshift(entry)
+  writeJSON(KEYS.reservations, list)
+  return entry
+}
+
+export function updateReservation(id, updates) {
+  const list = getReservations().map((r) => (r.id === id ? { ...r, ...updates } : r))
+  writeJSON(KEYS.reservations, list)
+  return list
+}
+
+export function removeReservation(id) {
+  const list = getReservations().filter((r) => r.id !== id)
+  writeJSON(KEYS.reservations, list)
+  return list
 }
 
 /* ----------------------------- Preferences ----------------------------- */
