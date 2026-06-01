@@ -5,7 +5,16 @@
       "Bash(powershell -NoProfile -Command \"Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue\")",
       "mcp__Claude_Preview__preview_start",
       "Bash(rm -f hooks/useLocalStorage.js)",
-      "Bash(rmdir hooks *)"
+      "Bash(rmdir hooks *)",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' https://bstars00-rgb.github.io/StayEasy/assets/index-DcoN02J-.js)",
+      "Bash(echo \"JS asset: $\\(curl -s -o /dev/null -w '%{http_code}' https://bstars00-rgb.github.io/StayEasy/assets/index-DcoN02J-.js\\)\")",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' https://bstars00-rgb.github.io/StayEasy/assets/index-KA5NPh7F.css)",
+      "Bash(echo \"CSS asset: $\\(curl -s -o /dev/null -w '%{http_code}' https://bstars00-rgb.github.io/StayEasy/assets/index-KA5NPh7F.css\\)\")",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' https://bstars00-rgb.github.io/StayEasy/explore)",
+      "Bash(npx playwright *)",
+      "Bash(git add *)",
+      "Bash(git commit -q -m ' *)",
+      "Bash(git push *)"
     ]
   }
 }
