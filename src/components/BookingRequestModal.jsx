@@ -4,15 +4,20 @@ import { useTranslation } from '../i18n/useTranslation.js'
 import { whatsappLink, mailtoLink } from '../data/contact.js'
 import { Modal } from './ui.jsx'
 import CTAButton from './CTAButton.jsx'
-import Icon from './Icon.jsx'
 
-// Booking request flow: collect date/guests/hotel/note for a voucher,
-// record the reservation, and hand off to WhatsApp/Email.
+const MAX_PER_TYPE = 8 // max adults / max children
+const CHILD_AGE_MAX = 17 // age dropdown: 0 (under 1) .. 17
+const DEFAULT_CHILD_AGE = 6
+
+// Booking request flow: collect date, party (adults + children with ages),
+// hotel and notes for a voucher, record the reservation, and hand off to
+// WhatsApp/Email.
 export default function BookingRequestModal({ open, onClose, membership, template }) {
   const { t } = useTranslation()
   const { city, createReservation, showToast } = useApp()
   const [date, setDate] = useState('')
-  const [guests, setGuests] = useState('2')
+  const [adults, setAdults] = useState(2)
+  const [childAges, setChildAges] = useState([]) // one entry per child
   const [hotel, setHotel] = useState('')
   const [note, setNote] = useState('')
 
@@ -22,7 +27,8 @@ export default function BookingRequestModal({ open, onClose, membership, templat
   useEffect(() => {
     if (open) {
       setDate('')
-      setGuests('2')
+      setAdults(2)
+      setChildAges([])
       setHotel(hotels[0] || '')
       setNote('')
     }
@@ -31,19 +37,46 @@ export default function BookingRequestModal({ open, onClose, membership, templat
 
   if (!template) return null
 
+  const children = childAges.length
+
+  // Grow/shrink the per-child age list when the children count changes.
+  function setChildrenCount(value) {
+    const n = Math.max(0, Math.min(MAX_PER_TYPE, parseInt(value, 10) || 0))
+    setChildAges((prev) => {
+      const next = prev.slice(0, n)
+      while (next.length < n) next.push(DEFAULT_CHILD_AGE)
+      return next
+    })
+  }
+
+  function setChildAge(index, age) {
+    setChildAges((prev) => prev.map((a, i) => (i === index ? Number(age) : a)))
+  }
+
+  function ageLabel(age) {
+    return age === 0 ? t('reservation.ageUnder1') : `${age} ${t('reservation.years')}`
+  }
+
   function record() {
     return createReservation({
       membershipId: membership.id,
       templateId: template.templateId,
       title: template.title,
       date,
-      guests,
+      adults: Number(adults) || 0,
+      children,
+      childAges,
+      guests: (Number(adults) || 0) + children,
       hotel: hotel || t('voucher.anyHotel'),
       note,
     })
   }
 
   function buildMessage() {
+    const childLine =
+      children > 0
+        ? `${t('reservation.children')}: ${children} (${childAges.map(ageLabel).join(', ')})`
+        : `${t('reservation.children')}: 0`
     return [
       'Hello StayEasy,',
       'I would like to use a membership voucher.',
@@ -53,29 +86,32 @@ export default function BookingRequestModal({ open, onClose, membership, templat
       `City: ${t(`cities.${city}`)}`,
       `Hotel: ${hotel || t('voucher.anyHotel')}`,
       `Date: ${date || '-'}`,
-      `Guests: ${guests || '-'}`,
+      `${t('reservation.adults')}: ${adults}`,
+      childLine,
       `Note: ${note || '-'}`,
     ].join('\n')
   }
 
-  function createOnly() {
-    record()
+  function finish() {
     showToast(t('reservation.statusRequested'))
     onClose()
+  }
+
+  function createOnly() {
+    record()
+    finish()
   }
 
   function sendWhatsApp() {
     record()
     window.open(whatsappLink(buildMessage()), '_blank', 'noopener')
-    showToast(t('reservation.statusRequested'))
-    onClose()
+    finish()
   }
 
   function sendEmail() {
     record()
     window.location.href = mailtoLink(`StayEasy booking — ${template.title}`, buildMessage())
-    showToast(t('reservation.statusRequested'))
-    onClose()
+    finish()
   }
 
   return (
@@ -84,14 +120,51 @@ export default function BookingRequestModal({ open, onClose, membership, templat
       <p className="mb-3 text-sm font-semibold text-slate-700">{t('reservation.forVoucher', { title: template.title })}</p>
 
       <div className="space-y-3">
+        <Field label={t('reservation.date')}>
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="input" />
+        </Field>
+
+        {/* Party: adults + children */}
         <div className="grid grid-cols-2 gap-3">
-          <Field label={t('reservation.date')}>
-            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="input" />
+          <Field label={t('reservation.adults')}>
+            <input
+              type="number"
+              min="1"
+              max={MAX_PER_TYPE}
+              value={adults}
+              onChange={(e) => setAdults(Math.max(1, Math.min(MAX_PER_TYPE, parseInt(e.target.value, 10) || 1)))}
+              className="input"
+            />
           </Field>
-          <Field label={t('reservation.guests')}>
-            <input type="number" min="1" value={guests} onChange={(e) => setGuests(e.target.value)} className="input" />
+          <Field label={t('reservation.children')}>
+            <input
+              type="number"
+              min="0"
+              max={MAX_PER_TYPE}
+              value={children}
+              onChange={(e) => setChildrenCount(e.target.value)}
+              className="input"
+            />
           </Field>
         </div>
+
+        {/* One age dropdown per child */}
+        {children > 0 && (
+          <div className="grid grid-cols-2 gap-3 rounded-2xl bg-slate-50 p-3">
+            {childAges.map((age, i) => (
+              <Field key={i} label={t('reservation.childAge', { n: i + 1 })}>
+                <select value={age} onChange={(e) => setChildAge(i, e.target.value)} className="input bg-white">
+                  {Array.from({ length: CHILD_AGE_MAX + 1 }, (_, a) => (
+                    <option key={a} value={a}>
+                      {ageLabel(a)}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            ))}
+          </div>
+        )}
+
         <Field label={t('reservation.hotel')}>
           {hotels.length > 0 ? (
             <select value={hotel} onChange={(e) => setHotel(e.target.value)} className="input">
@@ -105,6 +178,7 @@ export default function BookingRequestModal({ open, onClose, membership, templat
             <input value={hotel} onChange={(e) => setHotel(e.target.value)} placeholder={t('voucher.anyHotel')} className="input" />
           )}
         </Field>
+
         <Field label={`${t('reservation.note')} (${t('common.optional')})`}>
           <textarea
             value={note}

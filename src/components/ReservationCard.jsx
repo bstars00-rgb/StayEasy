@@ -18,6 +18,17 @@ export default function ReservationCard({ reservation: r }) {
   const membership = getMembership(r.membershipId)
   const done = r.status === 'completed' || r.status === 'cancelled'
 
+  // Party summary (adults + children with ages). Falls back to legacy `guests`.
+  const adults = r.adults != null ? r.adults : r.guests
+  const ageLabel = (age) => (age === 0 ? t('reservation.ageUnder1') : `${age} ${t('reservation.years')}`)
+  const partyParts = []
+  if (adults != null) partyParts.push(`${adults} ${t('reservation.adults')}`)
+  if (r.children > 0) {
+    const ages = r.childAges?.length ? ` (${r.childAges.map(ageLabel).join(', ')})` : ''
+    partyParts.push(`${r.children} ${t('reservation.children')}${ages}`)
+  }
+  const party = partyParts.join(' · ') || '-'
+
   return (
     <div className={`card p-4 ${done ? 'opacity-75' : ''}`}>
       <div className="flex items-start justify-between gap-2">
@@ -30,8 +41,8 @@ export default function ReservationCard({ reservation: r }) {
 
       <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1.5 text-sm">
         <Info icon="calendar" value={r.date ? formatDate(r.date, lang) : '-'} />
-        <Info icon="users" value={r.guests || '-'} />
-        <Info icon="pin" value={r.hotel || '-'} full />
+        <Info icon="pin" value={r.hotel || '-'} />
+        <Info icon="users" value={party} full />
       </div>
 
       {r.note && <p className="mt-2 rounded-xl bg-slate-50 p-2.5 text-xs text-slate-600">{r.note}</p>}

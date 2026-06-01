@@ -16,6 +16,12 @@ test('join a free membership and book a voucher', async ({ page }) => {
   // Request a booking on the first available voucher.
   await page.getByRole('button', { name: 'Request booking' }).first().click()
   await expect(page.getByText('New reservation request')).toBeVisible()
+
+  // Party: 2 adults + 1 child with an age dropdown.
+  await page.getByLabel('Children').fill('1')
+  await expect(page.getByLabel('Child 1 age')).toBeVisible()
+  await page.getByLabel('Child 1 age').selectOption('5')
+
   await page.getByRole('button', { name: 'Create request' }).click()
 
   // It appears under Reservations; complete it.
