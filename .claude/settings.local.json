@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(powershell -NoProfile -Command \"Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue\")",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(rm -f hooks/useLocalStorage.js)",
+      "Bash(rmdir hooks *)"
+    ]
+  }
+}
