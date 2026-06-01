@@ -4,9 +4,10 @@ import { useApp } from '../context/AppContext.jsx'
 import { useTranslation } from '../i18n/useTranslation.js'
 import { getMembership } from '../data/memberships.js'
 import { getVoucherPack, voucherCategories } from '../data/voucherPacks.js'
-import { daysUntil } from '../utils/format.js'
+import { daysUntil, formatMoney } from '../utils/format.js'
 import VoucherCard from '../components/VoucherCard.jsx'
 import ReservationCard from '../components/ReservationCard.jsx'
+import OrderCard from '../components/OrderCard.jsx'
 import BookingRequestModal from '../components/BookingRequestModal.jsx'
 import EmptyState from '../components/EmptyState.jsx'
 import CTAButton from '../components/CTAButton.jsx'
@@ -14,8 +15,8 @@ import Icon from '../components/Icon.jsx'
 
 export default function MyBenefits() {
   const navigate = useNavigate()
-  const { t } = useTranslation()
-  const { savedIds, removeSaved, usedCount, reservations } = useApp()
+  const { t, lang } = useTranslation()
+  const { savedIds, removeSaved, usedCount, reservations, orders } = useApp()
 
   const [tab, setTab] = useState('wallet')
   const [category, setCategory] = useState('all')
@@ -66,6 +67,9 @@ export default function MyBenefits() {
         </TabBtn>
         <TabBtn active={tab === 'reservations'} onClick={() => setTab('reservations')}>
           {t('wallet.tabReservations')} {pendingCount > 0 && `(${pendingCount})`}
+        </TabBtn>
+        <TabBtn active={tab === 'orders'} onClick={() => setTab('orders')}>
+          {t('order.tab')} {orders.length > 0 && `(${orders.length})`}
         </TabBtn>
       </div>
 
@@ -130,6 +134,18 @@ export default function MyBenefits() {
           </div>
         ))}
 
+      {tab === 'orders' &&
+        (orders.length === 0 ? (
+          <EmptyState icon="tag" title={t('order.empty')} />
+        ) : (
+          <div className="space-y-3">
+            {orders.map((o) => (
+              <OrderCard key={o.id} order={o} />
+            ))}
+            <SettlementSummary orders={orders} t={t} lang={lang} />
+          </div>
+        ))}
+
       <BookingRequestModal
         open={!!booking}
         onClose={() => setBooking(null)}
@@ -169,6 +185,43 @@ function TabBtn({ active, onClick, children }) {
     >
       {children}
     </button>
+  )
+}
+
+// Internal/demo view of StayEasy's commission revenue. Payment itself is
+// collected by the hotel brand; this only reflects the BM economics.
+function SettlementSummary({ orders, t, lang }) {
+  const earned = orders.filter((o) => o.status === 'paid' || o.status === 'activated')
+  if (earned.length === 0) return null
+
+  // Totals per currency (orders may span VND/USD/KRW).
+  const byCurrency = {}
+  earned.forEach((o) => {
+    const c = (byCurrency[o.currency] ||= { gmv: 0, commission: 0 })
+    c.gmv += o.paidAmount || 0
+    c.commission += o.commissionAmount || 0
+  })
+
+  return (
+    <div className="mt-2 rounded-xl2 border border-dashed border-brand-300 bg-brand-50/50 p-4">
+      <div className="flex items-center gap-2">
+        <Icon name="sparkles" size={16} className="text-brand-600" />
+        <p className="text-sm font-bold text-brand-800">{t('order.internalTitle')}</p>
+      </div>
+      <div className="mt-3 space-y-2">
+        {Object.entries(byCurrency).map(([currency, v]) => (
+          <div key={currency} className="flex items-center justify-between text-sm">
+            <span className="text-slate-500">
+              {t('order.gmv')}: <span className="font-semibold text-slate-700">{formatMoney(v.gmv, currency, lang)}</span>
+            </span>
+            <span className="font-bold text-brand-700">
+              {t('order.commission')}: {formatMoney(v.commission, currency, lang)}
+            </span>
+          </div>
+        ))}
+      </div>
+      <p className="mt-3 text-[11px] leading-relaxed text-slate-500">{t('order.internalNote')}</p>
+    </div>
   )
 }
 

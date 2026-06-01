@@ -13,6 +13,7 @@ const KEYS = {
   benefits: 'stayeasy.benefits',
   usage: 'stayeasy.voucherUsage',
   reservations: 'stayeasy.reservations',
+  orders: 'stayeasy.orders',
   lang: 'stayeasy.lang',
   city: 'stayeasy.city',
 }
@@ -156,6 +157,39 @@ export function updateReservation(id, updates) {
 export function removeReservation(id) {
   const list = getReservations().filter((r) => r.id !== id)
   writeJSON(KEYS.reservations, list)
+  return list
+}
+
+/* ------------------------------- Orders -------------------------------- */
+// Each: { id, membershipId, buyerName, buyerEmail, buyerPhone, city,
+//         listPrice, salePrice, paidAmount, currency, commissionRate,
+//         commissionAmount, status, createdAt }
+// status: 'requested'|'invoiced'|'paid'|'activated'|'cancelled'
+// Payment happens at the hotel brand; StayEasy only records the order and
+// the commission it will earn on the paid amount.
+
+export function getOrders() {
+  const list = readJSON(KEYS.orders, [])
+  return Array.isArray(list) ? list : []
+}
+
+export function addOrder(order) {
+  const list = getOrders()
+  const entry = { id: uniqueId('o'), status: 'requested', createdAt: new Date().toISOString(), ...order }
+  list.unshift(entry)
+  writeJSON(KEYS.orders, list)
+  return entry
+}
+
+export function updateOrder(id, updates) {
+  const list = getOrders().map((o) => (o.id === id ? { ...o, ...updates } : o))
+  writeJSON(KEYS.orders, list)
+  return list
+}
+
+export function removeOrder(id) {
+  const list = getOrders().filter((o) => o.id !== id)
+  writeJSON(KEYS.orders, list)
   return list
 }
 

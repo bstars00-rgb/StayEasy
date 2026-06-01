@@ -261,8 +261,42 @@ export const memberships = [
   },
 ]
 
+// Sales configuration for PAID memberships.
+//  salePrice      discounted price StayEasy offers (in the membership currency)
+//  commissionRate fraction of the paid amount StayEasy earns (BM revenue)
+// Free programs (annualFee 0) are not listed — they are joined for free.
+export const sales = {
+  'club-marriott-vietnam': { salePrice: 4200000, commissionRate: 0.12 },
+  'accor-plus-vietnam': { salePrice: 4500000, commissionRate: 0.12 },
+  'hotel-nikko-saigon-dining-club': { salePrice: 2600000, commissionRate: 0.15 },
+}
+
 export function getMembership(id) {
   return memberships.find((m) => m.id === id)
+}
+
+// Whether a membership must be purchased (vs. joined for free).
+export function isPaid(membership) {
+  return !!membership && membership.annualFee > 0
+}
+
+// Resolve pricing for a membership: list price, optional sale price,
+// the amount the buyer actually pays, and the commission StayEasy earns.
+export function getPricing(membership) {
+  if (!membership) return null
+  const cfg = sales[membership.id] || {}
+  const listPrice = membership.annualFee
+  const salePrice = cfg.salePrice != null && cfg.salePrice < listPrice ? cfg.salePrice : null
+  const paidAmount = salePrice != null ? salePrice : listPrice
+  const commissionRate = cfg.commissionRate || 0
+  return {
+    currency: membership.currency,
+    listPrice,
+    salePrice,
+    paidAmount,
+    commissionRate,
+    commissionAmount: Math.round(paidAmount * commissionRate),
+  }
 }
 
 export const allBrands = [...new Set(memberships.map((m) => m.brand))]

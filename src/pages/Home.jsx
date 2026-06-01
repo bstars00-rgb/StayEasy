@@ -13,7 +13,7 @@ import Icon from '../components/Icon.jsx'
 export default function Home() {
   const navigate = useNavigate()
   const { t, lang } = useTranslation()
-  const { city, savedIds, reservations, usedCount } = useApp()
+  const { city, savedIds, reservations, usedCount, orders } = useApp()
 
   const cityName = t(`cities.${city}`)
   const popular = memberships
@@ -42,7 +42,17 @@ export default function Home() {
       key: `p-${r.id}`,
       text: t('alerts.pending', { title: r.title, status: t(`reservation.status${r.status[0].toUpperCase()}${r.status.slice(1)}`) }),
     }))
-  const alerts = [...expiringAlerts, ...pendingAlerts].slice(0, 4)
+  const orderAlerts = orders
+    .filter((o) => o.status !== 'activated' && o.status !== 'cancelled')
+    .map((o) => {
+      const m = getMembership(o.membershipId)
+      return {
+        kind: 'order',
+        key: `o-${o.id}`,
+        text: t('alerts.pending', { title: m?.name || o.membershipId, status: t(`order.status${o.status[0].toUpperCase()}${o.status.slice(1)}`) }),
+      }
+    })
+  const alerts = [...orderAlerts, ...expiringAlerts, ...pendingAlerts].slice(0, 5)
 
   return (
     <div className="page-pad space-y-6">
@@ -63,7 +73,7 @@ export default function Home() {
           <ul className="space-y-1.5">
             {alerts.map((a) => (
               <li key={a.key} className="flex items-start gap-2 text-sm text-amber-900">
-                <Icon name={a.kind === 'expiring' ? 'clock' : 'calendar'} size={15} className="mt-0.5 shrink-0 text-amber-500" />
+                <Icon name={a.kind === 'expiring' ? 'clock' : a.kind === 'order' ? 'tag' : 'calendar'} size={15} className="mt-0.5 shrink-0 text-amber-500" />
                 {a.text}
               </li>
             ))}

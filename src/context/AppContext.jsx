@@ -36,6 +36,7 @@ export function AppProvider({ children }) {
   const [compareIds, setCompareIds] = useState(() => readCompare())
   const [usage, setUsage] = useState(() => storage.getVoucherUsage())
   const [reservations, setReservations] = useState(() => storage.getReservations())
+  const [orders, setOrders] = useState(() => storage.getOrders())
   const [toast, setToast] = useState(null)
   const toastTimer = useRef(null)
 
@@ -156,6 +157,29 @@ export function AppProvider({ children }) {
     setReservations(storage.removeReservation(id))
   }, [])
 
+  /* ----- orders / purchases ----- */
+  const createOrder = useCallback((order) => {
+    const entry = storage.addOrder(order)
+    setOrders(storage.getOrders())
+    return entry
+  }, [])
+
+  // Advancing an order to 'activated' grants the membership (wallet vouchers).
+  const setOrderStatus = useCallback(
+    (id, status) => {
+      const order = storage.getOrders().find((o) => o.id === id)
+      setOrders(storage.updateOrder(id, { status }))
+      if (status === 'activated' && order?.membershipId) {
+        setSavedIds(storage.saveMembership(order.membershipId))
+      }
+    },
+    []
+  )
+
+  const deleteOrder = useCallback((id) => {
+    setOrders(storage.removeOrder(id))
+  }, [])
+
   const value = useMemo(
     () => ({
       lang, setLang, city, setCity, t,
@@ -164,6 +188,7 @@ export function AppProvider({ children }) {
       compareIds, inCompare, toggleCompare, removeFromCompare, maxCompare: MAX_COMPARE,
       usage, usedCount, consumeVoucher,
       reservations, createReservation, setReservationStatus, deleteReservation,
+      orders, createOrder, setOrderStatus, deleteOrder,
       toast, showToast,
     }),
     [
@@ -173,6 +198,7 @@ export function AppProvider({ children }) {
       compareIds, inCompare, toggleCompare, removeFromCompare,
       usage, usedCount, consumeVoucher,
       reservations, createReservation, setReservationStatus, deleteReservation,
+      orders, createOrder, setOrderStatus, deleteOrder,
       toast, showToast,
     ]
   )

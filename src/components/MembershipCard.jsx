@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext.jsx'
 import { useTranslation } from '../i18n/useTranslation.js'
+import { isPaid } from '../data/memberships.js'
 import { formatMoney } from '../utils/format.js'
 import { BrandAvatar, Chip } from './ui.jsx'
 import ScoreBadge from './ScoreBadge.jsx'
@@ -15,13 +16,22 @@ export default function MembershipCard({ membership: m }) {
   const saved = isSaved(m.id)
   const free = m.annualFee === 0
 
-  function handleAdd() {
-    if (saved) {
-      showToast(t('common.alreadySaved'))
-      return
+  // Owned → wallet; paid → purchase (on detail); free → join immediately.
+  let action
+  if (saved) {
+    action = { variant: 'secondary', icon: 'check', label: t('purchase.owned'), onClick: () => navigate('/my-benefits') }
+  } else if (isPaid(m)) {
+    action = { variant: 'primary', icon: 'tag', label: t('purchase.buy'), onClick: () => navigate(`/membership/${m.id}`) }
+  } else {
+    action = {
+      variant: 'primary',
+      icon: 'plus',
+      label: t('purchase.joinFree'),
+      onClick: () => {
+        addSaved(m)
+        showToast(t('common.savedToast'))
+      },
     }
-    addSaved(m)
-    showToast(t('common.savedToast'))
   }
 
   return (
@@ -85,12 +95,8 @@ export default function MembershipCard({ membership: m }) {
         <CTAButton variant="ghost" onClick={() => navigate(`/membership/${m.id}`)}>
           {t('common.viewDetails')}
         </CTAButton>
-        <CTAButton
-          variant={saved ? 'secondary' : 'primary'}
-          icon={saved ? 'check' : 'plus'}
-          onClick={handleAdd}
-        >
-          {saved ? t('common.saved') : t('common.addToMyBenefits')}
+        <CTAButton variant={action.variant} icon={action.icon} onClick={action.onClick}>
+          {action.label}
         </CTAButton>
       </div>
     </article>

@@ -1,9 +1,11 @@
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useApp } from '../context/AppContext.jsx'
 import { useTranslation } from '../i18n/useTranslation.js'
-import { getMembership } from '../data/memberships.js'
+import { useState } from 'react'
+import { getMembership, getPricing, isPaid } from '../data/memberships.js'
 import { getVoucherPack } from '../data/voucherPacks.js'
 import { formatMoney, formatDate } from '../utils/format.js'
+import PurchaseModal from '../components/PurchaseModal.jsx'
 import { gradient } from '../components/brandTheme.js'
 import { BrandAvatar, Chip, ScoreBar } from '../components/ui.jsx'
 import ScoreBadge from '../components/ScoreBadge.jsx'
@@ -16,7 +18,8 @@ export default function MembershipDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { t, lang } = useTranslation()
-  const { isSaved, addSaved, showToast, inCompare, toggleCompare } = useApp()
+  const { isSaved, addSaved, showToast, inCompare, toggleCompare, orders } = useApp()
+  const [purchaseOpen, setPurchaseOpen] = useState(false)
 
   const m = getMembership(id)
   if (!m) {
@@ -33,19 +36,38 @@ export default function MembershipDetail() {
   const saved = isSaved(m.id)
   const comparing = inCompare(m.id)
   const free = m.annualFee === 0
+  const paid = isPaid(m)
   const worthwhile = m.estimatedSavings > m.annualFee
   const pack = getVoucherPack(m.id)
+  const pricing = getPricing(m)
+  // An in-progress order for this membership (not cancelled/activated).
+  const activeOrder = orders.find(
+    (o) => o.membershipId === m.id && o.status !== 'cancelled' && o.status !== 'activated'
+  )
 
   const discountLabel = (v) => (v == null ? t('common.memberRate') : `${t('common.upTo')} ${v}%`)
   const yesNo = (b) => (b ? t('detail.included') : t('detail.notIncluded'))
 
-  function handleAdd() {
-    if (saved) {
-      showToast(t('common.alreadySaved'))
-      return
-    }
+  function joinFree() {
     addSaved(m)
     showToast(t('common.savedToast'))
+  }
+
+  // Primary action depends on price + ownership + order state.
+  let cta
+  if (saved) {
+    cta = { variant: 'secondary', icon: 'check', label: t('purchase.owned'), onClick: () => navigate('/my-benefits') }
+  } else if (paid && activeOrder) {
+    cta = { variant: 'secondary', icon: 'clock', label: t('purchase.inProgress'), onClick: () => navigate('/my-benefits') }
+  } else if (paid) {
+    cta = {
+      variant: 'primary',
+      icon: 'tag',
+      label: `${t('purchase.buy')} · ${formatMoney(pricing.paidAmount, pricing.currency, lang)}`,
+      onClick: () => setPurchaseOpen(true),
+    }
+  } else {
+    cta = { variant: 'primary', icon: 'plus', label: t('purchase.joinFree'), onClick: joinFree }
   }
 
   const stats = [
@@ -246,12 +268,14 @@ export default function MembershipDetail() {
         </div>
       </div>
 
-      {/* Sticky save bar */}
+      {/* Sticky action bar */}
       <div className="fixed inset-x-0 bottom-[60px] z-30 mx-auto max-w-md border-t border-slate-100 bg-white/95 p-3 backdrop-blur">
-        <CTAButton fullWidth size="lg" variant={saved ? 'secondary' : 'primary'} icon={saved ? 'check' : 'bookmark'} onClick={handleAdd}>
-          {saved ? t('common.saved') : t('common.addToMyBenefits')}
+        <CTAButton fullWidth size="lg" variant={cta.variant} icon={cta.icon} onClick={cta.onClick}>
+          {cta.label}
         </CTAButton>
       </div>
+
+      <PurchaseModal open={purchaseOpen} onClose={() => setPurchaseOpen(false)} membership={m} />
     </div>
   )
 }
