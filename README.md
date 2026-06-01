@@ -79,6 +79,16 @@ npm run build
 npm run preview
 ```
 
+## Testing
+
+```bash
+npm run test     # Vitest unit tests (pricing/commission, i18n, formatting, voucher inventory)
+npm run e2e      # Playwright E2E (purchase→activation→commission, free-join→booking)
+```
+
+Unit tests run automatically in CI before each deploy. The first E2E run needs
+browsers: `npx playwright install chromium`.
+
 ## Deploy
 
 The build output in `dist/` is a static site and can be deployed to **Vercel**, **Netlify**, or **GitHub Pages**.

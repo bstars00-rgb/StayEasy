@@ -15,10 +15,9 @@ const CAT = {
 
 export default function VoucherCard({ membership, template, onRequest }) {
   const { t, lang } = useTranslation()
-  const { usedCount } = useApp()
+  const { getVoucherStats } = useApp()
 
-  const used = usedCount(membership.id, template.templateId)
-  const available = Math.max(0, template.quantity - used)
+  const { used, available } = getVoucherStats(membership.id, template)
   const days = daysUntil(template.validUntil)
   const expired = days != null && days < 0
   const soon = !expired && days != null && days <= 30

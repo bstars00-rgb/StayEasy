@@ -25,6 +25,7 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      - run: npm run test
       - run: npm run build
       # SPA fallback: serve index.html for unknown client-side routes.
       - run: cp dist/index.html dist/404.html

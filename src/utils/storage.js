@@ -10,7 +10,6 @@
 
 const KEYS = {
   memberships: 'stayeasy.savedMemberships',
-  benefits: 'stayeasy.benefits',
   usage: 'stayeasy.voucherUsage',
   reservations: 'stayeasy.reservations',
   orders: 'stayeasy.orders',
@@ -78,37 +77,20 @@ export function removeMembership(membershipId) {
   return list
 }
 
-/* ------------------------------- Benefits ------------------------------- */
+// Purge operational data tied to a membership when it leaves the wallet:
+// its voucher usage counters and any of its reservations. Orders are NOT
+// touched (they remain as historical purchase/commission records).
+export function removeMembershipArtifacts(membershipId) {
+  const usage = getVoucherUsage()
+  Object.keys(usage).forEach((k) => {
+    if (k.startsWith(`${membershipId}:`)) delete usage[k]
+  })
+  writeJSON(KEYS.usage, usage)
 
-export function getSavedBenefits() {
-  const list = readJSON(KEYS.benefits, [])
-  return Array.isArray(list) ? list : []
-}
+  const reservations = getReservations().filter((r) => r.membershipId !== membershipId)
+  writeJSON(KEYS.reservations, reservations)
 
-// Adds a benefit with a generated unique id and default status.
-export function saveBenefit(benefit) {
-  const list = getSavedBenefits()
-  const entry = { id: uniqueId(), status: 'unused', ...benefit }
-  if (!entry.id) entry.id = uniqueId()
-  list.push(entry)
-  writeJSON(KEYS.benefits, list)
-  return entry
-}
-
-export function updateBenefit(benefitId, updates) {
-  const list = getSavedBenefits().map((b) => (b.id === benefitId ? { ...b, ...updates } : b))
-  writeJSON(KEYS.benefits, list)
-  return list
-}
-
-export function removeBenefit(benefitId) {
-  const list = getSavedBenefits().filter((b) => b.id !== benefitId)
-  writeJSON(KEYS.benefits, list)
-  return list
-}
-
-export function markBenefitAsUsed(benefitId) {
-  return updateBenefit(benefitId, { status: 'used' })
+  return { usage, reservations }
 }
 
 /* --------------------------- Voucher usage ----------------------------- */

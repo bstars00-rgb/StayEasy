@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useCallback, useRef, useMemo } fro
 import { translate, DEFAULT_LANG } from '../i18n/translations.js'
 import { DEFAULT_CITY } from '../data/cities.js'
 import { getVoucherTemplate } from '../data/voucherPacks.js'
+import { voucherStats, countOpenReservations } from '../utils/vouchers.js'
 import * as storage from '../utils/storage.js'
 
 const MAX_COMPARE = 3
@@ -32,7 +33,6 @@ export function AppProvider({ children }) {
   const [lang, setLangState] = useState(() => storage.getSelectedLanguage() || DEFAULT_LANG)
   const [city, setCityState] = useState(() => storage.getSelectedCity() || DEFAULT_CITY)
   const [savedIds, setSavedIds] = useState(() => storage.getSavedMemberships())
-  const [benefits, setBenefits] = useState(() => storage.getSavedBenefits())
   const [compareIds, setCompareIds] = useState(() => readCompare())
   const [usage, setUsage] = useState(() => storage.getVoucherUsage())
   const [reservations, setReservations] = useState(() => storage.getReservations())
@@ -67,35 +67,22 @@ export function AppProvider({ children }) {
     setSavedIds(storage.saveMembership(membership))
   }, [])
 
+  // Removing a membership also purges its orphaned voucher usage and
+  // reservations (orders are kept as historical purchase records).
   const removeSaved = useCallback((id) => {
     setSavedIds(storage.removeMembership(id))
+    const { usage: u, reservations: r } = storage.removeMembershipArtifacts(id)
+    setUsage(u)
+    setReservations(r)
   }, [])
 
   const toggleSaved = useCallback(
     (id) => {
-      if (savedIds.includes(id)) setSavedIds(storage.removeMembership(id))
+      if (savedIds.includes(id)) removeSaved(id)
       else setSavedIds(storage.saveMembership(id))
     },
-    [savedIds]
+    [savedIds, removeSaved]
   )
-
-  /* ----- benefits / vouchers ----- */
-  const addBenefit = useCallback((benefit) => {
-    storage.saveBenefit(benefit)
-    setBenefits(storage.getSavedBenefits())
-  }, [])
-
-  const editBenefit = useCallback((id, updates) => {
-    setBenefits(storage.updateBenefit(id, updates))
-  }, [])
-
-  const deleteBenefit = useCallback((id) => {
-    setBenefits(storage.removeBenefit(id))
-  }, [])
-
-  const markBenefitUsed = useCallback((id) => {
-    setBenefits(storage.markBenefitAsUsed(id))
-  }, [])
 
   /* ----- compare ----- */
   const inCompare = useCallback((id) => compareIds.includes(id), [compareIds])
@@ -123,6 +110,16 @@ export function AppProvider({ children }) {
   const usedCount = useCallback(
     (membershipId, templateId) => usage[`${membershipId}:${templateId}`] || 0,
     [usage]
+  )
+
+  // Inventory for a voucher template, accounting for consumed + held units.
+  const getVoucherStats = useCallback(
+    (membershipId, template) => {
+      const used = usage[`${membershipId}:${template.templateId}`] || 0
+      const held = countOpenReservations(reservations, membershipId, template.templateId)
+      return voucherStats(template.quantity, used, held)
+    },
+    [usage, reservations]
   )
 
   // Consume one unit of a voucher (cap at its quantity).
@@ -184,9 +181,8 @@ export function AppProvider({ children }) {
     () => ({
       lang, setLang, city, setCity, t,
       savedIds, isSaved, addSaved, removeSaved, toggleSaved,
-      benefits, addBenefit, editBenefit, deleteBenefit, markBenefitUsed,
       compareIds, inCompare, toggleCompare, removeFromCompare, maxCompare: MAX_COMPARE,
-      usage, usedCount, consumeVoucher,
+      usage, usedCount, getVoucherStats, consumeVoucher,
       reservations, createReservation, setReservationStatus, deleteReservation,
       orders, createOrder, setOrderStatus, deleteOrder,
       toast, showToast,
@@ -194,9 +190,8 @@ export function AppProvider({ children }) {
     [
       lang, setLang, city, setCity, t,
       savedIds, isSaved, addSaved, removeSaved, toggleSaved,
-      benefits, addBenefit, editBenefit, deleteBenefit, markBenefitUsed,
       compareIds, inCompare, toggleCompare, removeFromCompare,
-      usage, usedCount, consumeVoucher,
+      usage, usedCount, getVoucherStats, consumeVoucher,
       reservations, createReservation, setReservationStatus, deleteReservation,
       orders, createOrder, setOrderStatus, deleteOrder,
       toast, showToast,

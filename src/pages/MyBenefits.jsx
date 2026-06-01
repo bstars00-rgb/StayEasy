@@ -16,7 +16,7 @@ import Icon from '../components/Icon.jsx'
 export default function MyBenefits() {
   const navigate = useNavigate()
   const { t, lang } = useTranslation()
-  const { savedIds, removeSaved, usedCount, reservations, orders } = useApp()
+  const { savedIds, removeSaved, getVoucherStats, reservations, orders } = useApp()
 
   const [tab, setTab] = useState('wallet')
   const [category, setCategory] = useState('all')
@@ -35,12 +35,11 @@ export default function MyBenefits() {
 
   // Summary metrics.
   const availableTotal = allVouchers.reduce(
-    (sum, { membership, template }) =>
-      sum + Math.max(0, template.quantity - usedCount(membership.id, template.templateId)),
+    (sum, { membership, template }) => sum + getVoucherStats(membership.id, template).available,
     0
   )
   const expiringSoon = allVouchers.filter(({ membership, template }) => {
-    const available = template.quantity - usedCount(membership.id, template.templateId)
+    const { available } = getVoucherStats(membership.id, template)
     const d = daysUntil(template.validUntil)
     return available > 0 && d != null && d >= 0 && d <= 30
   }).length

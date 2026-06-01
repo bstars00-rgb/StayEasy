@@ -13,7 +13,7 @@ import Icon from '../components/Icon.jsx'
 export default function Home() {
   const navigate = useNavigate()
   const { t, lang } = useTranslation()
-  const { city, savedIds, reservations, usedCount, orders } = useApp()
+  const { city, savedIds, reservations, getVoucherStats, orders } = useApp()
 
   const cityName = t(`cities.${city}`)
   const popular = memberships
@@ -26,7 +26,7 @@ export default function Home() {
   const expiringAlerts = owned
     .flatMap((m) => getVoucherPack(m.id).map((tpl) => ({ m, tpl })))
     .filter(({ m, tpl }) => {
-      const avail = tpl.quantity - usedCount(m.id, tpl.templateId)
+      const avail = getVoucherStats(m.id, tpl).available
       const d = daysUntil(tpl.validUntil)
       return avail > 0 && d != null && d >= 0 && d <= 30
     })
