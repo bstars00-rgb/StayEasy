@@ -5,7 +5,7 @@ import { useTranslation } from '../i18n/useTranslation.js'
 import { useState } from 'react'
 import { getMembership, getPricing, isPaid } from '../data/memberships.js'
 import { getVoucherPack } from '../data/voucherPacks.js'
-import { membershipPhoto, hotelPhoto, voucherPhoto, categoryMeta } from '../data/media.js'
+import { membershipPhoto, membershipGallery, hotelPhoto, voucherPhoto, categoryMeta } from '../data/media.js'
 import { formatMoney, formatDate } from '../utils/format.js'
 import PurchaseModal from '../components/PurchaseModal.jsx'
 import VoucherDetailModal from '../components/VoucherDetailModal.jsx'
@@ -140,6 +140,24 @@ export default function MembershipDetail() {
       </div>
 
       <div className="page-pad space-y-7 pt-6">
+        {/* Photo gallery */}
+        <section>
+          <h2 className="mb-3 text-base font-bold text-slate-900">{t('detail.gallery')}</h2>
+          <div className="-mx-4 flex gap-2.5 overflow-x-auto px-4 pb-1 no-scrollbar">
+            {membershipGallery(m.id).map((src, i) => (
+              <SmartImage
+                key={i}
+                src={src}
+                alt={`${m.name} ${i + 1}`}
+                gradient={accentFor(m.brand)}
+                icon="bed"
+                rounded="rounded-2xl"
+                className="h-32 w-48 shrink-0"
+              />
+            ))}
+          </div>
+        </section>
+
         {/* 2. Key Benefits */}
         <section>
           <h2 className="mb-3 text-base font-bold text-slate-900">{t('detail.keyBenefits')}</h2>

@@ -98,6 +98,7 @@ const en = {
     roiGood: 'This membership may be valuable based on expected usage.',
     roiLimited: 'This membership may only be useful for frequent users.',
     notFound: 'Membership not found.',
+    gallery: 'Photos',
   },
   compare: {
     title: 'Compare Memberships',
@@ -446,6 +447,7 @@ const ko = {
     roiGood: '예상 이용량 기준으로 가입 가치가 있을 수 있습니다.',
     roiLimited: '자주 이용하는 분에게만 유용할 수 있습니다.',
     notFound: '멤버십을 찾을 수 없습니다.',
+    gallery: '사진',
   },
   compare: {
     title: '멤버십 비교',
@@ -794,6 +796,7 @@ const vi = {
     roiGood: 'Thành viên này có thể đáng giá dựa trên mức sử dụng dự kiến.',
     roiLimited: 'Thành viên này có thể chỉ hữu ích cho người dùng thường xuyên.',
     notFound: 'Không tìm thấy thành viên.',
+    gallery: 'Hình ảnh',
   },
   compare: {
     title: 'So sánh thành viên',
@@ -1142,6 +1145,7 @@ const zh = {
     roiGood: '根据预期使用情况，此会员可能物有所值。',
     roiLimited: '此会员可能仅适合经常使用的用户。',
     notFound: '未找到该会员。',
+    gallery: '照片',
   },
   compare: {
     title: '比较会员',
@@ -1490,6 +1494,7 @@ const ja = {
     roiGood: '想定利用に基づくと、この会員は価値がある可能性があります。',
     roiLimited: 'この会員は頻繁に利用する方にのみ有用かもしれません。',
     notFound: '会員が見つかりません。',
+    gallery: '写真',
   },
   compare: {
     title: '会員を比較',

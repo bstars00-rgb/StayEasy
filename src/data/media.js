@@ -52,3 +52,10 @@ export function membershipPhoto(id) {
 export function hotelPhoto(name, i = 0) {
   return lf('hotel,architecture,building', 300 + ((hash(name) + i) % 90))
 }
+
+// A small photo gallery for a membership detail page (exterior, room,
+// dining, pool) — varied per membership so each looks distinct.
+export function membershipGallery(id) {
+  const kws = ['hotel,exterior', 'hotel,bedroom,suite', 'restaurant,fine,dining', 'swimming,pool,resort', 'spa,wellness']
+  return kws.map((kw, i) => lf(kw, 500 + ((hash(id) + i * 7) % 90)))
+}
