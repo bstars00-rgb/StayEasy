@@ -10,6 +10,7 @@ import VoucherCard from '../components/VoucherCard.jsx'
 import ReservationCard from '../components/ReservationCard.jsx'
 import OrderCard from '../components/OrderCard.jsx'
 import BookingRequestModal from '../components/BookingRequestModal.jsx'
+import ExpiryAlerts from '../components/ExpiryAlerts.jsx'
 import VoucherDetailModal from '../components/VoucherDetailModal.jsx'
 import TransferModal from '../components/TransferModal.jsx'
 import EmptyState from '../components/EmptyState.jsx'
@@ -87,6 +88,13 @@ export default function MyBenefits() {
           </EmptyState>
         ) : (
           <>
+            {/* Expiry alert center — usable vouchers expiring soon / expired unused */}
+            <ExpiryAlerts
+              vouchers={allVouchers}
+              getStats={getVoucherStats}
+              onRequest={(m, tpl) => requireAuth(() => setBooking({ membership: m, template: tpl }))}
+            />
+
             {/* Owned membership chips */}
             <div className="flex flex-wrap gap-2">
               {ownedMemberships.map((m) => (
