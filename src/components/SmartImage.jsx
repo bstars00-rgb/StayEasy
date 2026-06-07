@@ -7,7 +7,7 @@ import Icon from './Icon.jsx'
 export default function SmartImage({
   src,
   alt = '',
-  gradient = ['#1ea4a8', '#13838a'],
+  gradient = ['#1b3a5b', '#0f2238'],
   icon = 'bed',
   iconSize = 28,
   className = '',

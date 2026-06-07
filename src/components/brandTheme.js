@@ -11,7 +11,7 @@ const ACCENTS = {
   Lotte: ['#a16207', '#eab308'],
 }
 
-const DEFAULT_ACCENT = ['#1ea4a8', '#13838a']
+const DEFAULT_ACCENT = ['#1b3a5b', '#0f2238']
 
 export function accentFor(brand) {
   return ACCENTS[brand] || DEFAULT_ACCENT

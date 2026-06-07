@@ -4,18 +4,32 @@ export default {
   theme: {
     extend: {
       colors: {
+        // "Quiet Luxury" CI — Midnight Navy scale (primary).
         brand: {
-          50: '#eefcfb',
-          100: '#d4f6f4',
-          200: '#aeebe9',
-          300: '#79dad9',
-          400: '#3fc1c2',
-          500: '#1ea4a8',
-          600: '#13838a',
-          700: '#136970',
-          800: '#15555b',
-          900: '#16474d',
+          50: '#eef2f7',
+          100: '#dce4ee',
+          200: '#aec0d4',
+          300: '#6f8aaa',
+          400: '#3a5980',
+          500: '#1b3a5b',
+          600: '#142c46',
+          700: '#0f2238',
+          800: '#0b1b2c',
+          900: '#081320',
         },
+        // Champagne Gold accent (point color — use sparingly).
+        gold: {
+          50: '#f6efe0',
+          100: '#ecdfc4',
+          300: '#dcc492',
+          400: '#d3b67e',
+          500: '#c9a96a',
+          600: '#a77b4f',
+          700: '#8a6440',
+        },
+        // Warm neutrals.
+        ivory: '#f5efe6',
+        beige: '#e8dfd0',
       },
       fontFamily: {
         sans: [
