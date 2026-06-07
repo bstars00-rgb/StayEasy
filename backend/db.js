@@ -86,11 +86,11 @@ function orderFrom(row) { return { id: row.id, membershipId: row.membership_id, 
 function transferFrom(row) { return { id: row.id, membershipId: row.membership_id, templateId: row.template_id, title: row.title, recipientName: row.recipient_name || '', recipientContact: row.recipient_contact || '', message: row.message || '', createdAt: row.created_at } }
 function userFrom(row) { return row && { id: row.id, provider: row.provider, name: row.name, email: row.email, picture: row.picture_url || '', createdAt: row.created_at, updatedAt: row.updated_at } }
 
-export class StayEasyStore {
+export class OhmySelectStore {
   constructor(db) { this.db = db; this.tokens = new Map() }
   static async open() {
     const db = (process.env.DATABASE_URL || '').startsWith('postgres') ? new PostgresAdapter(process.env.DATABASE_URL) : new SqliteAdapter(resolve(process.env.SQLITE_PATH || 'backend/.data/stayeasy.sqlite'))
-    const store = new StayEasyStore(db)
+    const store = new OhmySelectStore(db)
     await store.migrate(); await store.seed(); return store
   }
   async migrate() {
@@ -137,8 +137,8 @@ export class StayEasyStore {
   async upsertDemoUser(credential, makeId) {
     const subject = ['demo-google-user','demo.user@gmail.com'].includes(String(credential)) ? 'demo-google-user' : String(credential || 'demo-google-user')
     const existing = await this.db.get('SELECT * FROM users WHERE provider=? AND provider_subject=?',['google',subject]); if (existing) return userFrom(existing)
-    const ts = now(), email = subject === 'demo-google-user' ? 'demo.user@gmail.com' : `demo-${subject.slice(-8)}@stayeasy.local`, id = makeId('usr')
-    await this.db.run('INSERT INTO users (id,provider,provider_subject,name,email,picture_url,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)',[id,'google',subject,subject==='demo-google-user'?'Demo User':'StayEasy Demo User',email,'',ts,ts])
+    const ts = now(), email = subject === 'demo-google-user' ? 'demo.user@gmail.com' : `demo-${subject.slice(-8)}@ohmyselect.local`, id = makeId('usr')
+    await this.db.run('INSERT INTO users (id,provider,provider_subject,name,email,picture_url,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)',[id,'google',subject,subject==='demo-google-user'?'Demo User':'OhmySelect Demo User',email,'',ts,ts])
     return this.getUserById(id)
   }
   async memberships(params = new URLSearchParams()) {

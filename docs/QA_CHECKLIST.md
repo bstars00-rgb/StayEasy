@@ -1,4 +1,4 @@
-# StayEasy QA Checklist
+# OhmySelect QA Checklist
 
 작성일: 2026-06-07
 

@@ -1,4 +1,4 @@
-# StayEasy Backend Tasks
+# OhmySelect Backend Tasks
 
 작성일: 2026-06-07
 

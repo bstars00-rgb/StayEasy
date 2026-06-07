@@ -1,4 +1,4 @@
-# StayEasy Database Schema Draft
+# OhmySelect Database Schema Draft
 
 작성일: 2026-06-07
 
@@ -39,7 +39,7 @@ MVP 백엔드는 관계형 데이터베이스(PostgreSQL 권장)를 기준으로
 | country_id | text | 국가 |
 | annual_fee | numeric | 정가 |
 | currency | text | `VND`, `USD`, `KRW` |
-| sale_price | numeric | StayEasy 할인가 |
+| sale_price | numeric | OhmySelect 할인가 |
 | commission_rate | numeric | 예: `0.12` |
 | dining_discount | int | null 허용 |
 | room_discount | int | null 허용 |

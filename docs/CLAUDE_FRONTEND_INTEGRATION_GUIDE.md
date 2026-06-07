@@ -6,7 +6,7 @@
 
 ## 1. 현재 프론트 상태
 
-현재 StayEasy는 React 18, Vite, React Router, Tailwind 기반이다. 주요 상태는 다음 파일에 있다.
+현재 OhmySelect는 React 18, Vite, React Router, Tailwind 기반이다. 주요 상태는 다음 파일에 있다.
 
 - `src/context/AppContext.jsx`: 언어, 도시, 지갑, 비교, 예약, 주문, 선물 상태
 - `src/context/AuthContext.jsx`: 로그인 상태, 로그인 후 원래 액션 재개
@@ -118,7 +118,7 @@ Claude는 API 연동 화면에 다음 상태를 반드시 둔다.
 Claude에게 넘길 수 있는 지시:
 
 ```text
-StayEasy 프론트는 현재 localStorage 기반입니다.
+OhmySelect 프론트는 현재 localStorage 기반입니다.
 docs/BACKEND_API_SPEC.md의 API 계약을 기준으로 src/api/* client 레이어를 만들고,
 기존 AppContext/AuthContext의 외부 계약은 최대한 유지하면서 API_BASE_URL이 있으면 백엔드를 호출하게 바꿔주세요.
 화면 컴포넌트의 props와 라우트는 유지해주세요.

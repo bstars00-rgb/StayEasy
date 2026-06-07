@@ -1,4 +1,4 @@
-# StayEasy Backend Prototype
+# OhmySelect Backend Prototype
 
 작성일: 2026-06-07
 

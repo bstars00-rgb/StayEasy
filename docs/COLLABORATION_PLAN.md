@@ -1,4 +1,4 @@
-# StayEasy Claude + Codex Collaboration Plan
+# OhmySelect Claude + Codex Collaboration Plan
 
 작성일: 2026-06-07
 

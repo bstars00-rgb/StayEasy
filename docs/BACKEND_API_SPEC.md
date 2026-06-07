@@ -1,4 +1,4 @@
-# StayEasy Backend API Spec
+# OhmySelect Backend API Spec
 
 작성일: 2026-06-07
 
@@ -42,7 +42,7 @@
 
 ### POST `/auth/google`
 
-Google ID token을 검증하고 StayEasy 세션을 발급한다.
+Google ID token을 검증하고 OhmySelect 세션을 발급한다.
 
 Request:
 
