@@ -115,15 +115,16 @@ The build output in `dist/` is a static site and can be deployed to **Vercel**, 
 - **Vercel / Netlify:** import the repo; build command `npm run build`, output directory `dist`.
 - **GitHub Pages:** publish the `dist/` folder. If hosting under a sub-path, set Vite's `base` option in `vite.config.js`.
 
-## Backend & collaboration
+## Backend & collaboration (monorepo: Claude × Codex)
 
-The backend is developed in parallel against a shared contract:
+Frontend (Claude) and backend (Codex) are built in parallel in this repo:
 
-- **Contract (source of truth):** [`docs/api/openapi.yaml`](docs/api/openapi.yaml)
-- **Collaboration guide:** [`AGENTS.md`](AGENTS.md) · **Backend notes:** [`docs/BACKEND.md`](docs/BACKEND.md)
-- **Frontend seam:** `src/api/` (`httpClient.js` + `stayeasyApi.js`) mirrors the
-  contract 1:1. The app runs on `localStorage` until `VITE_USE_API=true`, then
-  `AppContext` routes the same operations through the API. See [`.env.example`](.env.example).
+- **API contract (source of truth):** [`docs/BACKEND_API_SPEC.md`](docs/BACKEND_API_SPEC.md)
+- **Collaboration guide:** [`AGENTS.md`](AGENTS.md) · [`docs/COLLABORATION_PLAN.md`](docs/COLLABORATION_PLAN.md) · [`docs/DATABASE_SCHEMA.md`](docs/DATABASE_SCHEMA.md)
+- **Backend:** `backend/server.js` — run with `npm run backend` (http://localhost:8787, `/api/v1`)
+- **Frontend client:** `src/api/` mirrors the contract. The app runs on
+  `localStorage` until `VITE_API_BASE_URL` is set; then it routes through the
+  API. See [`.env.example`](.env.example).
 
 ## Adding a backend later
 

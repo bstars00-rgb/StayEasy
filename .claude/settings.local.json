@@ -14,7 +14,18 @@
       "Bash(npx playwright *)",
       "Bash(git add *)",
       "Bash(git commit -q -m ' *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(npm install *)",
+      "Bash(node -e \"const P=require\\('pptxgenjs'\\); console.log\\('pptxgenjs OK'\\)\")",
+      "Bash(command -v soffice)",
+      "Bash(command -v libreoffice)",
+      "Read(//c/Program Files/LibreOffice/program/**)",
+      "Read(//c/Program Files \\(x86\\)/LibreOffice/program/**)",
+      "Bash(command -v pdftoppm)",
+      "Bash(unzip -t StayEasy_사업계획서.pptx)",
+      "Bash(rm -f docs/api/openapi.yaml docs/BACKEND.md src/api/httpClient.js src/api/httpClient.test.js src/api/stayeasyApi.js)",
+      "Bash(rmdir docs/api)",
+      "Bash(ls src/api)"
     ]
   }
 }

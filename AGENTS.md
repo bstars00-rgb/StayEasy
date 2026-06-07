@@ -1,101 +1,58 @@
-# AGENTS.md — StayEasy collaboration guide
+# AGENTS.md — StayEasy (Claude × Codex)
 
-This repo is built by **two agents in parallel**:
+A **monorepo** built by two agents in parallel. Roles and shared docs are
+defined in [`docs/COLLABORATION_PLAN.md`](docs/COLLABORATION_PLAN.md).
 
-- **Frontend (Claude Code)** — the React app in this repo (already built).
-- **Backend (Codex)** — a separate service that implements the API in
-  [`docs/api/openapi.yaml`](docs/api/openapi.yaml).
-
-The **OpenAPI file is the single source of truth.** Neither side changes the
-contract unilaterally — propose a change in a PR that touches `openapi.yaml`
-first, then both sides adapt.
-
----
-
-## What StayEasy is
-
-A premium hotel-membership app: discover memberships by city, buy them
-(payment is settled **at the hotel brand**, StayEasy earns a commission),
-hold the resulting vouchers in a wallet, request bookings, gift vouchers, and
-view a partner settlement dashboard. Frontend is mobile-first React + Vite +
-Tailwind, 5 languages, currently fully on `localStorage`.
-
-## Repo layout (frontend)
-
-| Path | Purpose |
+| Agent | Owns |
 |---|---|
-| `src/data/` | Mock catalog (memberships, voucher packs, cities) — becomes API responses |
-| `src/utils/storage.js` | **Local data adapter** (localStorage) — the seam to replace |
-| `src/api/` | **Remote data adapter**: `httpClient.js` + `stayeasyApi.js` (mirrors OpenAPI) |
-| `src/context/AppContext.jsx` | Single source of app state; all pages read/write here |
-| `src/context/AuthContext.jsx` | Sign-in/out + `requireAuth` gating + per-account scope |
-| `docs/api/openapi.yaml` | **API contract (shared)** |
-| `docs/BACKEND.md` | Backend implementation notes (data model, rules, status machines) |
+| **Claude** (frontend) | React app (`src/`, `index.html`), UI/UX, i18n, theme, the API **client layer** (`src/api/`), tests |
+| **Codex** (backend) | `backend/`, API + DB, Google token verification, status/inventory rules, settlement, QA |
 
-## The integration seam
+## Source of truth
 
-Today the app calls `src/utils/storage.js`. The backend equivalent lives in
-`src/api/stayeasyApi.js` (already written against the contract). The switch is
-gated by env:
+- **API contract:** [`docs/BACKEND_API_SPEC.md`](docs/BACKEND_API_SPEC.md) — neither
+  side changes shapes/paths unilaterally; propose in a PR touching that file.
+- DB: [`docs/DATABASE_SCHEMA.md`](docs/DATABASE_SCHEMA.md) · FE integration:
+  [`docs/CLAUDE_FRONTEND_INTEGRATION_GUIDE.md`](docs/CLAUDE_FRONTEND_INTEGRATION_GUIDE.md) ·
+  backend order: [`docs/BACKEND_TASKS.md`](docs/BACKEND_TASKS.md) · QA:
+  [`docs/QA_CHECKLIST.md`](docs/QA_CHECKLIST.md)
 
-```
-VITE_API_BASE_URL=https://localhost:8787   # backend origin
-VITE_USE_API=true                          # route through the API
-VITE_GOOGLE_CLIENT_ID=...                   # real Google sign-in
-```
+## How the two halves connect
 
-Frontend's job when the backend is ready: make `AppContext` call `api.*`
-(from `stayeasyApi.js`) instead of `storage.*` when `USE_API` is true. The
-function names already line up 1:1, so this is a thin adapter swap.
+- Backend serves the contract under **`/api/v1`** with a `{ data, meta, error }`
+  envelope and `Authorization: Bearer <accessToken>`.
+- Frontend client mirrors it in **`src/api/`** (`client.js` + per-resource
+  modules `auth/catalog/wallet/reservations/orders/transfers/assistance/recommendations`).
+  Keep these in sync with `BACKEND_API_SPEC.md`.
+- **Switch:** when `VITE_API_BASE_URL` is set, `USE_API` is true and the app
+  should call `api.*` instead of `src/utils/storage.js`. With it empty the app
+  stays fully on `localStorage` (offline demo must keep working).
+- The backend **reuses shared modules** from the frontend: `src/data/*`
+  (catalog seed) and `src/utils/vouchers.js` (`voucherStats`,
+  `OPEN_RESERVATION_STATUSES`). Do not break those exports.
 
-## Division of labor
-
-**Backend (Codex) owns**
-- Implement every path in `docs/api/openapi.yaml`.
-- Auth: verify the Google ID token server-side, issue a Bearer session token.
-- Persistence (DB) for: users, saved memberships, reservations, transfers,
-  orders, voucher usage. Catalog (memberships + voucher packs) may be seeded
-  from `src/data/*` initially.
-- Enforce the **business rules** below server-side (don't trust the client).
-- Provide CORS for the frontend origin and the dev server (`http://localhost:5173`).
-- Keep responses matching the OpenAPI schemas exactly (field names/shapes).
-
-**Frontend (Claude) owns**
-- Keep `src/api/stayeasyApi.js` in sync with the contract.
-- Wire `AppContext`/`AuthContext` to the API behind `VITE_USE_API`.
-- UI, i18n, theme, tests.
-
-## Business rules (must hold on the server)
-
-- **Voucher availability** = `quantity − used − held − transferred`
-  (`held` = reservations in `requested`/`confirmed`). Reject create when 0.
-- **Reservation status**: `requested → confirmed → completed | cancelled`.
-  Reaching `completed` consumes one voucher (`used += 1`).
-- **Transfer**: only `transferable` vouchers; consumes one unit.
-- **Order status**: `requested → invoiced → paid → activated | cancelled`.
-  `activated` grants the membership to the wallet.
-- **Commission** = `paidAmount × commissionRate` (paid/activated orders only).
-  Payment is collected by the brand; StayEasy records the commission.
-- **Per-account isolation**: all `/me/*` data is scoped to the bearer user.
-
-## Commands
+## Run
 
 ```
 npm install
-npm run dev      # http://localhost:5173
-npm run build
-npm run test     # Vitest unit
-npm run e2e      # Playwright (npx playwright install chromium once)
+npm run dev       # frontend  → http://localhost:5173
+npm run backend   # backend   → http://localhost:8787  (in-memory)
+npm run test      # frontend unit (Vitest)
+npm run e2e       # Playwright
 ```
 
-CI runs `npm run test` before deploying to GitHub Pages.
+To run against the backend locally: `VITE_API_BASE_URL=http://localhost:8787 npm run dev`.
 
-## Conventions / Definition of Done
+## Rules (server is authoritative)
 
-- Don't break the offline demo: with `VITE_USE_API` unset, the app must still
-  run on localStorage.
-- Any contract change = edit `openapi.yaml` + `src/api/stayeasyApi.js` together.
-- Keep PRs small and green (`npm run build` + `npm run test` pass).
-- Commit style: imperative subject; end with the Co-Authored-By trailer.
-- Backend repo: keep its own README with run/seed/test instructions and point
-  back to this contract.
+- Voucher availability = `quantity − used − held − transferred`; reject at 0.
+- Reservation: `requested → confirmed → completed | cancelled` (completed → `used += 1`).
+- Order: `requested → invoiced → paid → activated | cancelled` (activated → grant membership). Status changes are operator/partner-scoped.
+- Commission = `paidAmount × commissionRate` (paid/activated only); payment is at the hotel brand.
+- All account data is scoped to the bearer user. Prices/commission computed server-side.
+
+## Definition of done
+
+- `npm run build` + `npm run test` pass; offline demo still works without the API.
+- Contract changes edit `BACKEND_API_SPEC.md` **and** `src/api/*` together.
+- Small, green PRs; imperative commit subjects.
