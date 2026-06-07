@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="StayEasy favicon">
+  <rect width="64" height="64" rx="16" fill="#0F2238"/>
+  <path d="M22 50 V37 Q22 22 32 22 Q42 22 42 37 V50" fill="none" stroke="#F5EFE6" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="32" cy="37" r="3.1" fill="#C9A96A"/>
+  <path d="M30.4 38.6 H33.6 L33 46 H31 Z" fill="#C9A96A"/>
+</svg>

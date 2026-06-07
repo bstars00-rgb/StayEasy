@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="StayEasy app icon">
+  <rect width="1024" height="1024" rx="232" fill="#0F2238"/>
+  <!-- refined gold hairline frame -->
+  <rect x="74" y="74" width="876" height="876" rx="176" fill="none" stroke="#C9A96A" stroke-opacity="0.45" stroke-width="3"/>
+  <!-- arch -->
+  <path d="M410 724 V520 Q410 318 512 318 Q614 318 614 520 V724"
+        fill="none" stroke="#F5EFE6" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- keyhole -->
+  <circle cx="512" cy="520" r="34" fill="#C9A96A"/>
+  <path d="M493 538 H531 L523 632 H501 Z" fill="#C9A96A"/>
+</svg>

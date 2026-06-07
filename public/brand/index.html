@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>StayEasy — Brand Identity (Threshold)</title>
+    <link rel="icon" href="./favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root{
+        --navy:#0F2238; --ink:#1C1C1E; --ivory:#F5EFE6; --beige:#E8DFD0;
+        --gold:#C9A96A; --bronze:#A77B4F; --greige:#B8AE9F;
+      }
+      *{box-sizing:border-box}
+      body{margin:0;font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:var(--ivory);-webkit-font-smoothing:antialiased}
+      .wrap{max-width:980px;margin:0 auto;padding:0 24px}
+      .serif{font-family:'Cormorant Garamond',Georgia,serif}
+      .wordmark{font-family:'Cormorant Garamond',Georgia,serif;font-weight:500;letter-spacing:.02em}
+      h2{font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:30px;margin:0 0 4px}
+      .kicker{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--bronze);font-weight:600}
+      section{padding:56px 0;border-bottom:1px solid rgba(0,0,0,.06)}
+      /* Hero */
+      .hero{background:var(--navy);color:var(--ivory);padding:90px 0}
+      .hero .lock{display:flex;align-items:center;gap:20px}
+      .hero .lock img{width:104px;height:104px}
+      .hero .wm{font-size:64px;line-height:1;color:var(--ivory)}
+      .hero p{color:#AFC3CE;max-width:520px;margin:18px 0 0;font-size:16px}
+      .hairline{height:1px;background:linear-gradient(90deg,var(--gold),transparent);margin:26px 0 0;max-width:240px}
+      /* grids */
+      .grid{display:grid;gap:18px}
+      .cols-3{grid-template-columns:repeat(3,1fr)}
+      .cols-2{grid-template-columns:repeat(2,1fr)}
+      .card{background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:18px;padding:22px;display:flex;flex-direction:column;align-items:center;gap:12px}
+      .card.dark{background:var(--navy);color:var(--ivory);border-color:transparent}
+      .muted{color:var(--greige);font-size:12px}
+      /* app icon sizes */
+      .icons{display:flex;align-items:flex-end;gap:22px;flex-wrap:wrap}
+      .icons figure{margin:0;text-align:center}
+      .icons img{display:block;border-radius:22%}
+      .icons figcaption{margin-top:8px;font-size:11px;color:var(--greige)}
+      /* swatches */
+      .sw{border-radius:14px;overflow:hidden;border:1px solid rgba(0,0,0,.08)}
+      .sw .chip{height:88px}
+      .sw .meta{padding:10px 12px;background:#fff;font-size:12px}
+      .sw .meta b{display:block;font-size:13px;color:var(--ink)}
+      .sw .meta span{color:var(--greige)}
+      /* do/dont */
+      .dd{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+      .dd ul{margin:8px 0 0;padding-left:18px;font-size:14px;line-height:1.7}
+      .tagrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+      .tag{font-size:12px;border:1px solid var(--greige);color:var(--ink);border-radius:999px;padding:5px 12px}
+      .assets a{color:var(--navy);font-weight:600;text-decoration:none;font-size:14px}
+      .assets li{margin:6px 0}
+      @media(max-width:760px){.cols-3{grid-template-columns:1fr 1fr}.dd{grid-template-columns:1fr}.hero .wm{font-size:46px}.hero .lock img{width:78px;height:78px}}
+    </style>
+  </head>
+  <body>
+    <!-- HERO -->
+    <div class="hero">
+      <div class="wrap">
+        <div class="kicker" style="color:var(--gold)">Brand Identity · Concept “Threshold”</div>
+        <div class="lock" style="margin-top:18px">
+          <img src="./symbol-reverse.svg" alt="StayEasy symbol" />
+          <span class="wm wordmark">StayEasy</span>
+        </div>
+        <div class="hairline"></div>
+        <p>A private membership for curated stays. Quiet luxury — an arch as the threshold to access, a keyhole for members only.</p>
+      </div>
+    </div>
+
+    <!-- LOGO LOCKUPS -->
+    <section><div class="wrap">
+      <div class="kicker">Logo system</div>
+      <h2 class="serif">로고 락업</h2>
+      <div class="grid cols-2" style="margin-top:22px">
+        <div class="card"><img src="./logo-horizontal.svg" alt="Horizontal" style="width:100%;max-width:360px"/><span class="muted">Primary · Horizontal</span></div>
+        <div class="card"><img src="./logo-horizontal-reverse.svg" alt="Reverse" style="width:100%;max-width:360px"/><span class="muted">Reverse (on navy)</span></div>
+        <div class="card"><img src="./logo-stacked.svg" alt="Stacked" style="width:200px"/><span class="muted">Stacked</span></div>
+        <div class="card"><img src="./wordmark.svg" alt="Wordmark" style="width:100%;max-width:300px"/><span class="muted">Wordmark only</span></div>
+      </div>
+    </div></section>
+
+    <!-- SYMBOL -->
+    <section><div class="wrap">
+      <div class="kicker">Symbol</div>
+      <h2 class="serif">심볼 — 아치 + 키홀</h2>
+      <div class="grid cols-2" style="margin-top:22px">
+        <div class="card"><img src="./symbol.svg" alt="Symbol on light" style="width:140px"/><span class="muted">Navy on light</span></div>
+        <div class="card dark"><img src="./symbol-reverse.svg" alt="Symbol on navy" style="width:140px"/><span class="muted" style="color:#AFC3CE">Ivory on navy</span></div>
+      </div>
+    </div></section>
+
+    <!-- APP ICON -->
+    <section><div class="wrap">
+      <div class="kicker">App icon</div>
+      <h2 class="serif">앱 아이콘 (확장 테스트)</h2>
+      <div class="icons" style="margin-top:22px">
+        <figure><img src="./app-icon.svg" width="128" height="128" alt="128"/><figcaption>128</figcaption></figure>
+        <figure><img src="./app-icon.svg" width="80" height="80" alt="80"/><figcaption>80</figcaption></figure>
+        <figure><img src="./favicon.svg" width="48" height="48" alt="48"/><figcaption>48 (favicon)</figcaption></figure>
+        <figure><img src="./favicon.svg" width="32" height="32" alt="32"/><figcaption>32</figcaption></figure>
+        <figure><img src="./favicon.svg" width="16" height="16" alt="16"/><figcaption>16</figcaption></figure>
+      </div>
+      <p class="muted" style="margin-top:14px">Midnight Navy 단색 배경 · 아이보리 아치 · 골드 키홀 · 골드 헤어라인 프레임(선택).</p>
+    </div></section>
+
+    <!-- COLOR -->
+    <section><div class="wrap">
+      <div class="kicker">Color</div>
+      <h2 class="serif">컬러 시스템</h2>
+      <p class="muted">비율 가이드 · Navy 60–70% / Neutral 25–35% / Gold ≤10%</p>
+      <div class="grid cols-3" style="margin-top:18px">
+        <div class="sw"><div class="chip" style="background:#0F2238"></div><div class="meta"><b>Midnight Navy — Main</b><span>#0F2238</span></div></div>
+        <div class="sw"><div class="chip" style="background:#C9A96A"></div><div class="meta"><b>Champagne Gold — Point</b><span>#C9A96A</span></div></div>
+        <div class="sw"><div class="chip" style="background:#F5EFE6"></div><div class="meta"><b>Warm Ivory — Sub</b><span>#F5EFE6</span></div></div>
+        <div class="sw"><div class="chip" style="background:#1C1C1E"></div><div class="meta"><b>Charcoal Ink — Text</b><span>#1C1C1E</span></div></div>
+        <div class="sw"><div class="chip" style="background:#E8DFD0"></div><div class="meta"><b>Soft Beige — Sub</b><span>#E8DFD0</span></div></div>
+        <div class="sw"><div class="chip" style="background:#A77B4F"></div><div class="meta"><b>Soft Bronze — Point alt</b><span>#A77B4F</span></div></div>
+      </div>
+    </div></section>
+
+    <!-- TYPOGRAPHY -->
+    <section><div class="wrap">
+      <div class="kicker">Typography</div>
+      <h2 class="serif">타이포그래피</h2>
+      <div style="margin-top:18px">
+        <div class="serif" style="font-size:46px;color:var(--navy)">Curated stays, quietly.</div>
+        <div class="serif" style="font-size:30px;color:var(--navy);margin-top:6px">엄선된 머무름, 조용한 특권.</div>
+        <p style="max-width:620px;margin-top:14px;font-size:15px;line-height:1.7">
+          Display — Cormorant Garamond / Canela · Noto Serif KR &nbsp;|&nbsp; Body — Inter / Söhne · Pretendard.
+          본문은 그로테스크로 명료하게, 헤드라인은 고대비 세리프로 품격을 더합니다.
+        </p>
+        <div class="tagrow">
+          <span class="tag">Quiet Luxury</span><span class="tag">Curated</span><span class="tag">Private Access</span>
+          <span class="tag">Trusted</span><span class="tag">Seamless</span><span class="tag">Editorial</span>
+        </div>
+      </div>
+    </div></section>
+
+    <!-- DO / DON'T -->
+    <section><div class="wrap">
+      <div class="kicker">Guidelines</div>
+      <h2 class="serif">Do / Don’t</h2>
+      <div class="dd" style="margin-top:18px">
+        <div class="card" style="align-items:flex-start">
+          <b style="color:var(--navy)">Do ✅</b>
+          <ul>
+            <li>딥 네이비 위 절제된 골드 헤어라인</li>
+            <li>넉넉한 여백 · 정밀한 자간</li>
+            <li>추상적 문 / 아치 / 키홀 모티프</li>
+            <li>단색 · 반전의 단순 운용</li>
+            <li>앱 아이콘은 심볼 단독</li>
+          </ul>
+        </div>
+        <div class="card" style="align-items:flex-start">
+          <b style="color:var(--bronze)">Don’t ❌</b>
+          <ul>
+            <li>면 전체 금색 · 골드 그라데이션</li>
+            <li>왕관 · 다이아 · 별5개 · 침대 · 비행기</li>
+            <li>복잡한 엠블럼 / 문장(crest)</li>
+            <li>그림자 · 외곽선 · 기울임 · 왜곡</li>
+            <li>아이콘에 워드마크 욱여넣기</li>
+          </ul>
+        </div>
+      </div>
+    </div></section>
+
+    <!-- ASSETS -->
+    <section class="assets"><div class="wrap">
+      <div class="kicker">Assets</div>
+      <h2 class="serif">다운로드 (SVG)</h2>
+      <ul style="list-style:none;padding:0;margin-top:14px">
+        <li><a href="./logo-horizontal.svg">logo-horizontal.svg</a></li>
+        <li><a href="./logo-horizontal-reverse.svg">logo-horizontal-reverse.svg</a></li>
+        <li><a href="./logo-stacked.svg">logo-stacked.svg</a></li>
+        <li><a href="./wordmark.svg">wordmark.svg</a></li>
+        <li><a href="./symbol.svg">symbol.svg</a> · <a href="./symbol-reverse.svg">symbol-reverse.svg</a></li>
+        <li><a href="./app-icon.svg">app-icon.svg</a> · <a href="./favicon.svg">favicon.svg</a></li>
+      </ul>
+      <p class="muted" style="margin-top:16px">* 워드마크 SVG의 텍스트는 시안용입니다. 양산 시 라이선스 폰트로 아웃라인(패스 변환)하세요.</p>
+    </div></section>
+
+    <div class="wrap" style="padding:30px 24px;color:var(--greige);font-size:12px">StayEasy — Concept “Threshold” · Quiet luxury membership identity</div>
+  </body>
+</html>
