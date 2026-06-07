@@ -39,3 +39,30 @@ test('API mode: purchase → activate grants the membership', async ({ page }) =
   await page.getByRole('button', { name: 'Voucher wallet' }).click()
   await expect(page.getByText('Club Marriott Vietnam').first()).toBeVisible()
 })
+
+test('API mode: book a voucher → complete the reservation (server-backed)', async ({ page }) => {
+  // Join a free program (IHG, distinct from the Hilton test to avoid shared
+  // in-memory backend state colliding). Gated sign-in → backend token.
+  await page.goto('/membership/ihg-one-rewards-vietnam')
+  await page.getByRole('button', { name: 'Join for free' }).click()
+  await page.getByRole('button', { name: 'Continue with Google' }).click()
+  await expect(page.getByRole('button', { name: 'Account' })).toBeVisible()
+
+  // Request a booking — POST /reservations on the real backend.
+  await page.goto('/my-benefits')
+  await page.getByRole('button', { name: 'Request booking' }).first().click()
+  await expect(page.getByText('New reservation request')).toBeVisible()
+  await page.locator('[data-cal-state="available"]').first().click() // pick an available date
+  await page.getByRole('button', { name: 'Create request' }).click()
+
+  // Complete it — PATCH /reservations/:id/status → completed.
+  await page.getByRole('button', { name: /Reservations/ }).click()
+  await page.getByRole('button', { name: 'Mark completed' }).click()
+  await expect(page.getByText('Completed').first()).toBeVisible()
+
+  // Reload: the completed reservation is re-fetched from the backend, not local.
+  await page.reload()
+  await page.goto('/my-benefits')
+  await page.getByRole('button', { name: /Reservations/ }).click()
+  await expect(page.getByText('Completed').first()).toBeVisible()
+})
