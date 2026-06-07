@@ -3,8 +3,8 @@ import { buildUrl } from './client.js'
 
 describe('buildUrl', () => {
   it('joins base (incl. /api/v1) and path with a single slash', () => {
-    expect(buildUrl('https://api.stayeasy.app/api/v1', '/wallet')).toBe('https://api.stayeasy.app/api/v1/wallet')
-    expect(buildUrl('https://api.stayeasy.app/api/v1/', 'wallet')).toBe('https://api.stayeasy.app/api/v1/wallet')
+    expect(buildUrl('https://api.ohmyselect.com/api/v1', '/wallet')).toBe('https://api.ohmyselect.com/api/v1/wallet')
+    expect(buildUrl('https://api.ohmyselect.com/api/v1/', 'wallet')).toBe('https://api.ohmyselect.com/api/v1/wallet')
   })
 
   it('appends a query string, skipping null/empty values', () => {

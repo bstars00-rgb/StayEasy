@@ -88,7 +88,7 @@ export default function BookingRequestModal({ open, onClose, membership, templat
         ? `${t('reservation.children')}: ${children} (${childAges.map(ageLabel).join(', ')})`
         : `${t('reservation.children')}: 0`
     return [
-      'Hello StayEasy,',
+      'Hello OhmySelect,',
       'I would like to use a membership voucher.',
       '',
       `Membership: ${membership.name}`,
@@ -120,7 +120,7 @@ export default function BookingRequestModal({ open, onClose, membership, templat
 
   function sendEmail() {
     record()
-    window.location.href = mailtoLink(`StayEasy booking — ${template.title}`, buildMessage())
+    window.location.href = mailtoLink(`OhmySelect booking — ${template.title}`, buildMessage())
     finish()
   }
 

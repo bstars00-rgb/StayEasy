@@ -1,4 +1,4 @@
-# AGENTS.md — StayEasy (Claude × Codex)
+# AGENTS.md — OhmySelect (Claude × Codex)
 
 A **monorepo** built by two agents in parallel. Roles and shared docs are
 defined in [`docs/COLLABORATION_PLAN.md`](docs/COLLABORATION_PLAN.md).

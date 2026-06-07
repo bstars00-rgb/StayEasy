@@ -1,4 +1,4 @@
-// Centralized membership mock data for StayEasy.
+// Centralized membership mock data for OhmySelect.
 //
 // FIELD REFERENCE
 //  id              stable id (URLs, localStorage)
@@ -262,8 +262,8 @@ export const memberships = [
 ]
 
 // Sales configuration for PAID memberships.
-//  salePrice      discounted price StayEasy offers (in the membership currency)
-//  commissionRate fraction of the paid amount StayEasy earns (BM revenue)
+//  salePrice      discounted price OhmySelect offers (in the membership currency)
+//  commissionRate fraction of the paid amount OhmySelect earns (BM revenue)
 // Free programs (annualFee 0) are not listed — they are joined for free.
 export const sales = {
   'club-marriott-vietnam': { salePrice: 4200000, commissionRate: 0.12 },
@@ -281,7 +281,7 @@ export function isPaid(membership) {
 }
 
 // Resolve pricing for a membership: list price, optional sale price,
-// the amount the buyer actually pays, and the commission StayEasy earns.
+// the amount the buyer actually pays, and the commission OhmySelect earns.
 export function getPricing(membership) {
   if (!membership) return null
   const cfg = sales[membership.id] || {}

@@ -46,7 +46,7 @@ export default {
           'sans-serif',
         ],
       },
-      // StayEasy typography scale (mobile-first). [size, {lineHeight, letterSpacing, fontWeight}]
+      // OhmySelect typography scale (mobile-first). [size, {lineHeight, letterSpacing, fontWeight}]
       fontSize: {
         hero: ['1.75rem', { lineHeight: '1.25', letterSpacing: '-0.02em', fontWeight: '700' }],
         page: ['1.375rem', { lineHeight: '1.3', letterSpacing: '-0.01em', fontWeight: '700' }],

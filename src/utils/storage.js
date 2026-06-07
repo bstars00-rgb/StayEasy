@@ -1,4 +1,4 @@
-// localStorage helpers for StayEasy. All access is wrapped in try/catch so a
+// localStorage helpers for OhmySelect. All access is wrapped in try/catch so a
 // disabled or full storage (e.g. Safari private mode) never crashes the app.
 //
 // Stored shapes:
@@ -172,7 +172,7 @@ export function removeReservation(id) {
 //         listPrice, salePrice, paidAmount, currency, commissionRate,
 //         commissionAmount, status, createdAt }
 // status: 'requested'|'invoiced'|'paid'|'activated'|'cancelled'
-// Payment happens at the hotel brand; StayEasy only records the order and
+// Payment happens at the hotel brand; OhmySelect only records the order and
 // the commission it will earn on the paid amount.
 
 export function getOrders() {

@@ -1,5 +1,5 @@
 // Brand → gradient accent mapping, kept out of the data file so membership
-// records stay focused on facts. Falls back to the StayEasy teal.
+// records stay focused on facts. Falls back to the OhmySelect teal.
 const ACCENTS = {
   Marriott: ['#9a1b1b', '#d23c3c'],
   Accor: ['#1d4ed8', '#3b82f6'],

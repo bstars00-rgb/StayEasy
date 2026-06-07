@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 
-// Full purchase BM flow: buy a paid membership through StayEasy, advance the
+// Full purchase BM flow: buy a paid membership through OhmySelect, advance the
 // order to activation (payment is settled at the brand), and confirm the
 // wallet is granted and the commission is recorded.
 test('purchase a paid membership and earn commission', async ({ page }) => {

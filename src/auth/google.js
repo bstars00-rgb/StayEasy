@@ -24,7 +24,7 @@ function b64urlDecode(segment) {
   return new TextDecoder().decode(bytes)
 }
 
-// Parse a Google ID token (JWT) into a StayEasy user profile.
+// Parse a Google ID token (JWT) into a OhmySelect user profile.
 export function parseGoogleCredential(jwt) {
   const parts = String(jwt).split('.')
   if (parts.length < 2) throw new Error('Invalid credential')

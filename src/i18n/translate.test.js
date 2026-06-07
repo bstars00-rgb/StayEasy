@@ -8,7 +8,7 @@ describe('translate', () => {
   })
 
   it('interpolates variables', () => {
-    expect(translate('en', 'home.popularIn', { city: 'Hanoi' })).toBe('Popular in Hanoi')
+    expect(translate('en', 'home.popularIn', { city: 'Hanoi' })).toBe('Selected for Hanoi')
   })
 
   it('falls back to English when a language is missing the key', () => {
@@ -23,6 +23,6 @@ describe('translate', () => {
   })
 
   it('leaves unmatched placeholders intact', () => {
-    expect(translate('en', 'home.popularIn')).toBe('Popular in {city}')
+    expect(translate('en', 'home.popularIn')).toBe('Selected for {city}')
   })
 })

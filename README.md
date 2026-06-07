@@ -1,6 +1,6 @@
-# StayEasy
+# OhmySelect
 
-StayEasy is a **frontend-only MVP** app that helps users discover, compare, and manage **hotel membership benefits by city**.
+**OhmySelect by Ohmyhotel** is a curated hotel-benefit app — discover, compare, manage, and use **selected hotel membership benefits** (memberships, vouchers, dining, spa, room and staycation perks) by city. It is a **frontend-only MVP**.
 
 > This is an MVP. There is **no backend, database, login, or payment** yet. All user data (saved memberships, vouchers, language, city) is kept in the browser via `localStorage`, and membership data is sample/mock data for illustration.
 
@@ -17,8 +17,8 @@ StayEasy is a **frontend-only MVP** app that helps users discover, compare, and 
 - City-based hotel membership discovery (Ho Chi Minh, Da Nang, Hanoi, Seoul, Bangkok, Tokyo)
 - Membership comparison (side-by-side, up to 3)
 - Membership detail pages with benefits, hotels, notes, a value/ROI summary, and the included voucher pack — tap any voucher for its full description, eligible hotels, on-site conditions, and terms
-- **Purchase flow** — paid memberships are bought through StayEasy while payment is settled at the hotel brand (invoice); orders move requested → invoiced → paid → activated, and activation issues the voucher pack to the wallet
-- **Commission BM** — each paid membership has a commission rate; an internal (demo) settlement view totals GMV and StayEasy commission
+- **Purchase flow** — paid memberships are bought through OhmySelect while payment is settled at the hotel brand (invoice); orders move requested → invoiced → paid → activated, and activation issues the voucher pack to the wallet
+- **Commission BM** — each paid membership has a commission rate; an internal (demo) settlement view totals GMV and OhmySelect commission
 - **Partner dashboard** — `/partner` aggregates orders into KPIs, GMV/commission by currency, order-status distribution, and per-membership breakdown
 - **Voucher gifting** — transferable vouchers can be gifted to a recipient (reduces availability)
 - **Per-account data** — wallet/orders/reservations are namespaced per signed-in user; guests keep separate data
@@ -34,7 +34,7 @@ StayEasy is a **frontend-only MVP** app that helps users discover, compare, and 
 ## Project structure
 
 ```
-StayEasy/
+OhmySelect/
 ├── index.html
 ├── package.json
 ├── vite.config.js · tailwind.config.js · postcss.config.js

@@ -9,7 +9,7 @@ import Icon from '../components/Icon.jsx'
 
 // Placeholder contacts — swap for real values (or a backend) later.
 const WHATSAPP_NUMBER = '84900000000' // international format, no '+'
-const SUPPORT_EMAIL = 'hello@stayeasy.app'
+const SUPPORT_EMAIL = 'hello@ohmyselect.com'
 const DRAFT_KEY = 'stayeasy.assistDraft'
 
 const REQUEST_TYPES = [
@@ -94,7 +94,7 @@ export default function RequestAssistance() {
 
   function sendEmail() {
     if (!validate()) return
-    const subject = `StayEasy — ${t(REQUEST_TYPES.find((x) => x.value === form.type).labelKey)}`
+    const subject = `OhmySelect — ${t(REQUEST_TYPES.find((x) => x.value === form.type).labelKey)}`
     window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(buildMessage())}`
   }
 

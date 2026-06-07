@@ -10,7 +10,7 @@ test('guest is prompted to sign in, then the action resumes', async ({ page }) =
   // A gated action (joining a free membership) opens the sign-in modal.
   await page.goto('/membership/hilton-honors-vietnam')
   await page.getByRole('button', { name: 'Join for free' }).click()
-  await expect(page.getByText('Sign in to StayEasy')).toBeVisible()
+  await expect(page.getByText('Sign in to OhmySelect')).toBeVisible()
 
   // Demo Google sign-in completes and resumes the queued join.
   await page.getByRole('button', { name: 'Continue with Google' }).click()

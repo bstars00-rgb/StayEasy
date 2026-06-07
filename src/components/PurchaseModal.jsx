@@ -8,7 +8,7 @@ import { Modal } from './ui.jsx'
 import CTAButton from './CTAButton.jsx'
 import Icon from './Icon.jsx'
 
-// Purchase request flow. StayEasy records the order; actual payment is made
+// Purchase request flow. OhmySelect records the order; actual payment is made
 // to the hotel brand via their invoice. Vouchers are issued once the order
 // is activated (see AppContext.setOrderStatus).
 export default function PurchaseModal({ open, onClose, membership }) {
@@ -47,7 +47,7 @@ export default function PurchaseModal({ open, onClose, membership }) {
 
   function buildMessage() {
     return [
-      'Hello StayEasy,',
+      'Hello OhmySelect,',
       'I would like to purchase a hotel membership.',
       '',
       `Membership: ${membership.name}`,
@@ -69,7 +69,7 @@ export default function PurchaseModal({ open, onClose, membership }) {
     record()
     const msg = buildMessage()
     if (kind === 'whatsapp') window.open(whatsappLink(msg), '_blank', 'noopener')
-    else window.location.href = mailtoLink(`StayEasy purchase — ${membership.name}`, msg)
+    else window.location.href = mailtoLink(`OhmySelect purchase — ${membership.name}`, msg)
     showToast(t('purchase.requested'))
     onClose()
   }

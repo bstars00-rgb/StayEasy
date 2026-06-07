@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 160" role="img" aria-label="StayEasy logo">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 160" role="img" aria-label="OhmySelect logo">
   <g transform="translate(6,20)">
     <path d="M44 92 V58 Q44 33 60 33 Q76 33 76 58 V92" fill="none" stroke="#0F2238" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
     <circle cx="60" cy="58" r="4.1" fill="#C9A96A"/>
     <path d="M57.7 60.2 H62.3 L61 71 H59 Z" fill="#C9A96A"/>
   </g>
   <text x="120" y="103" font-family="'Cormorant Garamond','Canela','Noto Serif KR',Georgia,serif"
-        font-size="72" font-weight="500" letter-spacing="1.5" fill="#0F2238">StayEasy</text>
+        font-size="72" font-weight="500" letter-spacing="1.5" fill="#0F2238">OhmySelect</text>
 </svg>

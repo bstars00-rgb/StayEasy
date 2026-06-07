@@ -210,7 +210,7 @@ function TabBtn({ active, onClick, children }) {
   )
 }
 
-// Internal/demo view of StayEasy's commission revenue. Payment itself is
+// Internal/demo view of OhmySelect's commission revenue. Payment itself is
 // collected by the hotel brand; this only reflects the BM economics.
 function SettlementSummary({ orders, t, lang }) {
   const earned = orders.filter((o) => o.status === 'paid' || o.status === 'activated')

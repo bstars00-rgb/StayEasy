@@ -1,4 +1,4 @@
-// HTTP client for the StayEasy backend (built by Codex).
+// HTTP client for the OhmySelect backend (built by Codex).
 // Contract: docs/BACKEND_API_SPEC.md  (prefix /api/v1, { data, meta, error } envelope,
 // Bearer accessToken). The app stays on localStorage until VITE_API_BASE_URL is set.
 
