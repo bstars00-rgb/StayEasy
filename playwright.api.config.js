@@ -8,7 +8,7 @@ export default defineConfig({
   timeout: 40000,
   fullyParallel: false, // shared in-memory backend state
   workers: 1,
-  retries: 0,
+  retries: process.env.CI ? 1 : 0,
   reporter: 'list',
   use: {
     baseURL: 'http://localhost:5174',
