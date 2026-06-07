@@ -1,11 +1,11 @@
 import http from 'node:http'
 import { randomUUID } from 'node:crypto'
 import { URL } from 'node:url'
-import { StayEasyStore } from './db.js'
+import { OhmySelectStore } from './db.js'
 
 const PORT = Number(process.env.PORT || 8787)
 const API_PREFIX = '/api/v1'
-const store = await StayEasyStore.open()
+const store = await OhmySelectStore.open()
 
 function now() { return new Date().toISOString() }
 function makeId(prefix) { return `${prefix}_${randomUUID().slice(0, 8)}` }
@@ -25,8 +25,8 @@ async function route(req,res){
   const path=normalizePath(url.pathname)
   const body=['POST','PATCH','PUT'].includes(req.method)?await readBody(req):{}
 
-  if(req.method==='GET'&&path==='/') return json(res,200,{ok:true,service:'stayeasy-backend',docs:'/api/v1/health'})
-  if(req.method==='GET'&&path==='/health') return json(res,200,{ok:true,service:'stayeasy-backend',time:now()})
+  if(req.method==='GET'&&path==='/') return json(res,200,{ok:true,service:'ohmyselect-backend',docs:'/api/v1/health'})
+  if(req.method==='GET'&&path==='/health') return json(res,200,{ok:true,service:'ohmyselect-backend',time:now()})
   if(req.method==='GET'&&path==='/cities') return json(res,200,await store.db.all('SELECT id, country_id AS country FROM cities WHERE active = 1 ORDER BY sort_order'))
   if(req.method==='POST'&&path==='/auth/google'){const user=await store.upsertDemoUser(body.credential||body.idToken,makeId); const token=`demo_${randomUUID()}`; store.rememberToken(token,user); return json(res,200,{accessToken:token,refreshToken:token,token,user})}
   if(req.method==='GET'&&(path==='/auth/me'||path==='/me')){const user=await requireUser(req,res); if(!user)return; return json(res,200,user)}
@@ -63,4 +63,4 @@ async function route(req,res){
 }
 
 const server=http.createServer((req,res)=>{route(req,res).catch(err=>{console.error(err); error(res,500,'INTERNAL_ERROR','Unexpected server error.')})})
-server.listen(PORT,'0.0.0.0',()=>{console.log(`StayEasy backend listening on http://0.0.0.0:${PORT}`)})
+server.listen(PORT,'0.0.0.0',()=>{console.log(`OhmySelect backend listening on http://0.0.0.0:${PORT}`)})
