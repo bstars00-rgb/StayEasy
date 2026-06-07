@@ -32,19 +32,33 @@ export default {
         beige: '#e8dfd0',
       },
       fontFamily: {
+        // One humanist-sans stack; the browser picks the right font per glyph
+        // so all 5 languages share the same Modern-Premium tone.
         sans: [
+          'Pretendard',
           'Inter',
+          'Noto Sans JP',
+          'Noto Sans SC',
           'system-ui',
           '-apple-system',
           'Segoe UI',
           'Roboto',
-          'Noto Sans',
-          'Apple SD Gothic Neo',
-          'Malgun Gothic',
-          'Hiragino Sans',
-          'Microsoft YaHei',
           'sans-serif',
         ],
+      },
+      // StayEasy typography scale (mobile-first). [size, {lineHeight, letterSpacing, fontWeight}]
+      fontSize: {
+        hero: ['1.75rem', { lineHeight: '1.25', letterSpacing: '-0.02em', fontWeight: '700' }],
+        page: ['1.375rem', { lineHeight: '1.3', letterSpacing: '-0.01em', fontWeight: '700' }],
+        section: ['1.125rem', { lineHeight: '1.35', fontWeight: '600' }],
+        card: ['1rem', { lineHeight: '1.4', fontWeight: '600' }],
+        body: ['0.9375rem', { lineHeight: '1.6' }],
+        caption: ['0.75rem', { lineHeight: '1.5' }],
+        button: ['0.875rem', { lineHeight: '1', letterSpacing: '0.01em', fontWeight: '600' }],
+        price: ['1.25rem', { lineHeight: '1.2', letterSpacing: '-0.01em', fontWeight: '700' }],
+        'price-lg': ['1.5rem', { lineHeight: '1.15', letterSpacing: '-0.01em', fontWeight: '700' }],
+        voucher: ['1rem', { lineHeight: '1.1', fontWeight: '700' }],
+        alert: ['0.8125rem', { lineHeight: '1.4', fontWeight: '600' }],
       },
       boxShadow: {
         card: '0 2px 12px rgba(16, 60, 70, 0.06)',

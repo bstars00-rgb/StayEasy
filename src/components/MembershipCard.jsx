@@ -96,7 +96,7 @@ export default function MembershipCard({ membership: m }) {
         <div className="mt-3 flex items-end justify-between">
           <div>
             <p className="text-[11px] text-slate-400">{t('common.annualFee')}</p>
-            <p className="font-bold text-slate-900">
+            <p className="font-bold text-slate-900 tabular-nums">
               {free ? (
                 <span className="text-emerald-600">{t('common.free')}</span>
               ) : (
@@ -106,7 +106,7 @@ export default function MembershipCard({ membership: m }) {
           </div>
           <div className="text-right">
             <p className="text-[11px] text-slate-400">{t('common.estSavingsShort')}</p>
-            <p className="font-bold text-brand-600">{formatMoney(m.estimatedSavings, m.currency, lang)}</p>
+            <p className="font-bold text-brand-600 tabular-nums">{formatMoney(m.estimatedSavings, m.currency, lang)}</p>
           </div>
         </div>
       </div>

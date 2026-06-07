@@ -129,7 +129,7 @@ function Kpi({ icon, label, value, tone = 'slate' }) {
         <Icon name={icon} size={18} />
       </span>
       <div className="min-w-0">
-        <p className="truncate text-lg font-extrabold leading-tight text-slate-900">{value}</p>
+        <p className="truncate text-lg font-extrabold leading-tight text-slate-900 tabular-nums">{value}</p>
         <p className="truncate text-[11px] text-slate-500">{label}</p>
       </div>
     </div>

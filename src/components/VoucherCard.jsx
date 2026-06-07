@@ -104,7 +104,7 @@ export default function VoucherCard({ membership, template, onRequest, onDetails
 function Count({ label, value, highlight, muted }) {
   return (
     <div className="rounded-xl bg-slate-50 py-2">
-      <p className={`text-lg font-extrabold leading-none ${highlight ? 'text-brand-600' : muted ? 'text-slate-400' : 'text-slate-800'}`}>
+      <p className={`text-lg font-extrabold leading-none tabular-nums ${highlight ? 'text-brand-600' : muted ? 'text-slate-400' : 'text-slate-800'}`}>
         {value}
       </p>
       <p className="mt-1 text-[11px] text-slate-400">{label}</p>

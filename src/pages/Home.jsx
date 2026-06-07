@@ -59,7 +59,7 @@ export default function Home() {
       {/* Hero */}
       <section className="overflow-hidden rounded-xl2 bg-gradient-to-br from-brand-500 to-brand-700 p-6 text-white shadow-card">
         <p className="text-sm font-semibold text-brand-50/90">{t('common.tagline')}</p>
-        <h1 className="mt-2 text-2xl font-extrabold leading-snug">{t('home.headline')}</h1>
+        <h1 className="mt-2 text-hero">{t('home.headline')}</h1>
         <p className="mt-2 text-sm leading-relaxed text-brand-50/90">{t('home.subtitle')}</p>
       </section>
 
