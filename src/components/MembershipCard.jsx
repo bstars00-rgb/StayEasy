@@ -59,7 +59,7 @@ export default function MembershipCard({ membership: m }) {
 
       <div className="p-4">
         <div className="flex items-start gap-3">
-          <BrandAvatar membership={m} className="-mt-8 ring-2 ring-white" />
+          <BrandAvatar membership={m} className="relative z-10 -mt-8 ring-2 ring-white" />
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
