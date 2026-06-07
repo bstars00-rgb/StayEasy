@@ -3,10 +3,12 @@ import { defineConfig, devices } from '@playwright/test'
 // API-mode E2E: boots the backend (8787) AND the frontend in API mode (5174)
 // together, then runs specs in ./e2e-api against the real API.
 // Run with: npm run e2e:api
+const sqlitePath = `backend/.data/e2e-api-${Date.now()}.sqlite`
+
 export default defineConfig({
   testDir: './e2e-api',
   timeout: 40000,
-  fullyParallel: false, // shared in-memory backend state
+  fullyParallel: false,
   workers: 1,
   retries: process.env.CI ? 1 : 0,
   reporter: 'list',
@@ -21,6 +23,7 @@ export default defineConfig({
       url: 'http://localhost:8787/health',
       reuseExistingServer: !process.env.CI,
       timeout: 30000,
+      env: { SQLITE_PATH: sqlitePath },
     },
     {
       // Vite exposes VITE_-prefixed vars from process.env, so this enables API mode.
