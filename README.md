@@ -115,6 +115,16 @@ The build output in `dist/` is a static site and can be deployed to **Vercel**, 
 - **Vercel / Netlify:** import the repo; build command `npm run build`, output directory `dist`.
 - **GitHub Pages:** publish the `dist/` folder. If hosting under a sub-path, set Vite's `base` option in `vite.config.js`.
 
+## Backend & collaboration
+
+The backend is developed in parallel against a shared contract:
+
+- **Contract (source of truth):** [`docs/api/openapi.yaml`](docs/api/openapi.yaml)
+- **Collaboration guide:** [`AGENTS.md`](AGENTS.md) · **Backend notes:** [`docs/BACKEND.md`](docs/BACKEND.md)
+- **Frontend seam:** `src/api/` (`httpClient.js` + `stayeasyApi.js`) mirrors the
+  contract 1:1. The app runs on `localStorage` until `VITE_USE_API=true`, then
+  `AppContext` routes the same operations through the API. See [`.env.example`](.env.example).
+
 ## Adding a backend later
 
 The app is structured so a backend can be added without rewriting the UI:
