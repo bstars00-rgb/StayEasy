@@ -15,7 +15,7 @@ const CAT = {
   other: { icon: 'dots', tone: 'text-slate-500 bg-slate-100' },
 }
 
-export default function VoucherCard({ membership, template, onRequest, onDetails }) {
+export default function VoucherCard({ membership, template, onRequest, onDetails, onTransfer }) {
   const { t, lang } = useTranslation()
   const { getVoucherStats } = useApp()
 
@@ -91,6 +91,12 @@ export default function VoucherCard({ membership, template, onRequest, onDetails
         <Icon name="calendar" size={17} />
         {available <= 0 ? t('voucher.allUsed') : t('voucher.requestBooking')}
       </button>
+      {template.transferable && onTransfer && available > 0 && (
+        <button onClick={() => onTransfer(membership, template)} className="btn-ghost mt-2 w-full text-slate-600">
+          <Icon name="gift" size={16} />
+          {t('transfer.action')}
+        </button>
+      )}
     </div>
   )
 }

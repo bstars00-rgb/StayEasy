@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useCallback, useRef, useMemo } fro
 import { translate, DEFAULT_LANG } from '../i18n/translations.js'
 import { DEFAULT_CITY } from '../data/cities.js'
 import { getVoucherTemplate } from '../data/voucherPacks.js'
-import { voucherStats, countOpenReservations } from '../utils/vouchers.js'
+import { voucherStats, countOpenReservations, countTransfers } from '../utils/vouchers.js'
 import * as storage from '../utils/storage.js'
 
 const MAX_COMPARE = 3
@@ -36,6 +36,7 @@ export function AppProvider({ children }) {
   const [compareIds, setCompareIds] = useState(() => readCompare())
   const [usage, setUsage] = useState(() => storage.getVoucherUsage())
   const [reservations, setReservations] = useState(() => storage.getReservations())
+  const [transfers, setTransfers] = useState(() => storage.getTransfers())
   const [orders, setOrders] = useState(() => storage.getOrders())
   const [toast, setToast] = useState(null)
   const toastTimer = useRef(null)
@@ -71,9 +72,10 @@ export function AppProvider({ children }) {
   // reservations (orders are kept as historical purchase records).
   const removeSaved = useCallback((id) => {
     setSavedIds(storage.removeMembership(id))
-    const { usage: u, reservations: r } = storage.removeMembershipArtifacts(id)
+    const { usage: u, reservations: r, transfers: g } = storage.removeMembershipArtifacts(id)
     setUsage(u)
     setReservations(r)
+    setTransfers(g)
   }, [])
 
   const toggleSaved = useCallback(
@@ -112,14 +114,15 @@ export function AppProvider({ children }) {
     [usage]
   )
 
-  // Inventory for a voucher template, accounting for consumed + held units.
+  // Inventory for a voucher template, accounting for consumed + held + gifted.
   const getVoucherStats = useCallback(
     (membershipId, template) => {
       const used = usage[`${membershipId}:${template.templateId}`] || 0
       const held = countOpenReservations(reservations, membershipId, template.templateId)
-      return voucherStats(template.quantity, used, held)
+      const gifted = countTransfers(transfers, membershipId, template.templateId)
+      return voucherStats(template.quantity, used, held, gifted)
     },
-    [usage, reservations]
+    [usage, reservations, transfers]
   )
 
   // Consume one unit of a voucher (cap at its quantity).
@@ -154,6 +157,13 @@ export function AppProvider({ children }) {
     setReservations(storage.removeReservation(id))
   }, [])
 
+  /* ----- transfers (gifts) ----- */
+  const createTransfer = useCallback((transfer) => {
+    const entry = storage.addTransfer(transfer)
+    setTransfers(storage.getTransfers())
+    return entry
+  }, [])
+
   /* ----- orders / purchases ----- */
   const createOrder = useCallback((order) => {
     const entry = storage.addOrder(order)
@@ -184,6 +194,7 @@ export function AppProvider({ children }) {
       compareIds, inCompare, toggleCompare, removeFromCompare, maxCompare: MAX_COMPARE,
       usage, usedCount, getVoucherStats, consumeVoucher,
       reservations, createReservation, setReservationStatus, deleteReservation,
+      transfers, createTransfer,
       orders, createOrder, setOrderStatus, deleteOrder,
       toast, showToast,
     }),
@@ -193,6 +204,7 @@ export function AppProvider({ children }) {
       compareIds, inCompare, toggleCompare, removeFromCompare,
       usage, usedCount, getVoucherStats, consumeVoucher,
       reservations, createReservation, setReservationStatus, deleteReservation,
+      transfers, createTransfer,
       orders, createOrder, setOrderStatus, deleteOrder,
       toast, showToast,
     ]

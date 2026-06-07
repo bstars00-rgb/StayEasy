@@ -12,6 +12,7 @@ const KEYS = {
   memberships: 'stayeasy.savedMemberships',
   usage: 'stayeasy.voucherUsage',
   reservations: 'stayeasy.reservations',
+  transfers: 'stayeasy.transfers',
   orders: 'stayeasy.orders',
   auth: 'stayeasy.auth',
   lang: 'stayeasy.lang',
@@ -91,7 +92,10 @@ export function removeMembershipArtifacts(membershipId) {
   const reservations = getReservations().filter((r) => r.membershipId !== membershipId)
   writeJSON(KEYS.reservations, reservations)
 
-  return { usage, reservations }
+  const transfers = getTransfers().filter((x) => x.membershipId !== membershipId)
+  writeJSON(KEYS.transfers, transfers)
+
+  return { usage, reservations, transfers }
 }
 
 /* --------------------------- Voucher usage ----------------------------- */
@@ -174,6 +178,24 @@ export function removeOrder(id) {
   const list = getOrders().filter((o) => o.id !== id)
   writeJSON(KEYS.orders, list)
   return list
+}
+
+/* ------------------------------ Transfers ------------------------------ */
+// Voucher gifts. Each: { id, membershipId, templateId, title, recipientName,
+//   recipientContact, message, createdAt }. Each transfer consumes one unit
+// of the voucher's availability.
+
+export function getTransfers() {
+  const list = readJSON(KEYS.transfers, [])
+  return Array.isArray(list) ? list : []
+}
+
+export function addTransfer(transfer) {
+  const list = getTransfers()
+  const entry = { id: uniqueId('g'), createdAt: new Date().toISOString(), ...transfer }
+  list.unshift(entry)
+  writeJSON(KEYS.transfers, list)
+  return entry
 }
 
 /* -------------------------------- Auth --------------------------------- */

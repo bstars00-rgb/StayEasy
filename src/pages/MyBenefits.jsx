@@ -11,6 +11,7 @@ import ReservationCard from '../components/ReservationCard.jsx'
 import OrderCard from '../components/OrderCard.jsx'
 import BookingRequestModal from '../components/BookingRequestModal.jsx'
 import VoucherDetailModal from '../components/VoucherDetailModal.jsx'
+import TransferModal from '../components/TransferModal.jsx'
 import EmptyState from '../components/EmptyState.jsx'
 import CTAButton from '../components/CTAButton.jsx'
 import Icon from '../components/Icon.jsx'
@@ -25,6 +26,7 @@ export default function MyBenefits() {
   const [category, setCategory] = useState('all')
   const [booking, setBooking] = useState(null) // { membership, template }
   const [detail, setDetail] = useState(null) // { membership, template }
+  const [gift, setGift] = useState(null) // { membership, template }
 
   const ownedMemberships = useMemo(() => savedIds.map(getMembership).filter(Boolean), [savedIds])
 
@@ -121,6 +123,7 @@ export default function MyBenefits() {
                   template={template}
                   onRequest={(m, tpl) => requireAuth(() => setBooking({ membership: m, template: tpl }))}
                   onDetails={(m, tpl) => setDetail({ membership: m, template: tpl })}
+                  onTransfer={(m, tpl) => requireAuth(() => setGift({ membership: m, template: tpl }))}
                 />
               ))}
             </div>
@@ -163,6 +166,13 @@ export default function MyBenefits() {
         membership={detail?.membership}
         template={detail?.template}
         stats={detail ? getVoucherStats(detail.membership.id, detail.template) : null}
+      />
+
+      <TransferModal
+        open={!!gift}
+        onClose={() => setGift(null)}
+        membership={gift?.membership}
+        template={gift?.template}
       />
     </div>
   )
