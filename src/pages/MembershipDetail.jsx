@@ -5,6 +5,7 @@ import { useTranslation } from '../i18n/useTranslation.js'
 import { useState } from 'react'
 import { getMembership, getPricing, isPaid } from '../data/memberships.js'
 import { getVoucherPack } from '../data/voucherPacks.js'
+import { localizeVoucher } from '../data/voucherI18n.js'
 import { membershipPhoto, membershipGallery, hotelPhoto, voucherPhoto, categoryMeta } from '../data/media.js'
 import { formatMoney, formatDate } from '../utils/format.js'
 import PurchaseModal from '../components/PurchaseModal.jsx'
@@ -197,10 +198,12 @@ export default function MembershipDetail() {
               </span>
             </div>
             <ul className="space-y-2">
-              {pack.map((v) => (
+              {pack.map((raw) => {
+                const v = localizeVoucher(raw, lang)
+                return (
                 <li key={v.templateId}>
                   <button
-                    onClick={() => setVoucherDetail(v)}
+                    onClick={() => setVoucherDetail(raw)}
                     className="card flex w-full items-center gap-3 p-3 text-left transition hover:shadow-cardhover"
                   >
                     <SmartImage
@@ -222,7 +225,8 @@ export default function MembershipDetail() {
                     <Icon name="chevronRight" size={16} className="text-slate-300" />
                   </button>
                 </li>
-              ))}
+                )
+              })}
             </ul>
           </section>
         )}

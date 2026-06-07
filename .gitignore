@@ -6,6 +6,12 @@ dist-ssr
 # Reference material (not part of the app)
 photo/
 
+# Deploy scratch space + embedded clones (not part of the app)
+.deploy/
+
+# Local DB / runtime data created by the backend (e.g. SQLite test files)
+backend/.data/
+
 # Test artifacts
 test-results/
 playwright-report/

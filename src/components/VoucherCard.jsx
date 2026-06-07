@@ -2,6 +2,7 @@ import { useApp } from '../context/AppContext.jsx'
 import { useTranslation } from '../i18n/useTranslation.js'
 import { formatDate, daysUntil } from '../utils/format.js'
 import { voucherPhoto, categoryMeta } from '../data/media.js'
+import { localizeVoucher } from '../data/voucherI18n.js'
 import Icon from './Icon.jsx'
 import SmartImage from './SmartImage.jsx'
 
@@ -20,6 +21,7 @@ export default function VoucherCard({ membership, template, onRequest, onDetails
   const { getVoucherStats } = useApp()
 
   const { used, available } = getVoucherStats(membership.id, template)
+  const v = localizeVoucher(template, lang)
   const days = daysUntil(template.validUntil)
   const expired = days != null && days < 0
   const soon = !expired && days != null && days <= 30
@@ -31,7 +33,7 @@ export default function VoucherCard({ membership, template, onRequest, onDetails
       <div className="flex items-start gap-3">
         <SmartImage
           src={voucherPhoto(template)}
-          alt={template.title}
+          alt={v.title}
           gradient={categoryMeta(template.category).grad}
           icon={cat.icon}
           iconSize={20}
@@ -40,7 +42,7 @@ export default function VoucherCard({ membership, template, onRequest, onDetails
         />
         <button onClick={() => onDetails?.(membership, template)} className="min-w-0 flex-1 text-left">
           <p className="flex items-center gap-1 font-bold leading-tight text-slate-900">
-            <span className="truncate">{template.title}</span>
+            <span className="truncate">{v.title}</span>
             <Icon name="chevronRight" size={14} className="shrink-0 text-slate-300" />
           </p>
           <p className="mt-0.5 truncate text-xs text-slate-500">
@@ -66,7 +68,7 @@ export default function VoucherCard({ membership, template, onRequest, onDetails
         </span>
       </div>
 
-      {(template.hotels?.length > 0 || template.note) && (
+      {(template.hotels?.length > 0 || v.note) && (
         <div className="mt-2 space-y-1 rounded-xl bg-slate-50 p-2.5 text-xs text-slate-500">
           {template.hotels?.length > 0 && (
             <p>
@@ -74,10 +76,10 @@ export default function VoucherCard({ membership, template, onRequest, onDetails
               {template.hotels.join(', ')}
             </p>
           )}
-          {template.note && (
+          {v.note && (
             <p>
               <span className="font-semibold text-slate-600">{t('voucher.onSiteNote')}: </span>
-              {template.note}
+              {v.note}
             </p>
           )}
         </div>

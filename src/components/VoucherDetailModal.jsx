@@ -1,6 +1,7 @@
 import { useTranslation } from '../i18n/useTranslation.js'
 import { formatDate } from '../utils/format.js'
 import { voucherPhoto, categoryMeta } from '../data/media.js'
+import { localizeVoucher } from '../data/voucherI18n.js'
 import { Modal, Chip } from './ui.jsx'
 import Icon from './Icon.jsx'
 import SmartImage from './SmartImage.jsx'
@@ -13,12 +14,13 @@ const CAT_ICON = { dining: 'utensils', room: 'bed', spa: 'flower', discount: 'ta
 export default function VoucherDetailModal({ open, onClose, membership, template, stats }) {
   const { t, lang } = useTranslation()
   if (!template) return null
+  const v = localizeVoucher(template, lang)
 
   return (
-    <Modal open={open} onClose={onClose} title={template.title}>
+    <Modal open={open} onClose={onClose} title={v.title}>
       <SmartImage
         src={voucherPhoto(template)}
-        alt={template.title}
+        alt={v.title}
         gradient={categoryMeta(template.category).grad}
         icon={CAT_ICON[template.category] || 'dots'}
         iconSize={36}
@@ -50,10 +52,10 @@ export default function VoucherDetailModal({ open, onClose, membership, template
         {t('status.expiresOn', { date: formatDate(template.validUntil, lang) })}
       </div>
 
-      {template.description && (
+      {v.description && (
         <section className="mt-4">
           <h4 className="mb-1 text-sm font-bold text-slate-900">{t('voucher.aboutThis')}</h4>
-          <p className="text-sm leading-relaxed text-slate-600">{template.description}</p>
+          <p className="text-sm leading-relaxed text-slate-600">{v.description}</p>
         </section>
       )}
 
@@ -74,10 +76,10 @@ export default function VoucherDetailModal({ open, onClose, membership, template
       <section className="mt-4">
         <h4 className="mb-1.5 text-sm font-bold text-slate-900">{t('voucher.terms')}</h4>
         <ul className="space-y-1.5 text-sm text-slate-600">
-          {template.note && (
+          {v.note && (
             <li className="flex gap-2 rounded-xl bg-amber-50 p-2.5 text-amber-800">
               <Icon name="tag" size={15} className="mt-0.5 shrink-0 text-amber-600" />
-              {template.note}
+              {v.note}
             </li>
           )}
           {[1, 2, 3, 4].map((n) => (

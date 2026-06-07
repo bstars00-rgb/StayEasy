@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useApp } from '../context/AppContext.jsx'
 import { useTranslation } from '../i18n/useTranslation.js'
+import { localizeVoucher } from '../data/voucherI18n.js'
 import { Modal } from './ui.jsx'
 import CTAButton from './CTAButton.jsx'
 
 // Gift (transfer) one unit of a transferable voucher to someone else.
 // Records the transfer, which reduces the voucher's availability.
 export default function TransferModal({ open, onClose, membership, template }) {
-  const { t } = useTranslation()
+  const { t, lang } = useTranslation()
   const { createTransfer, showToast } = useApp()
   const [name, setName] = useState('')
   const [contact, setContact] = useState('')
@@ -40,7 +41,7 @@ export default function TransferModal({ open, onClose, membership, template }) {
 
   return (
     <Modal open={open} onClose={onClose} title={t('transfer.title')}>
-      <p className="mb-1 text-sm font-semibold text-slate-700">{template.title}</p>
+      <p className="mb-1 text-sm font-semibold text-slate-700">{localizeVoucher(template, lang).title}</p>
       <p className="mb-3 rounded-xl bg-amber-50 p-3 text-xs text-amber-800">{t('transfer.note')}</p>
       <form onSubmit={submit} className="space-y-3">
         <Field label={t('transfer.recipient')}>

@@ -1,6 +1,8 @@
 import { useApp } from '../context/AppContext.jsx'
 import { useTranslation } from '../i18n/useTranslation.js'
 import { getMembership } from '../data/memberships.js'
+import { getVoucherTemplate } from '../data/voucherPacks.js'
+import { localizeVoucher } from '../data/voucherI18n.js'
 import { formatDate } from '../utils/format.js'
 import { Chip } from './ui.jsx'
 import Icon from './Icon.jsx'
@@ -16,6 +18,10 @@ export default function ReservationCard({ reservation: r }) {
   const { t, lang } = useTranslation()
   const { setReservationStatus, deleteReservation } = useApp()
   const membership = getMembership(r.membershipId)
+  // Re-derive the voucher title in the active language; stored `r.title` is the
+  // canonical English snapshot used as a fallback (e.g. legacy/unknown templates).
+  const tpl = getVoucherTemplate(r.membershipId, r.templateId)
+  const title = (tpl ? localizeVoucher(tpl, lang).title : null) || r.title
   const done = r.status === 'completed' || r.status === 'cancelled'
 
   // Party summary (adults + children with ages). Falls back to legacy `guests`.
@@ -33,7 +39,7 @@ export default function ReservationCard({ reservation: r }) {
     <div className={`card p-4 ${done ? 'opacity-75' : ''}`}>
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="font-bold text-slate-900">{r.title}</p>
+          <p className="font-bold text-slate-900">{title}</p>
           <p className="truncate text-xs text-slate-500">{membership?.name || r.membershipId}</p>
         </div>
         <Chip tone={STATUS_TONE[r.status] || 'slate'}>{t(`reservation.status${cap(r.status)}`)}</Chip>

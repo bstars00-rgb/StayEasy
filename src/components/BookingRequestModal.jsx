@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext.jsx'
 import { useTranslation } from '../i18n/useTranslation.js'
 import { whatsappLink, mailtoLink } from '../data/contact.js'
 import { childPolicyHints } from '../utils/childPolicy.js'
+import { localizeVoucher } from '../data/voucherI18n.js'
 import { Modal } from './ui.jsx'
 import CTAButton from './CTAButton.jsx'
 import Icon from './Icon.jsx'
@@ -15,7 +16,7 @@ const DEFAULT_CHILD_AGE = 6
 // hotel and notes for a voucher, record the reservation, and hand off to
 // WhatsApp/Email.
 export default function BookingRequestModal({ open, onClose, membership, template }) {
-  const { t } = useTranslation()
+  const { t, lang } = useTranslation()
   const { city, createReservation, showToast } = useApp()
   const [date, setDate] = useState('')
   const [adults, setAdults] = useState(2)
@@ -119,7 +120,7 @@ export default function BookingRequestModal({ open, onClose, membership, templat
   return (
     <Modal open={open} onClose={onClose} title={t('reservation.new')}>
       <p className="mb-3 rounded-xl bg-brand-50 p-3 text-xs text-brand-800">{t('reservation.howItWorks')}</p>
-      <p className="mb-3 text-sm font-semibold text-slate-700">{t('reservation.forVoucher', { title: template.title })}</p>
+      <p className="mb-3 text-sm font-semibold text-slate-700">{t('reservation.forVoucher', { title: localizeVoucher(template, lang).title })}</p>
 
       <div className="space-y-3">
         <Field label={t('reservation.date')}>
