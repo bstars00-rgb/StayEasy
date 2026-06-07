@@ -2,7 +2,7 @@
 
 작성일: 2026-06-07
 
-프론트 API client(`src/api/stayeasyApi.js`)에 맞춘 로컬 백엔드 프로토타입이다. 실제 DB 없이 메모리에 데이터를 저장하므로 서버를 재시작하면 사용자 지갑, 주문, 예약, 선물 데이터는 초기화된다.
+프론트 API client에 맞춘 로컬 백엔드다. 기본값은 SQLite 파일 DB를 사용하며, `DATABASE_URL`이 있으면 PostgreSQL/Supabase로 연결한다.
 
 ## 실행
 
@@ -27,6 +27,28 @@ http://localhost:8787/api/v1
 ```text
 GET /api/v1/health
 ```
+
+## DB 모드
+
+기본 SQLite:
+
+```text
+backend/.data/stayeasy.sqlite
+```
+
+SQLite 파일 위치 변경:
+
+```bash
+SQLITE_PATH=backend/.data/dev.sqlite npm run backend
+```
+
+PostgreSQL/Supabase 연결:
+
+```bash
+DATABASE_URL=postgres://USER:PASSWORD@HOST:5432/DB npm run backend
+```
+
+서버 부팅 시 migration과 catalog seed가 자동으로 실행된다.
 
 ## 프론트 연결
 
@@ -67,6 +89,5 @@ VITE_API_BASE_URL=http://localhost:8787
 ## 프로토타입 제약
 
 - Google token은 실제 검증하지 않고 데모 사용자로 교환한다.
-- 데이터는 메모리에만 저장된다.
 - 주문/예약 상태 변경 권한은 프로토타입 편의를 위해 열려 있다.
-- 실제 운영 버전에서는 DB transaction, row lock, 운영자 권한, Google ID token 서버 검증이 필요하다.
+- 실제 운영 버전에서는 운영자 권한과 Google ID token 서버 검증이 필요하다.
