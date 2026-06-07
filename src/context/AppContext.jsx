@@ -6,34 +6,21 @@ import { voucherStats, countOpenReservations, countTransfers } from '../utils/vo
 import * as storage from '../utils/storage.js'
 
 const MAX_COMPARE = 3
-const COMPARE_KEY = 'stayeasy.compare'
-const DEFAULT_COMPARE = ['club-marriott-vietnam', 'accor-plus-vietnam']
-
-function readCompare() {
-  try {
-    const raw = window.localStorage.getItem(COMPARE_KEY)
-    if (raw != null) return JSON.parse(raw)
-  } catch {
-    /* ignore */
-  }
-  return DEFAULT_COMPARE
-}
-
-function writeCompare(ids) {
-  try {
-    window.localStorage.setItem(COMPARE_KEY, JSON.stringify(ids))
-  } catch {
-    /* ignore */
-  }
-}
 
 const AppContext = createContext(null)
 
 export function AppProvider({ children }) {
+  // Set the storage scope from any persisted login BEFORE reading initial
+  // state, so a returning signed-in user loads their own data.
+  useState(() => {
+    storage.initScopeFromAuth()
+    return null
+  })
+
   const [lang, setLangState] = useState(() => storage.getSelectedLanguage() || DEFAULT_LANG)
   const [city, setCityState] = useState(() => storage.getSelectedCity() || DEFAULT_CITY)
   const [savedIds, setSavedIds] = useState(() => storage.getSavedMemberships())
-  const [compareIds, setCompareIds] = useState(() => readCompare())
+  const [compareIds, setCompareIds] = useState(() => storage.getCompare())
   const [usage, setUsage] = useState(() => storage.getVoucherUsage())
   const [reservations, setReservations] = useState(() => storage.getReservations())
   const [transfers, setTransfers] = useState(() => storage.getTransfers())
@@ -95,7 +82,7 @@ export function AppProvider({ children }) {
       if (prev.includes(id)) next = prev.filter((x) => x !== id)
       else if (prev.length >= MAX_COMPARE) next = prev
       else next = [...prev, id]
-      writeCompare(next)
+      storage.setCompare(next)
       return next
     })
   }, [])
@@ -103,9 +90,21 @@ export function AppProvider({ children }) {
   const removeFromCompare = useCallback((id) => {
     setCompareIds((prev) => {
       const next = prev.filter((x) => x !== id)
-      writeCompare(next)
+      storage.setCompare(next)
       return next
     })
+  }, [])
+
+  // Switch the active data scope (called by AuthContext on sign in/out) and
+  // reload all per-account state from storage for the new scope.
+  const reloadForUser = useCallback((user) => {
+    storage.setScope(storage.scopeForUser(user))
+    setSavedIds(storage.getSavedMemberships())
+    setUsage(storage.getVoucherUsage())
+    setReservations(storage.getReservations())
+    setTransfers(storage.getTransfers())
+    setOrders(storage.getOrders())
+    setCompareIds(storage.getCompare())
   }, [])
 
   /* ----- voucher usage ----- */
@@ -196,6 +195,7 @@ export function AppProvider({ children }) {
       reservations, createReservation, setReservationStatus, deleteReservation,
       transfers, createTransfer,
       orders, createOrder, setOrderStatus, deleteOrder,
+      reloadForUser,
       toast, showToast,
     }),
     [
@@ -206,6 +206,7 @@ export function AppProvider({ children }) {
       reservations, createReservation, setReservationStatus, deleteReservation,
       transfers, createTransfer,
       orders, createOrder, setOrderStatus, deleteOrder,
+      reloadForUser,
       toast, showToast,
     ]
   )

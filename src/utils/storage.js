@@ -8,16 +8,36 @@
 //   lang        -> string
 //   city        -> string
 
+// Global (not per-account) keys.
 const KEYS = {
-  memberships: 'stayeasy.savedMemberships',
-  usage: 'stayeasy.voucherUsage',
-  reservations: 'stayeasy.reservations',
-  transfers: 'stayeasy.transfers',
-  orders: 'stayeasy.orders',
   auth: 'stayeasy.auth',
   lang: 'stayeasy.lang',
   city: 'stayeasy.city',
 }
+
+// Per-account data is namespaced by scope. The guest scope keeps the legacy
+// unprefixed keys (backward compatible); a signed-in user gets a prefix so
+// each account has its own wallet/orders/etc.
+let SCOPE = 'guest'
+
+export function scopeForUser(user) {
+  return user && user.id ? `u_${user.id}` : 'guest'
+}
+
+export function setScope(scope) {
+  SCOPE = scope || 'guest'
+}
+
+export function initScopeFromAuth() {
+  setScope(scopeForUser(getAuthUser()))
+}
+
+// Scoped key: guest → "stayeasy.<base>", user → "stayeasy.<scope>.<base>".
+function k(base) {
+  return SCOPE === 'guest' ? `stayeasy.${base}` : `stayeasy.${SCOPE}.${base}`
+}
+
+const DEFAULT_COMPARE = ['club-marriott-vietnam', 'accor-plus-vietnam']
 
 function readJSON(key, fallback) {
   try {
@@ -59,7 +79,7 @@ function uniqueId(prefix = 'b') {
 /* ----------------------------- Memberships ----------------------------- */
 
 export function getSavedMemberships() {
-  const list = readJSON(KEYS.memberships, [])
+  const list = readJSON(k('savedMemberships'), [])
   return Array.isArray(list) ? list : []
 }
 
@@ -69,13 +89,13 @@ export function saveMembership(membership) {
   if (!id) return getSavedMemberships()
   const list = getSavedMemberships()
   if (!list.includes(id)) list.push(id)
-  writeJSON(KEYS.memberships, list)
+  writeJSON(k('savedMemberships'), list)
   return list
 }
 
 export function removeMembership(membershipId) {
   const list = getSavedMemberships().filter((id) => id !== membershipId)
-  writeJSON(KEYS.memberships, list)
+  writeJSON(k('savedMemberships'), list)
   return list
 }
 
@@ -87,13 +107,13 @@ export function removeMembershipArtifacts(membershipId) {
   Object.keys(usage).forEach((k) => {
     if (k.startsWith(`${membershipId}:`)) delete usage[k]
   })
-  writeJSON(KEYS.usage, usage)
+  writeJSON(k('voucherUsage'), usage)
 
   const reservations = getReservations().filter((r) => r.membershipId !== membershipId)
-  writeJSON(KEYS.reservations, reservations)
+  writeJSON(k('reservations'), reservations)
 
   const transfers = getTransfers().filter((x) => x.membershipId !== membershipId)
-  writeJSON(KEYS.transfers, transfers)
+  writeJSON(k('transfers'), transfers)
 
   return { usage, reservations, transfers }
 }
@@ -102,14 +122,14 @@ export function removeMembershipArtifacts(membershipId) {
 // Map of `${membershipId}:${templateId}` -> number of vouchers consumed.
 
 export function getVoucherUsage() {
-  const u = readJSON(KEYS.usage, {})
+  const u = readJSON(k('voucherUsage'), {})
   return u && typeof u === 'object' ? u : {}
 }
 
 export function setVoucherUsedCount(membershipId, templateId, count) {
   const usage = getVoucherUsage()
   usage[`${membershipId}:${templateId}`] = Math.max(0, count)
-  writeJSON(KEYS.usage, usage)
+  writeJSON(k('voucherUsage'), usage)
   return usage
 }
 
@@ -118,7 +138,7 @@ export function setVoucherUsedCount(membershipId, templateId, count) {
 //         status: 'requested'|'confirmed'|'completed'|'cancelled', createdAt }
 
 export function getReservations() {
-  const list = readJSON(KEYS.reservations, [])
+  const list = readJSON(k('reservations'), [])
   return Array.isArray(list) ? list : []
 }
 
@@ -131,19 +151,19 @@ export function addReservation(reservation) {
     ...reservation,
   }
   list.unshift(entry)
-  writeJSON(KEYS.reservations, list)
+  writeJSON(k('reservations'), list)
   return entry
 }
 
 export function updateReservation(id, updates) {
   const list = getReservations().map((r) => (r.id === id ? { ...r, ...updates } : r))
-  writeJSON(KEYS.reservations, list)
+  writeJSON(k('reservations'), list)
   return list
 }
 
 export function removeReservation(id) {
   const list = getReservations().filter((r) => r.id !== id)
-  writeJSON(KEYS.reservations, list)
+  writeJSON(k('reservations'), list)
   return list
 }
 
@@ -156,7 +176,7 @@ export function removeReservation(id) {
 // the commission it will earn on the paid amount.
 
 export function getOrders() {
-  const list = readJSON(KEYS.orders, [])
+  const list = readJSON(k('orders'), [])
   return Array.isArray(list) ? list : []
 }
 
@@ -164,19 +184,19 @@ export function addOrder(order) {
   const list = getOrders()
   const entry = { id: uniqueId('o'), status: 'requested', createdAt: new Date().toISOString(), ...order }
   list.unshift(entry)
-  writeJSON(KEYS.orders, list)
+  writeJSON(k('orders'), list)
   return entry
 }
 
 export function updateOrder(id, updates) {
   const list = getOrders().map((o) => (o.id === id ? { ...o, ...updates } : o))
-  writeJSON(KEYS.orders, list)
+  writeJSON(k('orders'), list)
   return list
 }
 
 export function removeOrder(id) {
   const list = getOrders().filter((o) => o.id !== id)
-  writeJSON(KEYS.orders, list)
+  writeJSON(k('orders'), list)
   return list
 }
 
@@ -186,7 +206,7 @@ export function removeOrder(id) {
 // of the voucher's availability.
 
 export function getTransfers() {
-  const list = readJSON(KEYS.transfers, [])
+  const list = readJSON(k('transfers'), [])
   return Array.isArray(list) ? list : []
 }
 
@@ -194,8 +214,21 @@ export function addTransfer(transfer) {
   const list = getTransfers()
   const entry = { id: uniqueId('g'), createdAt: new Date().toISOString(), ...transfer }
   list.unshift(entry)
-  writeJSON(KEYS.transfers, list)
+  writeJSON(k('transfers'), list)
   return entry
+}
+
+/* ------------------------------- Compare ------------------------------- */
+// Membership ids selected for side-by-side comparison (max enforced in UI).
+
+export function getCompare() {
+  const list = readJSON(k('compare'), null)
+  return Array.isArray(list) ? list : DEFAULT_COMPARE
+}
+
+export function setCompare(ids) {
+  writeJSON(k('compare'), ids)
+  return ids
 }
 
 /* -------------------------------- Auth --------------------------------- */

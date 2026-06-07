@@ -1,9 +1,11 @@
 import { createContext, useContext, useState, useCallback, useRef, useMemo } from 'react'
 import * as storage from '../utils/storage.js'
+import { useApp } from './AppContext.jsx'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
+  const { reloadForUser } = useApp()
   const [user, setUser] = useState(() => storage.getAuthUser())
   const [signInOpen, setSignInOpen] = useState(false)
   const pendingAction = useRef(null)
@@ -21,21 +23,27 @@ export function AuthProvider({ children }) {
     setSignInOpen(false)
   }, [])
 
-  // Persist the profile and resume any queued action.
-  const completeSignIn = useCallback((profile) => {
-    const next = { ...profile, signedInAt: new Date().toISOString() }
-    storage.setAuthUser(next)
-    setUser(next)
-    setSignInOpen(false)
-    const action = pendingAction.current
-    pendingAction.current = null
-    if (action) action()
-  }, [])
+  // Persist the profile, switch to the user's data scope, then resume any
+  // queued action (so it writes to the user's own wallet).
+  const completeSignIn = useCallback(
+    (profile) => {
+      const next = { ...profile, signedInAt: new Date().toISOString() }
+      storage.setAuthUser(next)
+      setUser(next)
+      setSignInOpen(false)
+      reloadForUser(next)
+      const action = pendingAction.current
+      pendingAction.current = null
+      if (action) action()
+    },
+    [reloadForUser]
+  )
 
   const signOut = useCallback(() => {
     storage.clearAuthUser()
     setUser(null)
-  }, [])
+    reloadForUser(null) // back to guest scope
+  }, [reloadForUser])
 
   // Run `fn` if signed in; otherwise prompt sign-in and resume afterwards.
   const requireAuth = useCallback(

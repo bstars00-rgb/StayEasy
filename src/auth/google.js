@@ -38,10 +38,11 @@ export function parseGoogleCredential(jwt) {
   }
 }
 
-// A realistic-looking local profile for demo mode.
+// A realistic-looking local profile for demo mode. The id is stable so that
+// signing out and back in returns to the same account (its saved data).
 export function demoUser() {
   return {
-    id: `demo_${Math.random().toString(36).slice(2, 10)}`,
+    id: 'demo-google-user',
     provider: 'google',
     name: 'Demo User',
     email: 'demo.user@gmail.com',
