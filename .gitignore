@@ -12,6 +12,10 @@ playwright-report/
 blob-report/
 playwright/.cache/
 coverage/
+
+# Document generation tooling (keep the generated .docx/.pptx, not node_modules)
+docs/_gen/node_modules/
+docs/_gen/package-lock.json
 .DS_Store
 .vscode/*
 !.vscode/extensions.json
