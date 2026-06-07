@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, useRef, useMemo } from 'react'
 import * as storage from '../utils/storage.js'
+import { api, USE_API } from '../api/index.js'
 import { useApp } from './AppContext.jsx'
 
 const AuthContext = createContext(null)
@@ -24,10 +25,20 @@ export function AuthProvider({ children }) {
   }, [])
 
   // Persist the profile, switch to the user's data scope, then resume any
-  // queued action (so it writes to the user's own wallet).
+  // queued action (so it writes to the user's own wallet). In API mode this
+  // first exchanges the sign-in for a backend session token.
   const completeSignIn = useCallback(
-    (profile) => {
-      const next = { ...profile, signedInAt: new Date().toISOString() }
+    async (profile) => {
+      let next = { ...profile, signedInAt: new Date().toISOString() }
+      if (USE_API) {
+        try {
+          const data = await api.auth.google(profile.idToken || profile.id || profile.email || 'demo')
+          const token = data.accessToken || data.token
+          next = { ...(data.user || profile), token, accessToken: token, signedInAt: new Date().toISOString() }
+        } catch {
+          /* fall back to local profile (no token) */
+        }
+      }
       storage.setAuthUser(next)
       setUser(next)
       setSignInOpen(false)

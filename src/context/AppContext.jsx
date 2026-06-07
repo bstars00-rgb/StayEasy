@@ -1,8 +1,9 @@
-import { createContext, useContext, useState, useCallback, useRef, useMemo } from 'react'
+import { createContext, useContext, useState, useCallback, useRef, useMemo, useEffect } from 'react'
 import { translate, DEFAULT_LANG } from '../i18n/translations.js'
 import { DEFAULT_CITY } from '../data/cities.js'
 import { getVoucherTemplate } from '../data/voucherPacks.js'
 import { voucherStats, countOpenReservations, countTransfers } from '../utils/vouchers.js'
+import { api, USE_API } from '../api/index.js'
 import * as storage from '../utils/storage.js'
 
 const MAX_COMPARE = 3
@@ -48,22 +49,63 @@ export function AppProvider({ children }) {
     toastTimer.current = setTimeout(() => setToast(null), 2200)
   }, [])
 
+  /* ----- API mode: load everything from the backend wallet ----- */
+  // Derives used counts from completed reservations so getVoucherStats works
+  // identically in both modes.
+  const loadWallet = useCallback(async () => {
+    try {
+      const w = await api.wallet.get()
+      const ids = (w.memberships || []).map((m) => m.id)
+      const res = w.reservations || []
+      const u = {}
+      res.forEach((r) => {
+        if (r.status === 'completed') {
+          const k = `${r.membershipId}:${r.templateId}`
+          u[k] = (u[k] || 0) + 1
+        }
+      })
+      setSavedIds(ids)
+      setReservations(res)
+      setTransfers(w.transfers || [])
+      setOrders(w.orders || [])
+      setUsage(u)
+    } catch {
+      /* keep current state on failure */
+    }
+  }, [])
+
+  // Initial hydrate when a session already exists (API mode only).
+  useEffect(() => {
+    if (USE_API && storage.getAuthUser()) loadWallet()
+  }, [loadWallet])
+
   /* ----- saved memberships ----- */
   const isSaved = useCallback((id) => savedIds.includes(id), [savedIds])
 
-  const addSaved = useCallback((membership) => {
+  const addSaved = useCallback(async (membership) => {
+    const id = typeof membership === 'string' ? membership : membership?.id
+    if (USE_API) {
+      await api.wallet.addMembership(id)
+      await loadWallet()
+      return
+    }
     setSavedIds(storage.saveMembership(membership))
-  }, [])
+  }, [loadWallet])
 
   // Removing a membership also purges its orphaned voucher usage and
   // reservations (orders are kept as historical purchase records).
-  const removeSaved = useCallback((id) => {
+  const removeSaved = useCallback(async (id) => {
+    if (USE_API) {
+      await api.wallet.removeMembership(id)
+      await loadWallet()
+      return
+    }
     setSavedIds(storage.removeMembership(id))
     const { usage: u, reservations: r, transfers: g } = storage.removeMembershipArtifacts(id)
     setUsage(u)
     setReservations(r)
     setTransfers(g)
-  }, [])
+  }, [loadWallet])
 
   const toggleSaved = useCallback(
     (id) => {
@@ -97,15 +139,31 @@ export function AppProvider({ children }) {
 
   // Switch the active data scope (called by AuthContext on sign in/out) and
   // reload all per-account state from storage for the new scope.
-  const reloadForUser = useCallback((user) => {
-    storage.setScope(storage.scopeForUser(user))
-    setSavedIds(storage.getSavedMemberships())
-    setUsage(storage.getVoucherUsage())
-    setReservations(storage.getReservations())
-    setTransfers(storage.getTransfers())
-    setOrders(storage.getOrders())
-    setCompareIds(storage.getCompare())
-  }, [])
+  const reloadForUser = useCallback(
+    (user) => {
+      if (USE_API) {
+        // Server scopes /me data by bearer token; reload (or clear on sign-out).
+        if (user) {
+          loadWallet()
+        } else {
+          setSavedIds([])
+          setUsage({})
+          setReservations([])
+          setTransfers([])
+          setOrders([])
+        }
+        return
+      }
+      storage.setScope(storage.scopeForUser(user))
+      setSavedIds(storage.getSavedMemberships())
+      setUsage(storage.getVoucherUsage())
+      setReservations(storage.getReservations())
+      setTransfers(storage.getTransfers())
+      setOrders(storage.getOrders())
+      setCompareIds(storage.getCompare())
+    },
+    [loadWallet]
+  )
 
   /* ----- voucher usage ----- */
   const usedCount = useCallback(
@@ -134,14 +192,27 @@ export function AppProvider({ children }) {
   }, [])
 
   /* ----- reservations ----- */
-  const createReservation = useCallback((reservation) => {
-    const entry = storage.addReservation(reservation)
-    setReservations(storage.getReservations())
-    return entry
-  }, [])
+  const createReservation = useCallback(
+    async (reservation) => {
+      if (USE_API) {
+        const entry = await api.reservations.create(reservation)
+        await loadWallet()
+        return entry
+      }
+      const entry = storage.addReservation(reservation)
+      setReservations(storage.getReservations())
+      return entry
+    },
+    [loadWallet]
+  )
 
   const setReservationStatus = useCallback(
-    (id, status) => {
+    async (id, status) => {
+      if (USE_API) {
+        await api.reservations.setStatus(id, status)
+        await loadWallet()
+        return
+      }
       const res = storage.getReservations().find((r) => r.id === id)
       setReservations(storage.updateReservation(id, { status }))
       // Completing a reservation consumes one unit of its voucher.
@@ -149,40 +220,70 @@ export function AppProvider({ children }) {
         consumeVoucher(res.membershipId, res.templateId)
       }
     },
-    [consumeVoucher]
+    [consumeVoucher, loadWallet]
   )
 
-  const deleteReservation = useCallback((id) => {
-    setReservations(storage.removeReservation(id))
-  }, [])
+  const deleteReservation = useCallback(
+    async (id) => {
+      if (USE_API) {
+        await api.reservations.remove(id)
+        await loadWallet()
+        return
+      }
+      setReservations(storage.removeReservation(id))
+    },
+    [loadWallet]
+  )
 
   /* ----- transfers (gifts) ----- */
-  const createTransfer = useCallback((transfer) => {
-    const entry = storage.addTransfer(transfer)
-    setTransfers(storage.getTransfers())
-    return entry
-  }, [])
+  const createTransfer = useCallback(
+    async (transfer) => {
+      if (USE_API) {
+        const entry = await api.transfers.create(transfer)
+        await loadWallet()
+        return entry
+      }
+      const entry = storage.addTransfer(transfer)
+      setTransfers(storage.getTransfers())
+      return entry
+    },
+    [loadWallet]
+  )
 
   /* ----- orders / purchases ----- */
-  const createOrder = useCallback((order) => {
-    const entry = storage.addOrder(order)
-    setOrders(storage.getOrders())
-    return entry
-  }, [])
+  const createOrder = useCallback(
+    async (order) => {
+      if (USE_API) {
+        const entry = await api.orders.create(order)
+        await loadWallet()
+        return entry
+      }
+      const entry = storage.addOrder(order)
+      setOrders(storage.getOrders())
+      return entry
+    },
+    [loadWallet]
+  )
 
   // Advancing an order to 'activated' grants the membership (wallet vouchers).
   const setOrderStatus = useCallback(
-    (id, status) => {
+    async (id, status) => {
+      if (USE_API) {
+        await api.orders.setStatus(id, status)
+        await loadWallet()
+        return
+      }
       const order = storage.getOrders().find((o) => o.id === id)
       setOrders(storage.updateOrder(id, { status }))
       if (status === 'activated' && order?.membershipId) {
         setSavedIds(storage.saveMembership(order.membershipId))
       }
     },
-    []
+    [loadWallet]
   )
 
   const deleteOrder = useCallback((id) => {
+    if (USE_API) return // backend keeps order history; no delete endpoint
     setOrders(storage.removeOrder(id))
   }, [])
 

@@ -123,8 +123,14 @@ Frontend (Claude) and backend (Codex) are built in parallel in this repo:
 - **Collaboration guide:** [`AGENTS.md`](AGENTS.md) · [`docs/COLLABORATION_PLAN.md`](docs/COLLABORATION_PLAN.md) · [`docs/DATABASE_SCHEMA.md`](docs/DATABASE_SCHEMA.md)
 - **Backend:** `backend/server.js` — run with `npm run backend` (http://localhost:8787, `/api/v1`)
 - **Frontend client:** `src/api/` mirrors the contract. The app runs on
-  `localStorage` until `VITE_API_BASE_URL` is set; then it routes through the
-  API. See [`.env.example`](.env.example).
+  `localStorage` until `VITE_API_BASE_URL` is set; then `AppContext`/`AuthContext`
+  route through the API (auth, wallet, reservations, orders, transfers). See
+  [`.env.example`](.env.example) and [`docs/INTEGRATION_STATUS.md`](docs/INTEGRATION_STATUS.md).
+
+```bash
+npm run backend                                  # http://localhost:8787
+VITE_API_BASE_URL=http://localhost:8787 npm run dev   # frontend in API mode
+```
 
 ## Adding a backend later
 

@@ -3,17 +3,35 @@
 Maintained by the frontend (Claude). Snapshot of how the `src/api/` client
 lines up with the running backend prototype (`backend/server.js`).
 
-_Last checked: 2026-06-07_
+_Last checked: 2026-06-07 — **frontend wired to the API and verified.**_
 
-## Verified working (backend prototype, port 8787)
+## ✅ Connected & verified (backend prototype, port 8787)
 
-- `GET /health` → `{ ok: true, ... }`
-- `GET /memberships` → array of memberships (matches `src/data` shape)
-- `GET /cities` → array of cities
+The frontend now routes through the API when `VITE_API_BASE_URL` is set
+(`AppContext`/`AuthContext` call `src/api/*` instead of localStorage). The full
+flow was verified over HTTP via `/api/v1` (12/12 checks):
 
-Frontend: `npm run build` + `npm run test` green; `src/api/*` mirrors the
-contract and is **adaptive** (see below) so it can talk to the prototype today
-and the spec'd API later.
+- `POST /auth/google` → session token
+- `GET /memberships?city=` filter
+- `POST /wallet/memberships` + `GET /wallet` (membership + vouchers)
+- `POST /reservations` → held=1, available−1
+- `PATCH /reservations/:id/status` → completed → used+1
+- `POST /orders` → commissionAmount 504,000 ; status → activated grants membership
+- `GET /settlements/summary` ; `POST /transfers`
+
+The prototype **accepts both `/api/v1` and root** (it strips the prefix) and
+returns **bare JSON**; the client's adaptive layer handles both, so the default
+`VITE_API_PREFIX=/api/v1` works as-is.
+
+### Run in API mode (local)
+```
+npm run backend                                   # http://localhost:8787
+# new shell (PowerShell):
+$env:VITE_API_BASE_URL="http://localhost:8787"; npm run dev
+# bash:
+VITE_API_BASE_URL=http://localhost:8787 npm run dev
+```
+Offline demo is unchanged when `VITE_API_BASE_URL` is empty.
 
 ## ⚠️ Mismatches to reconcile (spec ↔ prototype)
 
