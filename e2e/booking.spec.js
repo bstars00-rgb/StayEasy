@@ -17,6 +17,9 @@ test('join a free membership and book a voucher', async ({ page }) => {
   await page.getByRole('button', { name: 'Request booking' }).first().click()
   await expect(page.getByText('New reservation request')).toBeVisible()
 
+  // Pick the first available date on the booking calendar (required to submit).
+  await page.locator('[data-cal-state="available"]').first().click()
+
   // Party: 2 adults + 1 child with an age dropdown.
   await page.getByLabel('Children').fill('1')
   await expect(page.getByLabel('Child 1 age')).toBeVisible()

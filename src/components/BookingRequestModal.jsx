@@ -2,9 +2,12 @@ import { useState, useEffect } from 'react'
 import { useApp } from '../context/AppContext.jsx'
 import { useTranslation } from '../i18n/useTranslation.js'
 import { whatsappLink, mailtoLink } from '../data/contact.js'
+import { formatDate } from '../utils/format.js'
 import { childPolicyHints } from '../utils/childPolicy.js'
 import { localizeVoucher } from '../data/voucherI18n.js'
+import { getAvailability, evaluateDate } from '../data/availability.js'
 import { Modal } from './ui.jsx'
+import AvailabilityCalendar from './AvailabilityCalendar.jsx'
 import CTAButton from './CTAButton.jsx'
 import Icon from './Icon.jsx'
 
@@ -39,6 +42,10 @@ export default function BookingRequestModal({ open, onClose, membership, templat
   }, [open, template?.templateId])
 
   if (!template) return null
+
+  // Per-voucher booking availability (weekday rules, blackout/holiday closures).
+  const rule = getAvailability(membership, template)
+  const dateValid = !!date && evaluateDate(rule, date).ok
 
   const children = childAges.length
 
@@ -124,7 +131,10 @@ export default function BookingRequestModal({ open, onClose, membership, templat
 
       <div className="space-y-3">
         <Field label={t('reservation.date')}>
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="input" />
+          <p className={`mb-2 text-xs font-medium ${dateValid ? 'text-brand-700' : 'text-slate-400'}`}>
+            {dateValid ? t('calendar.selected', { date: formatDate(date, lang) }) : t('calendar.pickFirst')}
+          </p>
+          <AvailabilityCalendar rule={rule} value={date} onChange={setDate} />
         </Field>
 
         {/* Party: adults + children */}
@@ -216,16 +226,16 @@ export default function BookingRequestModal({ open, onClose, membership, templat
         </Field>
       </div>
 
-      <CTAButton variant="primary" fullWidth className="mt-4" icon="check" onClick={createOnly}>
+      <CTAButton variant="primary" fullWidth className="mt-4" icon="check" onClick={createOnly} disabled={!dateValid}>
         {t('reservation.submit')}
       </CTAButton>
 
       <p className="mt-4 mb-2 text-xs font-semibold text-slate-500">{t('reservation.sendVia')}</p>
       <div className="grid grid-cols-2 gap-2">
-        <CTAButton variant="whatsapp" icon="whatsapp" onClick={sendWhatsApp}>
+        <CTAButton variant="whatsapp" icon="whatsapp" onClick={sendWhatsApp} disabled={!dateValid}>
           WhatsApp
         </CTAButton>
-        <CTAButton variant="secondary" icon="mail" onClick={sendEmail}>
+        <CTAButton variant="secondary" icon="mail" onClick={sendEmail} disabled={!dateValid}>
           Email
         </CTAButton>
       </div>

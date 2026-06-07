@@ -26,6 +26,13 @@ the frontend **as long as the JSON shapes stay identical**.
   (`held` = reservations in `requested`/`confirmed`). Enforce in a transaction
   with row locks (see schema §3).
 - **Status machines** unchanged (orders / reservations) → `409 INVALID_STATUS_TRANSITION`.
+- **Booking date availability** (NEW): the frontend now enforces per-voucher
+  date rules (allowed weekdays, min lead time, booking window, and holiday
+  blackouts — Vietnam Tết / Korea Seollal·Chuseok / Thailand Songkran) via
+  `src/data/availability.js`. These are mock rules today. When persisted, the
+  server should own them and **reject reservations on disallowed dates**
+  (e.g. `409 DATE_NOT_AVAILABLE` with the reason), seeding from the same rule
+  shape so the calendar and server agree.
 - **Auth**: `POST /auth/google` returns `{ accessToken, user }`; `/me` and all
   `/wallet|reservations|orders|transfers` are scoped to the bearer user.
 
