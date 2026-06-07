@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react'
 import { useApp } from '../context/AppContext.jsx'
 import { useTranslation } from '../i18n/useTranslation.js'
 import { whatsappLink, mailtoLink } from '../data/contact.js'
+import { childPolicyHints } from '../utils/childPolicy.js'
 import { Modal } from './ui.jsx'
 import CTAButton from './CTAButton.jsx'
+import Icon from './Icon.jsx'
 
 const MAX_PER_TYPE = 8 // max adults / max children
 const CHILD_AGE_MAX = 17 // age dropdown: 0 (under 1) .. 17
@@ -164,6 +166,29 @@ export default function BookingRequestModal({ open, onClose, membership, templat
             ))}
           </div>
         )}
+
+        {/* Auto child-policy hints based on the children's ages + voucher type */}
+        {(() => {
+          const hints = children > 0 ? childPolicyHints(template.category, childAges) : []
+          if (hints.length === 0) return null
+          return (
+            <div className="rounded-2xl border border-gold-100 bg-gold-50 p-3">
+              <p className="mb-1.5 flex items-center gap-1.5 text-sm font-bold text-gold-700">
+                <Icon name="sparkles" size={15} />
+                {t('childPolicy.title')}
+              </p>
+              <ul className="space-y-1">
+                {hints.map((h) => (
+                  <li key={h.key} className="flex gap-2 text-sm text-slate-700">
+                    <Icon name="check" size={15} className="mt-0.5 shrink-0 text-gold-600" />
+                    {t(`childPolicy.${h.key}`, { count: h.count })}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-2 text-[11px] text-slate-500">{t('childPolicy.note')}</p>
+            </div>
+          )
+        })()}
 
         <Field label={t('reservation.hotel')}>
           {hotels.length > 0 ? (

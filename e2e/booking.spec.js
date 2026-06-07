@@ -22,6 +22,9 @@ test('join a free membership and book a voucher', async ({ page }) => {
   await expect(page.getByLabel('Child 1 age')).toBeVisible()
   await page.getByLabel('Child 1 age').selectOption('5')
 
+  // Age-based child-policy hint appears.
+  await expect(page.getByText('Child policy (guide)')).toBeVisible()
+
   await page.getByRole('button', { name: 'Create request' }).click()
 
   // It appears under Reservations; complete it.
