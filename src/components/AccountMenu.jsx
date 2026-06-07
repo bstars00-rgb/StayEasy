@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useApp } from '../context/AppContext.jsx'
 import { useTranslation } from '../i18n/useTranslation.js'
@@ -11,6 +12,7 @@ export default function AccountMenu() {
   const { t } = useTranslation()
   const { showToast } = useApp()
   const { user, openSignIn, signOut } = useAuth()
+  const navigate = useNavigate()
   const [open, setOpen] = useState(false)
 
   if (!user) {
@@ -57,11 +59,21 @@ export default function AccountMenu() {
 
         <button
           onClick={() => {
+            setOpen(false)
+            navigate('/partner')
+          }}
+          className="btn-secondary mt-5 w-full"
+        >
+          <Icon name="compare" size={16} />
+          {t('partner.open')}
+        </button>
+        <button
+          onClick={() => {
             signOut()
             setOpen(false)
             showToast(t('auth.signedOut'))
           }}
-          className="btn-ghost mt-5 w-full"
+          className="btn-ghost mt-2 w-full"
         >
           <Icon name="close" size={16} />
           {t('auth.signOut')}

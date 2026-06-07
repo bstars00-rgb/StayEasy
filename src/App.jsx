@@ -7,6 +7,7 @@ import Compare from './pages/Compare.jsx'
 import MyBenefits from './pages/MyBenefits.jsx'
 import Quiz from './pages/Quiz.jsx'
 import RequestAssistance from './pages/RequestAssistance.jsx'
+import Partner from './pages/Partner.jsx'
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="/my-benefits" element={<MyBenefits />} />
         <Route path="/quiz" element={<Quiz />} />
         <Route path="/help" element={<RequestAssistance />} />
+        <Route path="/partner" element={<Partner />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Layout>

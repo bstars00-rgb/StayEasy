@@ -19,6 +19,9 @@ StayEasy is a **frontend-only MVP** app that helps users discover, compare, and 
 - Membership detail pages with benefits, hotels, notes, a value/ROI summary, and the included voucher pack — tap any voucher for its full description, eligible hotels, on-site conditions, and terms
 - **Purchase flow** — paid memberships are bought through StayEasy while payment is settled at the hotel brand (invoice); orders move requested → invoiced → paid → activated, and activation issues the voucher pack to the wallet
 - **Commission BM** — each paid membership has a commission rate; an internal (demo) settlement view totals GMV and StayEasy commission
+- **Partner dashboard** — `/partner` aggregates orders into KPIs, GMV/commission by currency, order-status distribution, and per-membership breakdown
+- **Voucher gifting** — transferable vouchers can be gifted to a recipient (reduces availability)
+- **Per-account data** — wallet/orders/reservations are namespaced per signed-in user; guests keep separate data
 - **Voucher wallet** — owned memberships become category-grouped e-vouchers with available / used counts
 - **Booking requests** — request a reservation per voucher (date / guests / hotel) via WhatsApp or Email; completing one consumes a voucher
 - Voucher expiry tracking (days remaining, expiring-soon highlights) and home alerts
