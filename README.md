@@ -13,6 +13,7 @@ StayEasy is a **frontend-only MVP** app that helps users discover, compare, and 
 
 ## Features
 
+- Rich imagery — hotel hero photos and per-category benefit photos (dining/room/spa/…) via a hybrid `SmartImage` that falls back to a themed gradient + icon if a photo is missing or fails to load
 - City-based hotel membership discovery (Ho Chi Minh, Da Nang, Hanoi, Seoul, Bangkok, Tokyo)
 - Membership comparison (side-by-side, up to 3)
 - Membership detail pages with benefits, hotels, notes, a value/ROI summary, and the included voucher pack — tap any voucher for its full description, eligible hotels, on-site conditions, and terms

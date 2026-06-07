@@ -3,9 +3,12 @@ import { useApp } from '../context/AppContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useTranslation } from '../i18n/useTranslation.js'
 import { isPaid } from '../data/memberships.js'
+import { membershipPhoto } from '../data/media.js'
+import { accentFor } from './brandTheme.js'
 import { formatMoney } from '../utils/format.js'
 import { BrandAvatar, Chip } from './ui.jsx'
 import ScoreBadge from './ScoreBadge.jsx'
+import SmartImage from './SmartImage.jsx'
 import CTAButton from './CTAButton.jsx'
 import Icon from './Icon.jsx'
 
@@ -39,9 +42,24 @@ export default function MembershipCard({ membership: m }) {
 
   return (
     <article className="card overflow-hidden">
+      {/* Hero photo (falls back to brand gradient) */}
+      <div className="relative">
+        <SmartImage
+          src={membershipPhoto(m.id)}
+          alt={m.name}
+          gradient={accentFor(m.brand)}
+          icon="bed"
+          rounded="rounded-none"
+          className="h-28 w-full"
+        />
+        <div className="absolute right-2 top-2">
+          <ScoreBadge score={m.scores.overall} className="!bg-white/90 shadow-sm" />
+        </div>
+      </div>
+
       <div className="p-4">
         <div className="flex items-start gap-3">
-          <BrandAvatar membership={m} />
+          <BrandAvatar membership={m} className="-mt-8 ring-2 ring-white" />
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
@@ -50,7 +68,6 @@ export default function MembershipCard({ membership: m }) {
                   {m.brand} · {t(`countries.${m.country}`)}
                 </p>
               </div>
-              <ScoreBadge score={m.scores.overall} />
             </div>
             <div className="mt-1.5 flex flex-wrap gap-1">
               {m.cities.slice(0, 3).map((c) => (

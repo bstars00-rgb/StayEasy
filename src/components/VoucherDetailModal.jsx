@@ -1,7 +1,9 @@
 import { useTranslation } from '../i18n/useTranslation.js'
 import { formatDate } from '../utils/format.js'
+import { voucherPhoto, categoryMeta } from '../data/media.js'
 import { Modal, Chip } from './ui.jsx'
 import Icon from './Icon.jsx'
+import SmartImage from './SmartImage.jsx'
 
 const CAT_ICON = { dining: 'utensils', room: 'bed', spa: 'flower', discount: 'tag', gift: 'gift', other: 'dots' }
 
@@ -14,6 +16,15 @@ export default function VoucherDetailModal({ open, onClose, membership, template
 
   return (
     <Modal open={open} onClose={onClose} title={template.title}>
+      <SmartImage
+        src={voucherPhoto(template)}
+        alt={template.title}
+        gradient={categoryMeta(template.category).grad}
+        icon={CAT_ICON[template.category] || 'dots'}
+        iconSize={36}
+        rounded="rounded-2xl"
+        className="mb-3 h-32 w-full"
+      />
       <div className="flex items-center gap-2">
         <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
           <Icon name={CAT_ICON[template.category] || 'dots'} size={18} />

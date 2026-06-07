@@ -1,7 +1,9 @@
 import { useApp } from '../context/AppContext.jsx'
 import { useTranslation } from '../i18n/useTranslation.js'
 import { formatDate, daysUntil } from '../utils/format.js'
+import { voucherPhoto, categoryMeta } from '../data/media.js'
 import Icon from './Icon.jsx'
+import SmartImage from './SmartImage.jsx'
 
 // Category → icon + accent tone.
 const CAT = {
@@ -27,9 +29,15 @@ export default function VoucherCard({ membership, template, onRequest, onDetails
   return (
     <div className={`card p-4 ${disabled ? 'opacity-70' : ''} ${soon ? 'ring-1 ring-rose-200' : ''}`}>
       <div className="flex items-start gap-3">
-        <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${cat.tone}`}>
-          <Icon name={cat.icon} size={20} />
-        </span>
+        <SmartImage
+          src={voucherPhoto(template)}
+          alt={template.title}
+          gradient={categoryMeta(template.category).grad}
+          icon={cat.icon}
+          iconSize={20}
+          rounded="rounded-xl"
+          className="h-12 w-12 shrink-0"
+        />
         <button onClick={() => onDetails?.(membership, template)} className="min-w-0 flex-1 text-left">
           <p className="flex items-center gap-1 font-bold leading-tight text-slate-900">
             <span className="truncate">{template.title}</span>

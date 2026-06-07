@@ -5,10 +5,12 @@ import { useTranslation } from '../i18n/useTranslation.js'
 import { useState } from 'react'
 import { getMembership, getPricing, isPaid } from '../data/memberships.js'
 import { getVoucherPack } from '../data/voucherPacks.js'
+import { membershipPhoto, hotelPhoto, voucherPhoto, categoryMeta } from '../data/media.js'
 import { formatMoney, formatDate } from '../utils/format.js'
 import PurchaseModal from '../components/PurchaseModal.jsx'
 import VoucherDetailModal from '../components/VoucherDetailModal.jsx'
-import { gradient } from '../components/brandTheme.js'
+import SmartImage from '../components/SmartImage.jsx'
+import { accentFor } from '../components/brandTheme.js'
 import { BrandAvatar, Chip, ScoreBar } from '../components/ui.jsx'
 import ScoreBadge from '../components/ScoreBadge.jsx'
 import CTAButton from '../components/CTAButton.jsx'
@@ -85,30 +87,44 @@ export default function MembershipDetail() {
 
   return (
     <div className="pb-36">
-      {/* 1. Header */}
-      <div className="px-4 pb-6 pt-4 text-white" style={{ background: gradient(m.brand) }}>
-        <button
-          onClick={() => navigate(-1)}
-          className="mb-3 inline-flex items-center gap-1 rounded-full bg-white/20 px-3 py-1.5 text-sm font-semibold"
-        >
-          <Icon name="chevronLeft" size={16} />
-          {t('common.back')}
-        </button>
-        <div className="flex items-center gap-3">
-          <BrandAvatar membership={m} size={56} className="ring-2 ring-white/40" />
-          <div className="min-w-0">
-            <h1 className="text-xl font-extrabold leading-tight">{m.name}</h1>
-            <p className="mt-0.5 text-sm text-white/85">
-              {m.brand} · {t(`countries.${m.country}`)}
-            </p>
+      {/* 1. Header — photo background with dark overlay for legibility */}
+      <div className="relative px-4 pb-6 pt-4 text-white">
+        <SmartImage
+          src={membershipPhoto(m.id)}
+          alt={m.name}
+          gradient={accentFor(m.brand)}
+          icon="bed"
+          rounded="rounded-none"
+          className="absolute inset-0"
+        />
+        <div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(180deg, rgba(4,28,32,0.45), rgba(4,28,32,0.82))' }}
+        />
+        <div className="relative">
+          <button
+            onClick={() => navigate(-1)}
+            className="mb-3 inline-flex items-center gap-1 rounded-full bg-white/20 px-3 py-1.5 text-sm font-semibold backdrop-blur"
+          >
+            <Icon name="chevronLeft" size={16} />
+            {t('common.back')}
+          </button>
+          <div className="flex items-center gap-3">
+            <BrandAvatar membership={m} size={56} className="ring-2 ring-white/40" />
+            <div className="min-w-0">
+              <h1 className="text-xl font-extrabold leading-tight">{m.name}</h1>
+              <p className="mt-0.5 text-sm text-white/85">
+                {m.brand} · {t(`countries.${m.country}`)}
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          {m.cities.map((c) => (
-            <Chip key={c} tone="white">
-              <Icon name="pin" size={12} /> {t(`cities.${c}`)}
-            </Chip>
-          ))}
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            {m.cities.map((c) => (
+              <Chip key={c} tone="white">
+                <Icon name="pin" size={12} /> {t(`cities.${c}`)}
+              </Chip>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -169,9 +185,15 @@ export default function MembershipDetail() {
                     onClick={() => setVoucherDetail(v)}
                     className="card flex w-full items-center gap-3 p-3 text-left transition hover:shadow-cardhover"
                   >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
-                      <Icon name={PACK_ICON[v.category] || 'ticket'} size={18} />
-                    </span>
+                    <SmartImage
+                      src={voucherPhoto(v)}
+                      alt={v.title}
+                      gradient={categoryMeta(v.category).grad}
+                      icon={PACK_ICON[v.category] || 'ticket'}
+                      iconSize={18}
+                      rounded="rounded-xl"
+                      className="h-11 w-11 shrink-0"
+                    />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold text-slate-800">{v.title}</p>
                       <p className="text-xs text-slate-400">
@@ -191,10 +213,19 @@ export default function MembershipDetail() {
         <section>
           <h2 className="mb-3 text-base font-bold text-slate-900">{t('detail.participatingHotels')}</h2>
           <ul className="space-y-2">
-            {m.hotels.map((h) => (
-              <li key={h} className="card flex items-center gap-2 px-4 py-3 text-sm font-medium text-slate-700">
-                <Icon name="pin" size={16} className="text-brand-500" />
-                {h}
+            {m.hotels.map((h, i) => (
+              <li key={h} className="card flex items-center gap-3 p-2 text-sm font-medium text-slate-700">
+                <SmartImage
+                  src={hotelPhoto(h, i)}
+                  alt={h}
+                  gradient={accentFor(m.brand)}
+                  icon="bed"
+                  iconSize={18}
+                  rounded="rounded-lg"
+                  className="h-12 w-16 shrink-0"
+                />
+                <span className="flex-1">{h}</span>
+                <Icon name="pin" size={16} className="mr-1 text-brand-400" />
               </li>
             ))}
           </ul>
