@@ -38,7 +38,8 @@ npm install
 npm run dev       # frontend  → http://localhost:5173
 npm run backend   # backend   → http://localhost:8787  (in-memory)
 npm run test      # frontend unit (Vitest)
-npm run e2e       # Playwright
+npm run e2e       # Playwright (offline/localStorage)
+npm run e2e:api   # Playwright in API mode (boots backend + frontend together)
 ```
 
 To run against the backend locally: `VITE_API_BASE_URL=http://localhost:8787 npm run dev`.

@@ -88,7 +88,8 @@ npm run preview
 
 ```bash
 npm run test     # Vitest unit tests (pricing/commission, i18n, formatting, voucher inventory)
-npm run e2e      # Playwright E2E (purchase→activation→commission, free-join→booking)
+npm run e2e      # Playwright E2E, offline/localStorage mode
+npm run e2e:api  # Playwright E2E in API mode — boots backend + frontend together
 ```
 
 Unit tests run automatically in CI before each deploy. The first E2E run needs
