@@ -12,4 +12,8 @@ test('voucher pack item opens a detail view', async ({ page }) => {
   await expect(page.getByText('About this benefit')).toBeVisible()
   await expect(page.getByText(/complimentary nights/i)).toBeVisible()
   await expect(page.getByText('Terms & conditions')).toBeVisible()
+
+  // a11y: pressing Escape closes the dialog.
+  await page.keyboard.press('Escape')
+  await expect(page.getByText('About this benefit')).toBeHidden()
 })

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import Icon from './Icon.jsx'
 import { accentFor } from './brandTheme.js'
 
@@ -66,7 +67,46 @@ export function ScoreBar({ label, value }) {
   )
 }
 
+const FOCUSABLE = 'a[href],button:not([disabled]),input,select,textarea,[tabindex]:not([tabindex="-1"])'
+
 export function Modal({ open, onClose, title, children }) {
+  const panelRef = useRef(null)
+
+  // a11y: ESC to close, lock background scroll, focus the dialog, trap Tab,
+  // and restore focus to the trigger on close.
+  useEffect(() => {
+    if (!open) return
+    const previouslyFocused = document.activeElement
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation()
+        onClose?.()
+      } else if (e.key === 'Tab') {
+        const items = panelRef.current?.querySelectorAll(FOCUSABLE)
+        if (!items || items.length === 0) return
+        const list = Array.from(items)
+        const first = list[0]
+        const last = list[list.length - 1]
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault()
+          last.focus()
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    panelRef.current?.focus?.()
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prevOverflow
+      if (previouslyFocused && previouslyFocused.focus) previouslyFocused.focus()
+    }
+  }, [open, onClose])
+
   if (!open) return null
   return (
     <div
@@ -74,7 +114,12 @@ export function Modal({ open, onClose, title, children }) {
       onClick={onClose}
     >
       <div
-        className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-white p-5 shadow-cardhover sm:rounded-3xl"
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        tabIndex={-1}
+        className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-white p-5 shadow-cardhover outline-none sm:rounded-3xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
