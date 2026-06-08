@@ -112,21 +112,23 @@ test('Admin API: guard + manage orders, reservations, assistance, settlements', 
   expect((await settlementRes.json()).gmv).toBeGreaterThan(0)
 })
 
-test('Admin console UI: admin advances an order + sees settlement', async ({ page }) => {
-  // The demo sign-in maps to the admin account in this env.
+test('Admin website: admin advances an order + sees settlement', async ({ page }) => {
+  // Create an order via the consumer app (this also signs in the demo user,
+  // who is the admin in this env; the token is stored in localStorage).
   await page.goto('/membership/club-marriott-vietnam')
   await page.getByRole('button', { name: /Purchase ·/ }).click()
   await page.getByRole('button', { name: 'Continue with Google' }).click() // gated sign-in
   await page.getByRole('button', { name: 'Request purchase' }).click()
 
-  // Admin console opens (no 403 ADMIN_REQUIRED because demo user is admin).
-  await page.goto('/admin')
+  // The admin is a SEPARATE website (/admin/). Same-origin localStorage carries
+  // the session, so it auto-authenticates as the admin (no 403 ADMIN_REQUIRED).
+  await page.goto('/admin/')
   await expect(page.getByRole('heading', { name: 'Admin Console' })).toBeVisible()
 
   // The just-created order is listed; advance it via the admin API.
   await expect(page.getByText('Club Marriott Vietnam').first()).toBeVisible()
   await page.getByRole('button', { name: 'Invoice issued' }).first().click()
-  await expect(page.getByText('Invoice issued').first()).toBeVisible() // status chip after refetch
+  await expect(page.getByText('Invoice issued').first()).toBeVisible() // status badge after refetch
 
   // Settlement tab loads from /admin/settlements/summary.
   await page.getByRole('button', { name: 'Settlement' }).click()

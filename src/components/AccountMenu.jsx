@@ -69,16 +69,6 @@ export default function AccountMenu() {
         </button>
         <button
           onClick={() => {
-            setOpen(false)
-            navigate('/admin')
-          }}
-          className="btn-secondary mt-2 w-full"
-        >
-          <Icon name="bell" size={16} />
-          {t('admin.title')}
-        </button>
-        <button
-          onClick={() => {
             signOut()
             setOpen(false)
             showToast(t('auth.signedOut'))
