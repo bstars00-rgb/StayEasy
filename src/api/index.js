@@ -9,6 +9,7 @@ import { ordersApi } from './orders.js'
 import { transfersApi } from './transfers.js'
 import { assistanceApi } from './assistance.js'
 import { recommendationsApi } from './recommendations.js'
+import { adminApi } from './admin.js'
 
 export const api = {
   auth: authApi,
@@ -19,4 +20,5 @@ export const api = {
   transfers: transfersApi,
   assistance: assistanceApi,
   recommendations: recommendationsApi,
+  admin: adminApi,
 }
