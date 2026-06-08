@@ -39,3 +39,36 @@
 - [ ] 데모 stable subject/localStorage 키/base path 미변경 확인
 
 끝나면 push 후 한 줄 회신. 그러면 프론트(Claude)가 `e2e:api`로 계약 재검증합니다.
+
+---
+
+# 라이브 어드민 연결 (후속 · 우선)
+
+어드민을 **독립 웹사이트**로 분리해 배포 완료했습니다.
+- 라이브: `https://bstars00-rgb.github.io/StayEasy/admin/` (정상 200, 쉘 로딩 OK)
+- 기존 `VITE_API_BASE_URL`(=`https://stayeasy-backend-g3z0.onrender.com`) + `/api/v1/admin/*`
+  계약 그대로 사용, **프론트 무변경**.
+
+## 막힌 지점 (Render 백엔드)
+1. **admin 라우트가 라이브에 미반영** — 라이브 백엔드 직접 호출 시
+   `GET /api/v1/admin/orders → 404 {"error":{"code":"NOT_FOUND",...}}`.
+   admin API가 포함된 최신 백엔드가 **Render에 재배포되지 않음** → **Render 재배포 필요**.
+2. **`ADMIN_EMAILS` 환경변수 설정** — 라이브 데모 로그인의 `user.email`이
+   **`demo-gle-user@stayeasy.local`** 로 내려옵니다(라이브 백엔드 파생값).
+   Render `ADMIN_EMAILS`에 이 값(데모 검증용) + 실제 운영자 이메일을 콤마로 추가.
+   (로컬 e2e는 `ADMIN_EMAILS=demo.user@gmail.com` 으로 통과 중)
+
+## 프론트가 사용하는 admin 엔드포인트 (계약 확인)
+- `GET /admin/orders` · `PATCH /admin/orders/:id/status {status}`
+- `GET /admin/reservations` · `PATCH /admin/reservations/:id/status {status}`
+- `GET /admin/assistance-requests` · `PATCH /admin/assistance-requests/:id {status, adminNote}`
+- `GET /admin/settlements/summary` → `{ gmv, commission, activatedOrderCount, currency }`
+- 권한 없으면 **403 `ADMIN_REQUIRED`** (프론트 전용 안내화면). envelope/bare 둘 다 프론트가
+  처리하므로 응답 형식은 그대로 두어도 됩니다.
+
+## 완료 기준 (DoD)
+- [ ] 라이브 `https://.../StayEasy/admin/` 로그인 → 주문·예약·문의·정산 로드(404 사라짐)
+- [ ] 비관리자 계정 → 403 → "관리자 권한이 필요합니다" 화면
+- [ ] `npm run e2e:api` 그대로 통과(계약 불변)
+
+끝나면 "어드민 라이브 연결 완료" 한 줄 회신 → 프론트가 라이브 `/admin/` 로그인까지 재검증.
