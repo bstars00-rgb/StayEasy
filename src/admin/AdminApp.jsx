@@ -90,18 +90,20 @@ function Console({ t, lang, onUnauthorized }) {
 
   const load = useCallback(async () => {
     setState('loading')
-    try {
-      const [orders, reservations, assistance, settlement] = await Promise.all([
-        api.admin.listOrders(),
-        api.admin.listReservations(),
-        api.admin.listAssistance(),
-        api.admin.settlement(),
-      ])
-      setData({ orders, reservations, assistance, settlement })
-      setState('ok')
-    } catch (e) {
-      setState(e?.code === 'ADMIN_REQUIRED' || e?.status === 403 ? 'forbidden' : 'error')
-    }
+    // allSettled so one slow/failing endpoint doesn't blank the whole console.
+    const settled = await Promise.allSettled([
+      api.admin.listOrders(),
+      api.admin.listReservations(),
+      api.admin.listAssistance(),
+      api.admin.settlement(),
+    ])
+    // Any 403 => not an admin (show the forbidden screen).
+    const is403 = (s) => s.status === 'rejected' && (s.reason?.code === 'ADMIN_REQUIRED' || s.reason?.status === 403)
+    if (settled.some(is403)) return setState('forbidden')
+    if (settled.every((s) => s.status === 'rejected')) return setState('error')
+    const val = (i, fb) => (settled[i].status === 'fulfilled' ? settled[i].value : fb)
+    setData({ orders: val(0, []), reservations: val(1, []), assistance: val(2, []), settlement: val(3, null) })
+    setState('ok')
   }, [])
 
   useEffect(() => {
