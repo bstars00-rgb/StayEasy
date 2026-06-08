@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import CitySelector from './CitySelector.jsx'
 import LanguageSelector from './LanguageSelector.jsx'
 import AccountMenu from './AccountMenu.jsx'
+import ThemeToggle from './ThemeToggle.jsx'
 
 export default function AppHeader() {
   return (
@@ -14,6 +15,7 @@ export default function AppHeader() {
         <div className="flex items-center gap-2">
           <CitySelector />
           <LanguageSelector />
+          <ThemeToggle compact />
           <AccountMenu />
         </div>
       </div>
