@@ -23,7 +23,7 @@ export default defineConfig({
       url: 'http://localhost:8787/health',
       reuseExistingServer: !process.env.CI,
       timeout: 30000,
-      env: { SQLITE_PATH: sqlitePath },
+      env: { SQLITE_PATH: sqlitePath, ADMIN_EMAILS: 'demo.user@gmail.com' },
     },
     {
       // Vite exposes VITE_-prefixed vars from process.env, so this enables API mode.

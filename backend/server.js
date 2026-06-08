@@ -13,10 +13,12 @@ function headers() { return { 'Content-Type': 'application/json; charset=utf-8',
 function json(res, status, payload) { res.writeHead(status, headers()); res.end(JSON.stringify(payload)) }
 function noContent(res) { res.writeHead(204, headers()); res.end() }
 function error(res, status, code, message, details = {}) { json(res, status, { code, message, details }) }
-function statusFor(code) { return { AUTH_REQUIRED:401, FORBIDDEN:403, MEMBERSHIP_NOT_FOUND:404, VOUCHER_NOT_FOUND:404, ORDER_NOT_FOUND:404, RESERVATION_NOT_FOUND:404, VOUCHER_NOT_AVAILABLE:409, VOUCHER_NOT_TRANSFERABLE:409, INVALID_STATUS_TRANSITION:409 }[code] || 500 }
+function statusFor(code) { return { AUTH_REQUIRED:401, ADMIN_REQUIRED:403, FORBIDDEN:403, MEMBERSHIP_NOT_FOUND:404, VOUCHER_NOT_FOUND:404, ORDER_NOT_FOUND:404, RESERVATION_NOT_FOUND:404, ASSISTANCE_REQUEST_NOT_FOUND:404, VOUCHER_NOT_AVAILABLE:409, VOUCHER_NOT_TRANSFERABLE:409, INVALID_STATUS_TRANSITION:409 }[code] || 500 }
 async function readBody(req) { const chunks=[]; for await (const c of req) chunks.push(c); if(!chunks.length)return {}; try{return JSON.parse(Buffer.concat(chunks).toString('utf8'))}catch{return {}} }
 async function currentUser(req) { const h=req.headers.authorization||''; const token=h.startsWith('Bearer ')?h.slice(7):''; return token ? store.userByToken(token) : null }
 async function requireUser(req,res){const user=await currentUser(req); if(!user){error(res,401,'AUTH_REQUIRED','Sign in is required.'); return null} return user}
+function adminEmails(){return new Set(String(process.env.ADMIN_EMAILS||'').split(',').map(v=>v.trim().toLowerCase()).filter(Boolean))}
+async function requireAdmin(req,res){const user=await requireUser(req,res); if(!user)return null; if(!adminEmails().has(String(user.email||'').toLowerCase())){error(res,403,'ADMIN_REQUIRED','Admin access is required.'); return null} return user}
 function normalizePath(pathname){const raw=pathname.replace(/\/+$/,'')||'/'; return raw.startsWith(API_PREFIX)?raw.slice(API_PREFIX.length)||'/':raw}
 
 async function route(req,res){
@@ -37,6 +39,21 @@ async function route(req,res){
   if(req.method==='GET'&&membershipVoucherMatch) return json(res,200,await store.voucherTemplates(membershipVoucherMatch[1]))
   const membershipMatch=path.match(/^\/memberships\/([^/]+)$/)
   if(req.method==='GET'&&membershipMatch){const membership=await store.membership(membershipMatch[1]); if(!membership)return error(res,404,'MEMBERSHIP_NOT_FOUND','Membership was not found.'); return json(res,200,{...membership,vouchers:await store.voucherTemplates(membership.id)})}
+
+  if(path.startsWith('/admin/')){
+    const admin=await requireAdmin(req,res); if(!admin)return
+    if(req.method==='GET'&&path==='/admin/orders') return json(res,200,await store.adminOrders())
+    const adminOrderMatch=path.match(/^\/admin\/orders\/([^/]+)\/status$/)
+    if(req.method==='PATCH'&&adminOrderMatch){try{const order=await store.adminUpdateOrderStatus(adminOrderMatch[1],body.status); if(!order)return error(res,404,'ORDER_NOT_FOUND','Order was not found.'); return json(res,200,order)}catch(err){return error(res,statusFor(err.code),err.code||'INTERNAL_ERROR',err.message)}}
+    if(req.method==='GET'&&path==='/admin/reservations') return json(res,200,await store.adminReservations())
+    const adminReservationMatch=path.match(/^\/admin\/reservations\/([^/]+)\/status$/)
+    if(req.method==='PATCH'&&adminReservationMatch){try{const reservation=await store.adminUpdateReservationStatus(adminReservationMatch[1],body.status); if(!reservation)return error(res,404,'RESERVATION_NOT_FOUND','Reservation was not found.'); return json(res,200,reservation)}catch(err){return error(res,statusFor(err.code),err.code||'INTERNAL_ERROR',err.message)}}
+    if(req.method==='GET'&&path==='/admin/assistance-requests') return json(res,200,await store.adminAssistanceRequests())
+    const adminAssistanceMatch=path.match(/^\/admin\/assistance-requests\/([^/]+)$/)
+    if(req.method==='PATCH'&&adminAssistanceMatch){const request=await store.adminUpdateAssistanceRequest(adminAssistanceMatch[1],body); if(!request)return error(res,404,'ASSISTANCE_REQUEST_NOT_FOUND','Assistance request was not found.'); return json(res,200,request)}
+    if(req.method==='GET'&&path==='/admin/settlements/summary') return json(res,200,await store.settlement())
+    return error(res,404,'NOT_FOUND','Endpoint was not found.')
+  }
 
   if(req.method==='GET'&&(path==='/me/wallet'||path==='/wallet')){const user=await requireUser(req,res); if(!user)return; return json(res,200,await store.wallet(user.id))}
   if(req.method==='POST'&&(path==='/me/memberships'||path==='/wallet/memberships')){const user=await requireUser(req,res); if(!user)return; if(!(await store.addMembership(user.id,body.membershipId,body.source||'free_join')))return error(res,404,'MEMBERSHIP_NOT_FOUND','Membership was not found.'); return json(res,201,await store.wallet(user.id))}

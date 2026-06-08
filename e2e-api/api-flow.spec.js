@@ -66,3 +66,48 @@ test('API mode: book a voucher → complete the reservation (server-backed)', as
   await page.getByRole('button', { name: /Reservations/ }).click()
   await expect(page.getByText('Completed').first()).toBeVisible()
 })
+
+
+test('Admin API: guard + manage orders, reservations, assistance, settlements', async ({ request }) => {
+  const api = 'http://localhost:8787/api/v1'
+  const signIn = async (credential) => {
+    const res = await request.post(`${api}/auth/google`, { data: { credential } })
+    expect(res.ok()).toBeTruthy()
+    return res.json()
+  }
+  const auth = (token) => ({ Authorization: `Bearer ${token}` })
+
+  const member = await signIn('frontdesk-user')
+  const admin = await signIn('demo-google-user')
+
+  const forbidden = await request.get(`${api}/admin/orders`, { headers: auth(member.accessToken) })
+  expect(forbidden.status()).toBe(403)
+  expect((await forbidden.json()).code).toBe('ADMIN_REQUIRED')
+
+  const orderRes = await request.post(`${api}/orders`, { headers: auth(member.accessToken), data: { membershipId: 'club-marriott-vietnam', buyerName: 'Front Desk', buyerEmail: 'frontdesk@example.com', city: 'ho-chi-minh' } })
+  expect(orderRes.status()).toBe(201)
+  const order = await orderRes.json()
+  for (const status of ['invoiced', 'paid', 'activated']) {
+    const res = await request.patch(`${api}/admin/orders/${order.id}/status`, { headers: auth(admin.accessToken), data: { status } })
+    expect(res.ok()).toBeTruthy()
+    expect((await res.json()).status).toBe(status)
+  }
+  const walletRes = await request.get(`${api}/wallet`, { headers: auth(member.accessToken) })
+  expect((await walletRes.json()).memberships.some((item) => item.id === 'club-marriott-vietnam')).toBeTruthy()
+  const reservationRes = await request.post(`${api}/reservations`, { headers: auth(member.accessToken), data: { membershipId: 'club-marriott-vietnam', templateId: 'cm-dinner', date: '2026-09-12', adults: 2, children: 0, childAges: [], hotel: 'Sheraton Saigon Grand Opera Hotel' } })
+  expect(reservationRes.status()).toBe(201)
+  const reservation = await reservationRes.json()
+  for (const status of ['confirmed', 'completed']) {
+    const res = await request.patch(`${api}/admin/reservations/${reservation.id}/status`, { headers: auth(admin.accessToken), data: { status } })
+    expect(res.ok()).toBeTruthy()
+    expect((await res.json()).status).toBe(status)
+  }
+  const assistanceRes = await request.post(`${api}/assistance-requests`, { headers: auth(member.accessToken), data: { name: 'Front Desk', contact: 'frontdesk@example.com', city: 'ho-chi-minh', requestType: 'booking', message: 'Need admin follow-up.' } })
+  expect(assistanceRes.status()).toBe(201)
+  const assistance = await assistanceRes.json()
+  const handledRes = await request.patch(`${api}/admin/assistance-requests/${assistance.id}`, { headers: auth(admin.accessToken), data: { status: 'handled', adminNote: 'Contacted by operations.' } })
+  expect(handledRes.ok()).toBeTruthy()
+  expect((await handledRes.json()).adminNote).toBe('Contacted by operations.')
+  const settlementRes = await request.get(`${api}/admin/settlements/summary`, { headers: auth(admin.accessToken) })
+  expect((await settlementRes.json()).gmv).toBeGreaterThan(0)
+})
