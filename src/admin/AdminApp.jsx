@@ -6,6 +6,7 @@ import { demoUser, isRealGoogleEnabled, renderRealGoogleButton } from '../auth/g
 import { getMembership } from '../data/memberships.js'
 import { formatMoney, formatDate } from '../utils/format.js'
 import Icon from '../components/Icon.jsx'
+import ThemeToggle from '../components/ThemeToggle.jsx'
 
 const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '')
 const membershipName = (id) => getMembership(id)?.name || id
@@ -60,6 +61,7 @@ function TopBar({ user, onSignOut, lang, setLang, t }) {
           </span>
         </div>
         <div className="flex items-center gap-3">
+          <ThemeToggle compact />
           <LangToggle lang={lang} setLang={setLang} />
           <span className="hidden text-xs text-slate-500 sm:inline">{user.email}</span>
           <button onClick={onSignOut} className="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50">
@@ -311,7 +313,10 @@ function SignIn({ onSignIn, lang, setLang, t }) {
           <span className="text-lg font-extrabold tracking-tight text-gold-600">Select</span>
           <span className="ml-1 rounded-md bg-slate-100 px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-slate-500">Admin</span>
         </div>
-        <LangToggle lang={lang} setLang={setLang} />
+        <div className="flex items-center gap-2">
+          <ThemeToggle compact />
+          <LangToggle lang={lang} setLang={setLang} />
+        </div>
       </div>
       <div className="flex flex-1 items-center justify-center px-4">
         <div className="w-full max-w-sm rounded-3xl border border-slate-100 bg-white p-7 text-center shadow-sm">
@@ -405,7 +410,10 @@ function Centered({ icon, title, body, lang, setLang }) {
         <h1 className="text-lg font-bold text-slate-900">{title}</h1>
         <p className="mt-1.5 text-sm text-slate-500">{body}</p>
         <div className="mt-4 flex justify-center">
-          <LangToggle lang={lang} setLang={setLang} />
+          <div className="flex items-center gap-2">
+            <ThemeToggle compact />
+            <LangToggle lang={lang} setLang={setLang} />
+          </div>
         </div>
       </div>
     </div>
