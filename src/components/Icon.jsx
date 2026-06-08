@@ -131,6 +131,13 @@ const paths = {
   sparkles: (
     <path d="M12 4l1.3 3.7L17 9l-3.7 1.3L12 14l-1.3-3.7L7 9l3.7-1.3zM18 14l.7 1.8L20.5 16l-1.8.7L18 18l-.7-1.3L15.5 16l1.8-.2z" />
   ),
+  moon: <path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5 7.5 7.5 0 1 0 20.5 14.5z" />,
+  sun: (
+    <>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+    </>
+  ),
 }
 
 export default function Icon({ name, size = 22, className = '', strokeWidth = 1.8, ...rest }) {
