@@ -18,6 +18,7 @@ MVP 백엔드는 관계형 데이터베이스(PostgreSQL 권장)를 기준으로
 | picture_url | text | 프로필 이미지 |
 | created_at | timestamptz | 생성일 |
 | updated_at | timestamptz | 수정일 |
+| role | text | 백오피스 역할. `admin`, `operator`, 또는 일반 사용자 기본값 |
 
 ### cities
 
@@ -108,6 +109,34 @@ Unique: `(membership_id, template_id)`
 | --- | --- | --- |
 | voucher_template_id | uuid | FK |
 | hotel_name | text | 이용 가능 호텔 |
+
+### voucher_availability
+
+바우처 템플릿별 예약 가능 규칙. 템플릿 ID는 `src/data/voucherPacks.js`의 `templateId`와 동일하게 유지한다.
+
+| 컬럼 | 타입 | 설명 |
+| --- | --- | --- |
+| template_id | text | stable voucher template id, PK |
+| days_of_week | json/text | 허용 요일 배열. `0=Sun` |
+| min_lead_days | int | 최소 리드타임 |
+| max_advance_days | int | 최대 예약 가능 기간 |
+| blackouts | json/text | `{from,to,key,label}` 배열 |
+| updated_at | timestamptz | 수정일 |
+
+### holidays
+
+국가별 공휴일/블랙아웃 프리셋.
+
+| 컬럼 | 타입 | 설명 |
+| --- | --- | --- |
+| id | text | 공휴일 ID |
+| country_id | text | `vietnam`, `korea`, `thailand` 등 |
+| from_date | date | 시작일 |
+| to_date | date | 종료일 |
+| key | text | `tet`, `seollal`, `chuseok`, `songkran` 등 |
+| label | text | 운영자 표시명 |
+| created_at | timestamptz | 생성일 |
+| updated_at | timestamptz | 수정일 |
 
 ## 2. 사용자 소유/운영 데이터
 
@@ -209,6 +238,23 @@ Unique active constraint: `(user_id, membership_id)` where status = `active`
 | message | text | 내용 |
 | status | text | `new`, `in_progress`, `resolved`, `cancelled` |
 | created_at | timestamptz | 생성일 |
+| admin_note | text | 운영자 메모 |
+| updated_at | timestamptz | 수정일 |
+
+### audit_logs
+
+백오피스 변경 감사로그. 주문/예약/문의/카탈로그/가용일/공휴일 변경 시 1건 기록한다.
+
+| 컬럼 | 타입 | 설명 |
+| --- | --- | --- |
+| id | text | 감사로그 ID |
+| actor_email | text | 변경자 이메일 |
+| action | text | `create`, `update`, `delete` |
+| target_type | text | `membership`, `voucher`, `availability`, `holiday`, `order`, `reservation`, `assistance` |
+| target_id | text | 대상 ID |
+| before_json | json/text | 변경 전 스냅샷 |
+| after_json | json/text | 변경 후 스냅샷 |
+| created_at | timestamptz | 생성일 |
 
 ## 3. 재고 계산 규칙
 
@@ -256,3 +302,6 @@ available = quantity - used_count - open_reservations - transfers
 - `reservations(user_id, membership_id, template_id, status)`
 - `orders(user_id, status, created_at)`
 - `transfers(user_id, membership_id, template_id)`
+- `voucher_availability(template_id)`
+- `holidays(country_id, from_date)`
+- `audit_logs(actor_email, created_at)`
