@@ -62,3 +62,63 @@ wallet: `GET /wallet` · `POST /wallet/memberships` · `DELETE /wallet/membershi
 reservations: `GET/POST /reservations` · `PATCH /reservations/:id/status` · `DELETE /reservations/:id`
 orders: `GET/POST /orders` · `PATCH /orders/:id/status` · `GET /settlements/summary`
 transfers: `GET/POST /transfers` · assistance: `POST /assistance-requests` · quiz: `POST /recommendations/quiz`
+
+## Back-office API added by Codex (2026-06-09)
+
+Backend-only expansion for the standalone `/admin/` UI. Existing consumer read
+shapes and existing admin endpoints remain compatible.
+
+New/expanded endpoints:
+
+- `GET /admin/me`
+- `GET /admin/dashboard?from=&to=`
+- `GET /admin/audit-logs?from=&to=&actor=&page=&pageSize=`
+- `GET/POST /admin/memberships`
+- `GET/PATCH/DELETE /admin/memberships/:id`
+- `GET/POST /admin/memberships/:id/vouchers`
+- `PATCH/DELETE /admin/vouchers/:templateId`
+- `GET /admin/vouchers/:templateId/usage`
+- `GET/PUT /admin/vouchers/:templateId/availability`
+- `GET /vouchers/:templateId/availability`
+- `GET/POST /admin/holidays`
+- `PATCH/DELETE /admin/holidays/:id`
+- `GET /admin/users`
+- `GET /admin/users/:id`
+- `GET /admin/reports/orders.csv`
+- `GET /admin/reports/settlements.csv`
+- `GET /admin/assistance-requests?status=&q=&page=&pageSize=` now supports filters/pagination; no-query response stays an array for current UI compatibility.
+- `GET /admin/settlements/summary?from=&to=&brand=` now includes `byBrand` and `byPeriod` while preserving existing summary fields.
+
+Permissions:
+
+- `ADMIN_EMAILS`: full admin, including catalog, holidays, availability, order status, and CSV/report access.
+- `OPERATOR_EMAILS`: read plus reservation/CS actions. Catalog and holiday writes return 403.
+
+Reservation date authority now lives on the backend. `POST /reservations` rejects unavailable dates with
+409 `DATE_NOT_AVAILABLE` and details such as `{ reason: "blackout", holidayKey: "tet" }`.
+CORS preflight remains enabled for `Authorization, Content-Type`.
+
+## Live persistence status (2026-06-09)
+
+Render live backend is connected to Supabase Postgres when `/api/v1/health`
+returns:
+
+```json
+{ "ok": true, "service": "stayeasy-backend", "persistence": "postgres" }
+```
+
+Working Render `DATABASE_URL` format:
+
+```text
+postgresql://postgres.ijqvaslluqpkndxflifq:<DB_PASSWORD>@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres
+```
+
+Use the Supabase Transaction pooler on Render. The direct host
+`db.ijqvaslluqpkndxflifq.supabase.co:5432` can resolve to IPv6 and fail from
+Render with `ENETUNREACH`.
+
+Current deploy repo persistence is intentionally prototype-level: it stores the
+running app snapshot in Postgres so admin/demo data survives deploys. The next
+backend step is migrating that state into the normalized tables described in
+`DATABASE_SCHEMA.md` while keeping all existing frontend/admin API shapes
+unchanged.
