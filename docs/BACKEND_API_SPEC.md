@@ -380,6 +380,7 @@ Request:
 ## 11. 주요 오류 코드
 
 - `AUTH_REQUIRED`
+- `ADMIN_REQUIRED`
 - `FORBIDDEN`
 - `MEMBERSHIP_NOT_FOUND`
 - `VOUCHER_NOT_FOUND`
@@ -387,4 +388,121 @@ Request:
 - `VOUCHER_NOT_TRANSFERABLE`
 - `INVALID_STATUS_TRANSITION`
 - `ORDER_NOT_ACTIVATABLE`
+- `DATE_NOT_AVAILABLE`
 - `VALIDATION_ERROR`
+
+## 12. Admin / Back-office
+
+모든 경로는 `/api/v1` prefix 아래에 있으며 `Authorization: Bearer <accessToken>`이 필요하다.
+백오피스 권한은 `ADMIN_EMAILS`(admin)와 `OPERATOR_EMAILS`(operator) 환경변수로 부여한다.
+일반 사용자는 403 `ADMIN_REQUIRED`를 받는다. 기존 `/admin/orders`, `/admin/reservations`,
+`/admin/assistance-requests`, `/admin/settlements/summary` 응답은 기존 UI 호환을 위해 bare JSON을 유지한다.
+
+### GET `/admin/me`
+
+현재 백오피스 사용자와 역할/권한을 반환한다.
+
+```json
+{
+  "user": { "id": "usr_123", "email": "ops@example.com", "name": "Ops" },
+  "role": "admin",
+  "permissions": ["read", "catalog:write", "settlement:write", "reservation:write", "assistance:write"]
+}
+```
+
+### GET `/admin/dashboard?from=&to=`
+
+GMV, 수수료, 주문/예약 상태별 카운트, 문의 처리 현황, 활성 멤버십, 만료 임박 바우처를 반환한다.
+
+### GET `/admin/audit-logs?from=&to=&actor=&page=&pageSize=`
+
+변경 감사로그 목록을 페이지네이션으로 반환한다.
+
+Response:
+
+```json
+{
+  "items": [
+    {
+      "id": "aud_123",
+      "actorEmail": "admin@example.com",
+      "action": "update",
+      "targetType": "membership",
+      "targetId": "club-marriott-vietnam",
+      "before": {},
+      "after": {},
+      "createdAt": "2026-06-09T00:00:00.000Z"
+    }
+  ],
+  "meta": { "page": 1, "pageSize": 20, "total": 1 }
+}
+```
+
+### Membership Catalog
+
+- `GET /admin/memberships?q=&brand=&page=&pageSize=`: 비활성 포함 멤버십 목록.
+- `POST /admin/memberships`: 멤버십 생성(admin only).
+- `GET /admin/memberships/:id`: 멤버십 상세 + 바우처.
+- `PATCH /admin/memberships/:id`: 멤버십 수정(admin only).
+- `DELETE /admin/memberships/:id`: `active=false` 소프트 삭제(admin only).
+
+멤버십 필드는 공개 `GET /memberships` shape를 유지하며 `salePrice`, `commissionRate`,
+`paidAmount`, `commissionAmount`, `active`를 포함한다.
+
+### Voucher Templates
+
+- `GET /admin/memberships/:id/vouchers`: 멤버십 바우처 템플릿 목록.
+- `POST /admin/memberships/:id/vouchers`: 바우처 템플릿 생성(admin only).
+- `PATCH /admin/vouchers/:templateId`: 바우처 템플릿 수정(admin only).
+- `DELETE /admin/vouchers/:templateId`: 바우처 템플릿 삭제(admin only).
+- `GET /admin/vouchers/:templateId/usage`: `{ issued, used, held, transferred, available }`.
+
+### Availability / Holidays
+
+- `GET /admin/vouchers/:templateId/availability`
+- `PUT /admin/vouchers/:templateId/availability` admin only, 전체 교체:
+
+```json
+{
+  "daysOfWeek": [0, 1, 2, 3, 4, 5, 6],
+  "minLeadDays": 2,
+  "maxAdvanceDays": 120,
+  "blackouts": [{ "from": "2026-02-14", "to": "2026-02-22", "key": "tet", "label": "Tet" }]
+}
+```
+
+- `GET /vouchers/:templateId/availability`: 소비자 달력용 공개 read.
+- `GET /admin/holidays?country=&page=&pageSize=`
+- `POST /admin/holidays` admin only.
+- `PATCH /admin/holidays/:id` admin only.
+- `DELETE /admin/holidays/:id` admin only.
+
+`POST /reservations`는 서버에서 가용일을 검증한다. 불가일이면 409:
+
+```json
+{
+  "code": "DATE_NOT_AVAILABLE",
+  "message": "Date is not available.",
+  "details": { "ok": false, "reason": "blackout", "holidayKey": "tet" }
+}
+```
+
+`reason`: `invalid`, `leadTime`, `tooFar`, `expired`, `blackout`, `weekend`, `closed`.
+
+### Users / Wallet Lookup
+
+- `GET /admin/users?q=&page=&pageSize=`: 회원 목록과 `membershipsCount`.
+- `GET /admin/users/:id`: 프로필 + 지갑(`memberships`, `vouchers`, `reservations`, `orders`, `transfers`).
+
+### Settlements / Reports
+
+- `GET /admin/settlements/summary?from=&to=&brand=`:
+  기존 `{ gmv, commission, activatedOrderCount, currency }`에
+  `byBrand`, `byPeriod`를 추가한다.
+- `GET /admin/reports/orders.csv?from=&to=&status=`: 주문 CSV.
+- `GET /admin/reports/settlements.csv?from=&to=`: 정산 CSV.
+
+### CS Inbox
+
+`GET /admin/assistance-requests`는 기존 배열 응답을 유지한다. `status`, `q`, `page`,
+`pageSize` 쿼리가 있을 때는 `{ items, meta }` 페이지네이션 응답을 반환한다.
