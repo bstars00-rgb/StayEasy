@@ -1,9 +1,12 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext.jsx'
 import { useTranslation } from '../i18n/useTranslation.js'
 import { memberships, getMembership } from '../data/memberships.js'
+import { cities } from '../data/cities.js'
 import { getVoucherPack } from '../data/voucherPacks.js'
 import { daysUntil, formatDate } from '../utils/format.js'
+import { getCurrentPosition, nearestCity } from '../utils/geo.js'
 import MembershipCard from '../components/MembershipCard.jsx'
 import CitySelector from '../components/CitySelector.jsx'
 import CTAButton from '../components/CTAButton.jsx'
@@ -13,7 +16,27 @@ import Icon from '../components/Icon.jsx'
 export default function Home() {
   const navigate = useNavigate()
   const { t, lang } = useTranslation()
-  const { city, savedIds, reservations, getVoucherStats, orders } = useApp()
+  const { city, setCity, savedIds, reservations, getVoucherStats, orders, showToast } = useApp()
+  const [locating, setLocating] = useState(false)
+
+  // Location-based recommendation: find the nearest supported city.
+  const detectLocation = async () => {
+    setLocating(true)
+    try {
+      const pos = await getCurrentPosition()
+      const near = nearestCity(pos, cities)
+      if (near) {
+        setCity(near.id)
+        showToast(t('home.nearMeResult', { city: t(`cities.${near.id}`) }))
+      } else {
+        showToast(t('home.locationDenied'))
+      }
+    } catch {
+      showToast(t('home.locationDenied'))
+    } finally {
+      setLocating(false)
+    }
+  }
 
   const cityName = t(`cities.${city}`)
   const popular = memberships
@@ -84,9 +107,19 @@ export default function Home() {
         </section>
       )}
 
-      {/* City selector */}
+      {/* City selector + location-based recommendation */}
       <section>
-        <p className="mb-2 text-sm font-semibold text-slate-700">{t('home.selectCity')}</p>
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <p className="text-sm font-semibold text-slate-700">{t('home.selectCity')}</p>
+          <button
+            onClick={detectLocation}
+            disabled={locating}
+            className="flex items-center gap-1 text-sm font-semibold text-brand-600 disabled:opacity-50"
+          >
+            <Icon name="pin" size={15} />
+            {locating ? t('home.locating') : t('home.nearMe')}
+          </button>
+        </div>
         <CitySelector compact={false} />
       </section>
 
