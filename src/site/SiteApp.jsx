@@ -7,6 +7,9 @@ const BASE = import.meta.env.BASE_URL || '/'
 const APP_URL = BASE
 const ADMIN_URL = `${BASE}admin/`
 const PARTNER_EMAIL = 'Global_OPs@ohmyhotel.com'
+// Fill these with the real store listings when published. Empty = "coming soon".
+const IOS_URL = ''
+const ANDROID_URL = ''
 
 const BRANDS = [...new Set(memberships.map((m) => m.brand))]
 const FEATURED = ['club-marriott-vietnam', 'accor-plus-vietnam', 'lotte-hotel-rewards']
@@ -24,8 +27,13 @@ const COPY = {
     badge: 'by Ohmyhotel · 엄선된 호텔 혜택',
     heroTitle: '엄선된 호텔 멤버십 혜택을\n한 곳에서.',
     heroSub: '오마이호텔이 고른 프리미엄 호텔 멤버십·바우처·다이닝·스파·객실 혜택을 발견하고, 비교하고, 관리하고, 사용하세요.',
-    ctaPrimary: '앱 시작하기',
+    ctaPrimary: '앱 다운로드',
     ctaSecondary: '호텔 제휴 문의',
+    dlTitle: '앱 다운로드',
+    dlSub: '모바일에서 OhmySelect를 만나보세요.',
+    dlComingSoon: '출시 예정',
+    dlUseWeb: '웹 버전으로 바로 시작하기',
+    dlClose: '닫기',
     stat1: '엄선 멤버십', stat1v: '8',
     stat2: '주요 도시', stat2v: '6',
     stat3: '지원 언어', stat3v: '5',
@@ -69,8 +77,13 @@ const COPY = {
     badge: 'by Ohmyhotel · Selected hotel benefits',
     heroTitle: 'Selected hotel membership\nbenefits, all in one place.',
     heroSub: 'Discover, compare, manage and use premium hotel memberships, vouchers, dining, spa and room perks — curated by Ohmyhotel.',
-    ctaPrimary: 'Get started',
+    ctaPrimary: 'Download app',
     ctaSecondary: 'Partner with us',
+    dlTitle: 'Download the app',
+    dlSub: 'Get OhmySelect on your phone.',
+    dlComingSoon: 'Coming soon',
+    dlUseWeb: 'Use the web version',
+    dlClose: 'Close',
     stat1: 'Curated memberships', stat1v: '8',
     stat2: 'Key cities', stat2v: '6',
     stat3: 'Languages', stat3v: '5',
@@ -111,19 +124,22 @@ const HOW_ICONS = ['explore', 'compare', 'tag', 'bookmark']
 
 export default function SiteApp() {
   const [lang, setLang] = useState('ko')
+  const [download, setDownload] = useState(false)
   const t = COPY[lang]
+  const openDownload = () => setDownload(true)
 
   return (
     <div className="min-h-screen bg-ivory font-sans text-brand-900">
       <Nav t={t} lang={lang} setLang={setLang} />
-      <Hero t={t} />
+      <Hero t={t} onDownload={openDownload} />
       <Brands t={t} />
       <Values t={t} />
       <How t={t} />
       <Featured t={t} lang={lang} />
       <Partner t={t} />
-      <FinalCTA t={t} />
+      <FinalCTA t={t} onDownload={openDownload} />
       <Footer t={t} />
+      <DownloadModal open={download} onClose={() => setDownload(false)} t={t} />
     </div>
   )
 }
@@ -164,7 +180,7 @@ function Nav({ t, lang, setLang }) {
   )
 }
 
-function Hero({ t }) {
+function Hero({ t, onDownload }) {
   return (
     <section id="top" className="relative overflow-hidden bg-brand-900 text-white">
       <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-gold-500/20 blur-3xl" />
@@ -178,9 +194,9 @@ function Hero({ t }) {
         </h1>
         <p className="mt-5 max-w-xl text-base leading-relaxed text-ivory/80 sm:text-lg">{t.heroSub}</p>
         <div className="mt-8 flex flex-wrap gap-3">
-          <a href={APP_URL} className="inline-flex items-center gap-2 rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-brand-900 shadow-lg shadow-gold-500/20 hover:bg-gold-400">
-            {t.ctaPrimary} <Icon name="arrowRight" size={17} />
-          </a>
+          <button onClick={onDownload} className="inline-flex items-center gap-2 rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-brand-900 shadow-lg shadow-gold-500/20 hover:bg-gold-400">
+            <Icon name="bookmark" size={16} /> {t.ctaPrimary}
+          </button>
           <a href={`mailto:${PARTNER_EMAIL}`} className="inline-flex items-center gap-2 rounded-full border border-white/25 px-6 py-3 text-sm font-bold text-white hover:bg-white/10">
             {t.ctaSecondary}
           </a>
@@ -328,15 +344,15 @@ function Partner({ t }) {
   )
 }
 
-function FinalCTA({ t }) {
+function FinalCTA({ t, onDownload }) {
   return (
     <section className="bg-brand-900 text-white">
       <div className="mx-auto max-w-6xl px-5 py-20 text-center">
         <h2 className="mx-auto max-w-2xl text-3xl font-extrabold tracking-tight sm:text-4xl">{t.finalTitle}</h2>
         <p className="mt-3 text-ivory/70">{t.finalSub}</p>
-        <a href={APP_URL} className="mt-8 inline-flex items-center gap-2 rounded-full bg-gold-500 px-7 py-3.5 text-sm font-bold text-brand-900 hover:bg-gold-400">
-          {t.ctaPrimary} <Icon name="arrowRight" size={17} />
-        </a>
+        <button onClick={onDownload} className="mt-8 inline-flex items-center gap-2 rounded-full bg-gold-500 px-7 py-3.5 text-sm font-bold text-brand-900 hover:bg-gold-400">
+          <Icon name="bookmark" size={17} /> {t.ctaPrimary}
+        </button>
       </div>
     </section>
   )
@@ -368,5 +384,73 @@ function Footer({ t }) {
         <p className="mx-auto max-w-6xl px-5 py-5 text-xs text-ivory/40">© 2026 {t.rights}</p>
       </div>
     </footer>
+  )
+}
+
+function DownloadModal({ open, onClose, t }) {
+  if (!open) return null
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-brand-900/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={t.dlTitle}
+    >
+      <div className="w-full max-w-md rounded-t-3xl bg-white p-6 shadow-2xl sm:rounded-3xl" onClick={(e) => e.stopPropagation()}>
+        <div className="mb-1 flex items-center justify-between">
+          <h3 className="text-lg font-bold text-brand-900">{t.dlTitle}</h3>
+          <button onClick={onClose} aria-label={t.dlClose} className="rounded-full p-1.5 text-brand-400 hover:bg-beige/40">
+            <Icon name="close" size={20} />
+          </button>
+        </div>
+        <p className="text-sm text-brand-500">{t.dlSub}</p>
+        <div className="mt-5 grid gap-3">
+          <StoreButton href={IOS_URL} mark={<AppleMark />} top="Download on the" name="App Store" comingSoon={t.dlComingSoon} />
+          <StoreButton href={ANDROID_URL} mark={<PlayMark />} top="GET IT ON" name="Google Play" comingSoon={t.dlComingSoon} />
+        </div>
+        <a href={APP_URL} className="mt-4 flex items-center justify-center gap-1.5 text-sm font-bold text-brand-700 hover:text-brand-900">
+          {t.dlUseWeb} <Icon name="arrowRight" size={15} />
+        </a>
+      </div>
+    </div>
+  )
+}
+
+function StoreButton({ href, mark, top, name, comingSoon }) {
+  const live = !!href
+  const inner = (
+    <div className={`flex items-center gap-3 rounded-2xl border px-4 py-3 transition ${live ? 'border-brand-800 bg-brand-900 text-white hover:bg-brand-800' : 'border-beige bg-ivory text-brand-400'}`}>
+      <span className="shrink-0">{mark}</span>
+      <span className="min-w-0 flex-1 text-left leading-tight">
+        <span className="block text-[10px] uppercase tracking-wide opacity-70">{top}</span>
+        <span className="block text-base font-bold">{name}</span>
+      </span>
+      {!live && <span className="shrink-0 rounded-full bg-beige px-2 py-0.5 text-[11px] font-semibold text-brand-500">{comingSoon}</span>}
+    </div>
+  )
+  return live ? (
+    <a href={href} target="_blank" rel="noopener noreferrer">{inner}</a>
+  ) : (
+    <div aria-disabled="true" className="cursor-default select-none">{inner}</div>
+  )
+}
+
+function AppleMark() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+      <path d="M17.05 12.04c-.03-2.6 2.13-3.85 2.23-3.91-1.22-1.78-3.11-2.02-3.78-2.05-1.61-.16-3.14.95-3.96.95-.82 0-2.08-.93-3.42-.9-1.76.03-3.38 1.02-4.29 2.6-1.83 3.17-.47 7.86 1.31 10.43.87 1.26 1.9 2.67 3.26 2.62 1.31-.05 1.8-.85 3.39-.85 1.58 0 2.03.85 3.42.82 1.41-.02 2.3-1.28 3.16-2.55 1-1.46 1.41-2.88 1.43-2.95-.03-.01-2.74-1.05-2.77-4.17zM14.6 4.16c.72-.87 1.21-2.08 1.08-3.29-1.04.04-2.3.69-3.05 1.56-.67.77-1.26 2-1.1 3.18 1.16.09 2.35-.59 3.07-1.45z" />
+    </svg>
+  )
+}
+
+function PlayMark() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+      <path d="M3.6 1.8 13.5 12 3.6 22.2c-.36-.21-.6-.6-.6-1.08V2.88c0-.48.24-.87.6-1.08z" fill="#34d399" />
+      <path d="m16.5 9-3-3L3.9 1.62 14.7 9z" fill="#60a5fa" />
+      <path d="m16.5 15-12.6 7.38L13.5 12z" fill="#f87171" />
+      <path d="m20.4 10.5c.72.42.72 1.58 0 2L16.5 15l-3-3 3-3z" fill="#fbbf24" />
+    </svg>
   )
 }

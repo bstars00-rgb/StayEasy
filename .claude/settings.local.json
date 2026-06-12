@@ -25,7 +25,12 @@
       "Bash(unzip -t StayEasy_사업계획서.pptx)",
       "Bash(rm -f docs/api/openapi.yaml docs/BACKEND.md src/api/httpClient.js src/api/httpClient.test.js src/api/stayeasyApi.js)",
       "Bash(rmdir docs/api)",
-      "Bash(ls src/api)"
+      "Bash(ls src/api)",
+      "Bash(git fetch *)",
+      "Bash(git rev-list *)",
+      "Bash(git commit -q -m 'feat: company marketing website \\(landing\\) at /site/ *)",
+      "Bash(git stash *)",
+      "Bash(git rebase *)"
     ]
   }
 }
