@@ -31,6 +31,9 @@ jobs:
         env:
           VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
           VITE_API_PREFIX: ${{ vars.VITE_API_PREFIX }}
+          # Sub-path for Pages. Unset = /StayEasy/. On repo rename set the
+          # VITE_BASE Actions variable to e.g. /OhmySelect/ (with slashes).
+          VITE_BASE: ${{ vars.VITE_BASE }}
       # SPA fallback: serve index.html for unknown client-side routes.
       - run: cp dist/index.html dist/404.html
       - uses: actions/configure-pages@v5

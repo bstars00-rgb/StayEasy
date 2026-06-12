@@ -1,0 +1,79 @@
+import { test, expect } from '@playwright/test'
+
+// Back-office backend contract guard (Codex's /admin/* APIs). Runs against the
+// DB-backed backend booted by playwright.api.config.js (ADMIN_EMAILS set there).
+// Admin = demo-google-user; stranger = frontdesk-user (no role → 403).
+const api = 'http://localhost:8787/api/v1'
+const unwrap = (j) => (j && typeof j === 'object' && 'data' in j && 'error' in j ? j.data : j)
+const arr = (x) => (Array.isArray(x) ? x : x?.items || x?.data || [])
+
+async function signIn(request, credential) {
+  const res = await request.post(`${api}/auth/google`, { data: { credential } })
+  return unwrap(await res.json())
+}
+
+test('back-office: auth/role guards + dashboard/catalog/availability/holidays/settlement/CSV', async ({ request }) => {
+  const admin = await signIn(request, 'demo-google-user')
+  const stranger = await signIn(request, 'frontdesk-user')
+  const AH = { Authorization: `Bearer ${admin.accessToken}` }
+  const SH = { Authorization: `Bearer ${stranger.accessToken}` }
+
+  // Guards
+  expect((await request.get(`${api}/admin/orders`)).status()).toBe(401) // no token
+  expect((await request.get(`${api}/admin/orders`, { headers: SH })).status()).toBe(403) // no role
+
+  // Dashboard / KPI
+  const dash = await request.get(`${api}/admin/dashboard`, { headers: AH })
+  expect(dash.status()).toBe(200)
+  const d = unwrap(await dash.json())
+  expect(d).toHaveProperty('gmv')
+  expect(d.orders).toHaveProperty('byStatus')
+
+  // Catalog (seeded from src/data with identical ids)
+  const mem = await request.get(`${api}/admin/memberships`, { headers: AH })
+  expect(mem.status()).toBe(200)
+  expect(arr(unwrap(await mem.json())).map((m) => m.id)).toContain('club-marriott-vietnam')
+  // catalog mutation is admin-only → stranger blocked
+  expect((await request.post(`${api}/admin/memberships`, { headers: SH, data: { id: 'x', name: 'X' } })).status()).toBe(403)
+
+  // Members
+  expect((await request.get(`${api}/admin/users`, { headers: AH })).status()).toBe(200)
+
+  // Availability: public read + admin read/write
+  const pub = await request.get(`${api}/vouchers/cm-dinner/availability`)
+  expect(pub.status()).toBe(200)
+  expect(unwrap(await pub.json())).toHaveProperty('daysOfWeek')
+  expect((await request.get(`${api}/admin/vouchers/cm-fnb50/availability`, { headers: AH })).status()).toBe(200)
+  expect((await request.put(`${api}/admin/vouchers/cm-fnb50/availability`, { headers: AH, data: { daysOfWeek: [1, 2, 3, 4, 5], minLeadDays: 0, maxAdvanceDays: 120, blackouts: [] } })).status()).toBe(200)
+  expect((await request.put(`${api}/admin/vouchers/cm-fnb50/availability`, { headers: SH, data: {} })).status()).toBe(403)
+
+  // Holidays + audit + settlement
+  expect((await request.get(`${api}/admin/holidays`, { headers: AH })).status()).toBe(200)
+  expect((await request.get(`${api}/admin/audit-logs`, { headers: AH })).status()).toBe(200)
+  expect((await request.get(`${api}/admin/settlements/summary`, { headers: AH })).status()).toBe(200)
+
+  // CSV report
+  const csv = await request.get(`${api}/admin/reports/orders.csv`, { headers: AH })
+  expect(csv.status()).toBe(200)
+  expect(csv.headers()['content-type'] || '').toContain('csv')
+})
+
+test('back-office: server-side booking availability enforcement (DATE_NOT_AVAILABLE)', async ({ request }) => {
+  const admin = await signIn(request, 'demo-google-user')
+  const AH = { Authorization: `Bearer ${admin.accessToken}` }
+  // Own a weekday-only voucher (ihg-dining20).
+  await request.post(`${api}/wallet/memberships`, { headers: AH, data: { membershipId: 'ihg-one-rewards-vietnam' } })
+
+  // Next Saturday ~2 weeks out (deterministic future weekend).
+  const d = new Date()
+  d.setDate(d.getDate() + 14)
+  while (d.getDay() !== 6) d.setDate(d.getDate() + 1)
+  const saturday = d.toISOString().slice(0, 10)
+
+  const res = await request.post(`${api}/reservations`, {
+    headers: AH,
+    data: { membershipId: 'ihg-one-rewards-vietnam', templateId: 'ihg-dining20', date: saturday, adults: 2, children: 0, childAges: [], hotel: 'x' },
+  })
+  expect(res.status(), 'weekday-only voucher on a Saturday must be rejected').toBe(409)
+  expect(unwrap(await res.json()).code).toBe('DATE_NOT_AVAILABLE')
+})
