@@ -31,6 +31,10 @@ jobs:
         env:
           VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
           VITE_API_PREFIX: ${{ vars.VITE_API_PREFIX }}
+          # Real Google sign-in: set the VITE_GOOGLE_CLIENT_ID Actions variable
+          # (OAuth Client ID; add the Pages origin to Authorized JS origins).
+          # Unset = frontend-only demo sign-in.
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
           # Sub-path for Pages. Unset = /StayEasy/. On repo rename set the
           # VITE_BASE Actions variable to e.g. /OhmySelect/ (with slashes).
           VITE_BASE: ${{ vars.VITE_BASE }}

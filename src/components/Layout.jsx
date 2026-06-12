@@ -4,6 +4,7 @@ import AppHeader from './AppHeader.jsx'
 import BottomNavigation from './BottomNavigation.jsx'
 import Toast from './Toast.jsx'
 import SignInModal from './SignInModal.jsx'
+import InstallPrompt from './InstallPrompt.jsx'
 
 export default function Layout({ children }) {
   const { pathname } = useLocation()
@@ -18,6 +19,7 @@ export default function Layout({ children }) {
       <AppHeader />
       <main className="flex-1">{children}</main>
       <BottomNavigation />
+      <InstallPrompt />
       <Toast />
       <SignInModal />
     </div>

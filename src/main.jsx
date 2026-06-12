@@ -20,3 +20,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </ErrorBoundary>
   </React.StrictMode>
 )
+
+// Register the service worker (enables PWA install). Scoped to the app base.
+if ('serviceWorker' in navigator) {
+  const base = import.meta.env.BASE_URL || '/'
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register(`${base}sw.js`, { scope: base }).catch(() => {})
+  })
+}

@@ -1,0 +1,15 @@
+{
+  "name": "OhmySelect — Selected Hotel Benefits",
+  "short_name": "OhmySelect",
+  "description": "Discover, compare, manage and use selected hotel membership benefits.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F5EFE6",
+  "theme_color": "#0F2238",
+  "icons": [
+    { "src": "brand/app-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "brand/app-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
