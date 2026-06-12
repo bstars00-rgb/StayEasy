@@ -26,6 +26,9 @@ export function AppProvider({ children }) {
   const [reservations, setReservations] = useState(() => storage.getReservations())
   const [transfers, setTransfers] = useState(() => storage.getTransfers())
   const [orders, setOrders] = useState(() => storage.getOrders())
+  // API-mode wallet hydration status (offline mode is always "ready").
+  const [walletReady, setWalletReady] = useState(() => !(USE_API && storage.getAuthUser()))
+  const [walletError, setWalletError] = useState(false)
   const [toast, setToast] = useState(null)
   const toastTimer = useRef(null)
 
@@ -53,6 +56,7 @@ export function AppProvider({ children }) {
   // Derives used counts from completed reservations so getVoucherStats works
   // identically in both modes.
   const loadWallet = useCallback(async () => {
+    setWalletError(false)
     try {
       const w = await api.wallet.get()
       const ids = (w.memberships || []).map((m) => m.id)
@@ -70,7 +74,9 @@ export function AppProvider({ children }) {
       setOrders(w.orders || [])
       setUsage(u)
     } catch {
-      /* keep current state on failure */
+      setWalletError(true) // keep current state; surface a retry in the wallet
+    } finally {
+      setWalletReady(true)
     }
   }, [])
 
@@ -144,6 +150,8 @@ export function AppProvider({ children }) {
       if (USE_API) {
         // Server scopes /me data by bearer token; reload (or clear on sign-out).
         if (user) {
+          setWalletReady(false)
+          setWalletError(false)
           loadWallet()
         } else {
           setSavedIds([])
@@ -151,6 +159,8 @@ export function AppProvider({ children }) {
           setReservations([])
           setTransfers([])
           setOrders([])
+          setWalletReady(true)
+          setWalletError(false)
         }
         return
       }
@@ -297,6 +307,7 @@ export function AppProvider({ children }) {
       transfers, createTransfer,
       orders, createOrder, setOrderStatus, deleteOrder,
       reloadForUser,
+      walletReady, walletError, reloadWallet: loadWallet,
       toast, showToast,
     }),
     [
@@ -308,6 +319,7 @@ export function AppProvider({ children }) {
       transfers, createTransfer,
       orders, createOrder, setOrderStatus, deleteOrder,
       reloadForUser,
+      walletReady, walletError, loadWallet,
       toast, showToast,
     ]
   )

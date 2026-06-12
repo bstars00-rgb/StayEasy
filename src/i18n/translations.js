@@ -346,6 +346,8 @@ const en = {
     exploreCta: 'Explore memberships',
     activated: 'Added to your wallet',
     removeMembership: 'Remove membership',
+    loadError: 'Could not load your wallet.',
+    retry: 'Try again',
   },
   alerts: {
     title: 'Needs your attention',
@@ -792,6 +794,8 @@ const ko = {
     exploreCta: '멤버십 둘러보기',
     activated: '지갑에 추가되었습니다',
     removeMembership: '멤버십 삭제',
+    loadError: '혜택 지갑을 불러오지 못했어요.',
+    retry: '다시 시도',
   },
   alerts: {
     title: '확인이 필요해요',
@@ -1238,6 +1242,8 @@ const vi = {
     exploreCta: 'Khám phá thành viên',
     activated: 'Đã thêm vào ví',
     removeMembership: 'Xóa thành viên',
+    loadError: 'Không tải được ví ưu đãi của bạn.',
+    retry: 'Thử lại',
   },
   alerts: {
     title: 'Cần bạn chú ý',
@@ -1684,6 +1690,8 @@ const zh = {
     exploreCta: '探索会员',
     activated: '已添加到钱包',
     removeMembership: '移除会员',
+    loadError: '无法加载您的权益钱包。',
+    retry: '重试',
   },
   alerts: {
     title: '需要您关注',
@@ -2130,6 +2138,8 @@ const ja = {
     exploreCta: '会員を探す',
     activated: '財布に追加しました',
     removeMembership: '会員を削除',
+    loadError: 'ウォレットを読み込めませんでした。',
+    retry: '再試行',
   },
   alerts: {
     title: '確認が必要です',

@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext.jsx'
+import { USE_API } from '../api/index.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useTranslation } from '../i18n/useTranslation.js'
 import { getMembership } from '../data/memberships.js'
@@ -20,7 +21,7 @@ import Icon from '../components/Icon.jsx'
 export default function MyBenefits() {
   const navigate = useNavigate()
   const { t, lang } = useTranslation()
-  const { savedIds, removeSaved, getVoucherStats, reservations, orders } = useApp()
+  const { savedIds, removeSaved, getVoucherStats, reservations, orders, walletReady, walletError, reloadWallet } = useApp()
   const { requireAuth } = useAuth()
 
   const [tab, setTab] = useState('wallet')
@@ -58,6 +59,11 @@ export default function MyBenefits() {
     <div className="page-pad space-y-5">
       <h1 className="text-xl font-extrabold text-slate-900">{t('myBenefits.title')}</h1>
 
+      {USE_API && !walletReady && <WalletSkeleton />}
+      {USE_API && walletReady && walletError && <WalletError t={t} onRetry={reloadWallet} />}
+
+      {(!USE_API || (walletReady && !walletError)) && (
+        <>
       {/* Summary */}
       <section className="grid grid-cols-2 gap-2.5">
         <Stat label={t('wallet.myMemberships')} value={ownedMemberships.length} icon="bookmark" />
@@ -160,6 +166,8 @@ export default function MyBenefits() {
             <SettlementSummary orders={orders} t={t} lang={lang} />
           </div>
         ))}
+        </>
+      )}
 
       <BookingRequestModal
         open={!!booking}
@@ -182,6 +190,40 @@ export default function MyBenefits() {
         membership={gift?.membership}
         template={gift?.template}
       />
+    </div>
+  )
+}
+
+// Shown while the wallet hydrates from the backend (API mode, e.g. Render cold start).
+function WalletSkeleton() {
+  return (
+    <div className="animate-pulse space-y-5" aria-busy="true">
+      <div className="grid grid-cols-2 gap-2.5">
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="h-16 rounded-2xl bg-slate-100" />
+        ))}
+      </div>
+      <div className="h-10 rounded-2xl bg-slate-100" />
+      <div className="space-y-3">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="h-28 rounded-2xl bg-slate-100" />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function WalletError({ t, onRetry }) {
+  return (
+    <div className="card flex flex-col items-center gap-3 p-8 text-center">
+      <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-500">
+        <Icon name="bell" size={22} />
+      </span>
+      <p className="text-sm text-slate-600">{t('wallet.loadError')}</p>
+      <button onClick={onRetry} className="btn-secondary !px-4 !py-2 text-sm">
+        <Icon name="arrowRight" size={15} />
+        {t('wallet.retry')}
+      </button>
     </div>
   )
 }
