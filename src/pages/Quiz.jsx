@@ -101,6 +101,23 @@ export default function Quiz() {
     })
   }
 
+  // Share the top picks via the native share sheet, or copy to clipboard.
+  async function shareResults() {
+    const lines = results.map((r, i) => `${i + 1}. ${r.membership.name}`).join('\n')
+    const url = window.location.origin + (import.meta.env.BASE_URL || '/')
+    const text = `${t('quiz.resultTitle')}\n${lines}`
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'OhmySelect', text, url })
+      } else {
+        await navigator.clipboard.writeText(`${text}\n${url}`)
+        showToast(t('quiz.shareCopied'))
+      }
+    } catch {
+      /* user dismissed the share sheet */
+    }
+  }
+
   // --- Results view ---
   if (finished) {
     return (
@@ -175,9 +192,14 @@ export default function Quiz() {
           </div>
         ))}
 
-        <CTAButton variant="ghost" fullWidth icon="sparkles" onClick={restart}>
-          {t('quiz.retake')}
-        </CTAButton>
+        <div className="grid grid-cols-2 gap-2">
+          <CTAButton variant="secondary" fullWidth icon="send" onClick={shareResults}>
+            {t('quiz.share')}
+          </CTAButton>
+          <CTAButton variant="ghost" fullWidth icon="sparkles" onClick={restart}>
+            {t('quiz.retake')}
+          </CTAButton>
+        </div>
       </div>
     )
   }

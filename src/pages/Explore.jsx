@@ -13,20 +13,35 @@ export default function Explore() {
   const { city, setCity } = useApp()
   const [cityFilter, setCityFilter] = useState(city)
   const [benefit, setBenefit] = useState('all')
+  const [query, setQuery] = useState('')
 
   const results = useMemo(() => {
     let list = memberships
     if (cityFilter !== 'all') list = list.filter((m) => m.cities.includes(cityFilter))
     if (benefit !== 'all') list = list.filter((m) => m.bestFor.includes(benefit))
+    const q = query.trim().toLowerCase()
+    if (q) {
+      list = list.filter((m) =>
+        [m.name, m.brand, ...(m.hotels || []), ...(m.benefits || [])]
+          .join(' ')
+          .toLowerCase()
+          .includes(q),
+      )
+    }
     return [...list].sort((a, b) => b.scores.overall - a.scores.overall)
-  }, [cityFilter, benefit])
+  }, [cityFilter, benefit, query])
 
   function onCityChange(value) {
     setCityFilter(value)
     if (value !== 'all') setCity(value) // keep header in sync
   }
 
-  const hasFilters = cityFilter !== 'all' || benefit !== 'all'
+  const hasFilters = cityFilter !== 'all' || benefit !== 'all' || query.trim() !== ''
+  const clearAll = () => {
+    setCityFilter('all')
+    setBenefit('all')
+    setQuery('')
+  }
 
   return (
     <div className="page-pad space-y-4">
@@ -34,6 +49,16 @@ export default function Explore() {
         <h1 className="text-xl font-extrabold text-slate-900">{t('explore.title')}</h1>
         <p className="text-sm text-slate-500">{t('explore.subtitle')}</p>
       </div>
+
+      {/* Search */}
+      <input
+        type="search"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder={t('explore.searchPlaceholder')}
+        className="input"
+        aria-label={t('explore.searchPlaceholder')}
+      />
 
       {/* Filters */}
       <div className="grid grid-cols-2 gap-2">
@@ -64,13 +89,7 @@ export default function Explore() {
       <div className="flex items-center justify-between">
         <p className="text-sm text-slate-500">{t('explore.results', { count: results.length })}</p>
         {hasFilters && (
-          <button
-            onClick={() => {
-              setCityFilter('all')
-              setBenefit('all')
-            }}
-            className="text-sm font-semibold text-brand-600"
-          >
+          <button onClick={clearAll} className="text-sm font-semibold text-brand-600">
             {t('explore.clearFilters')}
           </button>
         )}
@@ -78,13 +97,7 @@ export default function Explore() {
 
       {results.length === 0 ? (
         <EmptyState icon="explore" title={t('explore.empty')}>
-          <CTAButton
-            variant="secondary"
-            onClick={() => {
-              setCityFilter('all')
-              setBenefit('all')
-            }}
-          >
+          <CTAButton variant="secondary" onClick={clearAll}>
             {t('explore.clearFilters')}
           </CTAButton>
         </EmptyState>
