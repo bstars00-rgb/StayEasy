@@ -13,6 +13,7 @@ export default defineConfig(({ command }) => ({
       input: {
         main: 'index.html',
         admin: 'admin/index.html',
+        site: 'site/index.html',
       },
     },
   },
