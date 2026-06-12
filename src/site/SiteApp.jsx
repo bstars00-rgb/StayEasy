@@ -12,6 +12,16 @@ const IOS_URL = ''
 const ANDROID_URL = ''
 
 const BRANDS = [...new Set(memberships.map((m) => m.brand))]
+const BRAND_DOMAIN = {
+  Marriott: 'marriott.com',
+  Accor: 'accor.com',
+  Hilton: 'hilton.com',
+  IHG: 'ihg.com',
+  'Shangri-La': 'shangri-la.com',
+  Hyatt: 'hyatt.com',
+  Lotte: 'lottehotel.com',
+  Nikko: 'okura-nikko.com',
+}
 const FEATURED = ['club-marriott-vietnam', 'accor-plus-vietnam', 'lotte-hotel-rewards']
   .map((id) => memberships.find((m) => m.id === id))
   .filter(Boolean)
@@ -217,15 +227,36 @@ function Hero({ t, onDownload }) {
 function Brands({ t }) {
   return (
     <section className="border-b border-beige/60 bg-ivory">
-      <div className="mx-auto max-w-6xl px-5 py-8">
+      <div className="mx-auto max-w-6xl px-5 py-10">
         <p className="text-center text-xs font-semibold uppercase tracking-widest text-brand-400">{t.trust}</p>
-        <div className="mt-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
+        <div className="mt-6 grid grid-cols-2 items-center gap-3 sm:grid-cols-4 lg:grid-cols-8">
           {BRANDS.map((b) => (
-            <span key={b} className="text-base font-bold tracking-tight text-brand-700/70">{b}</span>
+            <div key={b} className="flex h-16 items-center justify-center rounded-2xl border border-beige bg-white px-3">
+              <BrandLogo brand={b} />
+            </div>
           ))}
         </div>
       </div>
     </section>
+  )
+}
+
+function BrandLogo({ brand }) {
+  const [failed, setFailed] = useState(false)
+  const domain = BRAND_DOMAIN[brand]
+  if (failed || !domain) {
+    return <span className="text-center text-sm font-bold tracking-tight text-brand-700/70">{brand}</span>
+  }
+  return (
+    <img
+      src={`https://logo.clearbit.com/${domain}`}
+      alt={brand}
+      title={brand}
+      loading="lazy"
+      referrerPolicy="no-referrer"
+      onError={() => setFailed(true)}
+      className="h-7 w-auto max-w-[120px] object-contain opacity-70 grayscale transition hover:opacity-100 hover:grayscale-0"
+    />
   )
 }
 
