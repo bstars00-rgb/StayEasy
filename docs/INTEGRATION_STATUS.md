@@ -3,6 +3,18 @@
 Maintained by the frontend (Claude). Snapshot of how the `src/api/` client
 lines up with the running backend prototype (`backend/server.js`).
 
+> **2026-06-14 — Backend ownership moved to Claude; normalized backend ported to
+> the deploy repo.** The `StayEasy/backend/` implementation (the one this repo's
+> `e2e:api` suite validates) was ported into `bstars00-rgb/StayEasy-BackEnd`
+> (`server.js` + `db.js` + `src/` seed; commit `886de1c`). It replaces the old
+> `app_state` prototype with the normalized schema, voucher `i18n` persistence,
+> server-side reservation availability (`409 DATE_NOT_AVAILABLE`), and
+> admin/operator roles. CI smoke is green. **Pending (owner action):** trigger a
+> Render redeploy (Manual Deploy, or set `RENDER_DEPLOY_HOOK_URL`) and add the
+> `OPERATOR_EMAILS` env var. `DATABASE_URL` (Supabase pooler) + `ADMIN_EMAILS`
+> are already live (old backend reports `persistence:postgres`). After redeploy,
+> live `/api/v1/health` should report `service:"ohmyselect-backend"`.
+
 _Last checked: 2026-06-07 — **frontend wired to the API and verified.**_
 
 ## ✅ Connected & verified (backend prototype, port 8787)
@@ -92,7 +104,15 @@ New/expanded endpoints:
 Permissions:
 
 - `ADMIN_EMAILS`: full admin, including catalog, holidays, availability, order status, and CSV/report access.
-- `OPERATOR_EMAILS`: read plus reservation/CS actions. Catalog and holiday writes return 403.
+- `OPERATOR_EMAILS`: read plus order/reservation/CS status actions. Catalog, voucher, availability, and holiday writes return 403. `ADMIN_EMAILS` wins when an email is in both lists.
+
+Voucher i18n persistence (2026-06-14):
+
+- `POST /admin/memberships/:id/vouchers` and `PATCH /admin/vouchers/:templateId`
+  persist optional inline `i18n` translations for `ko`, `vi`, `zh`, and `ja`.
+- `GET /admin/memberships/:id/vouchers` echoes `i18n`.
+- Public `GET /memberships/:id` includes the same `i18n` on `vouchers[]`, so the
+  consumer app can hydrate admin-authored translations without a frontend shape change.
 
 Reservation date authority now lives on the backend. `POST /reservations` rejects unavailable dates with
 409 `DATE_NOT_AVAILABLE` and details such as `{ reason: "blackout", holidayKey: "tet" }`.
