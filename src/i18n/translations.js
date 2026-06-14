@@ -116,6 +116,7 @@ const en = {
     empty: 'Add memberships to start comparing.',
     max: 'You can compare up to 3 memberships.',
     cityCoverage: 'City coverage',
+    best: 'Best',
   },
   scores: {
     familyDining: 'Family dining',
@@ -362,6 +363,7 @@ const en = {
   alerts: {
     title: 'Needs your attention',
     expiring: '{title} · expires {date}',
+    expired: '{title} · expired {date}',
     pending: '{title} · {status}',
     none: 'You are all caught up.',
   },
@@ -629,6 +631,7 @@ const ko = {
     empty: '비교할 멤버십을 추가하세요.',
     max: '최대 3개까지 비교할 수 있습니다.',
     cityCoverage: '이용 도시',
+    best: '최고',
   },
   scores: {
     familyDining: '가족 다이닝',
@@ -875,6 +878,7 @@ const ko = {
   alerts: {
     title: '확인이 필요해요',
     expiring: '{title} · {date} 만료',
+    expired: '{title} · {date} 만료됨',
     pending: '{title} · {status}',
     none: '모두 확인했습니다.',
   },
@@ -1142,6 +1146,7 @@ const vi = {
     empty: 'Thêm thành viên để bắt đầu so sánh.',
     max: 'Bạn có thể so sánh tối đa 3 thành viên.',
     cityCoverage: 'Phạm vi thành phố',
+    best: 'Tốt nhất',
   },
   scores: {
     familyDining: 'Ẩm thực gia đình',
@@ -1388,6 +1393,7 @@ const vi = {
   alerts: {
     title: 'Cần bạn chú ý',
     expiring: '{title} · hết hạn {date}',
+    expired: '{title} · đã hết hạn {date}',
     pending: '{title} · {status}',
     none: 'Bạn đã xem hết.',
   },
@@ -1655,6 +1661,7 @@ const zh = {
     empty: '添加会员以开始比较。',
     max: '最多可比较 3 个会员。',
     cityCoverage: '覆盖城市',
+    best: '最佳',
   },
   scores: {
     familyDining: '家庭餐饮',
@@ -1901,6 +1908,7 @@ const zh = {
   alerts: {
     title: '需要您关注',
     expiring: '{title} · {date} 到期',
+    expired: '{title} · {date} 已过期',
     pending: '{title} · {status}',
     none: '已全部处理。',
   },
@@ -2168,6 +2176,7 @@ const ja = {
     empty: '会員を追加して比較を始めましょう。',
     max: '比較できるのは最大3つまでです。',
     cityCoverage: '対応都市',
+    best: 'ベスト',
   },
   scores: {
     familyDining: 'ファミリーダイニング',
@@ -2414,6 +2423,7 @@ const ja = {
   alerts: {
     title: '確認が必要です',
     expiring: '{title} · {date} 期限切れ',
+    expired: '{title} · {date} 期限切れ済み',
     pending: '{title} · {status}',
     none: 'すべて確認済みです。',
   },

@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 import { useTranslation } from '../i18n/useTranslation.js'
 import { getMembership } from '../data/memberships.js'
 import { formatMoney } from '../utils/format.js'
+import { computeBest, isBest } from '../utils/compare.js'
 import { BrandAvatar, ScoreBar } from '../components/ui.jsx'
 import ScoreBadge from '../components/ScoreBadge.jsx'
 import EmptyState from '../components/EmptyState.jsx'
@@ -42,6 +43,18 @@ export default function Compare() {
   const discount = (v) => (v == null ? t('common.memberRate') : `${t('common.upTo')} ${v}%`)
   const yesNo = (b) => (b ? t('detail.included') : t('detail.notIncluded'))
 
+  // Winner highlighting: best value per metric across the compared memberships.
+  const best = computeBest(items)
+  const scoreLabel = (key, label, value) =>
+    isBest(best, `score_${key}`, value) ? (
+      <span className="inline-flex items-center gap-1 font-semibold text-emerald-700">
+        <Icon name="star" size={12} className="text-emerald-500" />
+        {label}
+      </span>
+    ) : (
+      label
+    )
+
   return (
     <div className="page-pad space-y-4">
       <div>
@@ -53,7 +66,12 @@ export default function Compare() {
       <div className="-mx-4 overflow-x-auto px-4 no-scrollbar">
         <div className="flex gap-2" style={{ minWidth: 'min-content' }}>
           {items.map((m) => (
-            <div key={m.id} className="card w-36 shrink-0 p-3 text-center">
+            <div key={m.id} className="card relative w-36 shrink-0 p-3 text-center">
+              {isBest(best, 'score_overall', m.scores.overall) && (
+                <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-gold-100 px-2 py-0.5 text-[10px] font-bold text-gold-700">
+                  <Icon name="star" size={10} /> {t('compare.best')}
+                </span>
+              )}
               <div className="flex justify-end">
                 <button
                   onClick={() => removeFromCompare(m.id)}
@@ -98,21 +116,21 @@ export default function Compare() {
             </div>
 
             <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
-              <Row label={t('common.annualFee')} value={m.annualFee === 0 ? t('common.free') : formatMoney(m.annualFee, m.currency, lang)} />
-              <Row label={t('common.estSavingsShort')} value={formatMoney(m.estimatedSavings, m.currency, lang)} />
-              <Row label={t('detail.freeNight')} value={yesNo(m.freeNight)} />
-              <Row label={t('detail.spaBenefit')} value={yesNo(m.spaBenefit)} />
-              <Row label={t('detail.diningDiscount')} value={discount(m.diningDiscount)} />
-              <Row label={t('detail.roomDiscount')} value={discount(m.roomDiscount)} />
-              <Row label={t('compare.cityCoverage')} value={`${m.cities.length}`} />
+              <Row label={t('common.annualFee')} value={m.annualFee === 0 ? t('common.free') : formatMoney(m.annualFee, m.currency, lang)} best={isBest(best, 'annualFee', m.annualFee)} t={t} />
+              <Row label={t('common.estSavingsShort')} value={formatMoney(m.estimatedSavings, m.currency, lang)} best={isBest(best, 'estimatedSavings', m.estimatedSavings)} t={t} />
+              <Row label={t('detail.freeNight')} value={yesNo(m.freeNight)} best={isBest(best, 'freeNight', m.freeNight)} t={t} />
+              <Row label={t('detail.spaBenefit')} value={yesNo(m.spaBenefit)} best={isBest(best, 'spaBenefit', m.spaBenefit)} t={t} />
+              <Row label={t('detail.diningDiscount')} value={discount(m.diningDiscount)} best={isBest(best, 'diningDiscount', m.diningDiscount)} t={t} />
+              <Row label={t('detail.roomDiscount')} value={discount(m.roomDiscount)} best={isBest(best, 'roomDiscount', m.roomDiscount)} t={t} />
+              <Row label={t('compare.cityCoverage')} value={`${m.cities.length}`} best={isBest(best, 'cityCoverage', m.cities.length)} t={t} />
             </dl>
 
             <div className="mt-3 space-y-2.5">
-              <ScoreBar label={t('scores.familyDining')} value={m.scores.familyDining} />
-              <ScoreBar label={t('scores.staycation')} value={m.scores.staycation} />
-              <ScoreBar label={t('scores.businessTravel')} value={m.scores.businessTravel} />
-              <ScoreBar label={t('scores.easeOfUse')} value={m.scores.easeOfUse} />
-              <ScoreBar label={t('scores.overall')} value={m.scores.overall} />
+              <ScoreBar label={scoreLabel('familyDining', t('scores.familyDining'), m.scores.familyDining)} value={m.scores.familyDining} />
+              <ScoreBar label={scoreLabel('staycation', t('scores.staycation'), m.scores.staycation)} value={m.scores.staycation} />
+              <ScoreBar label={scoreLabel('businessTravel', t('scores.businessTravel'), m.scores.businessTravel)} value={m.scores.businessTravel} />
+              <ScoreBar label={scoreLabel('easeOfUse', t('scores.easeOfUse'), m.scores.easeOfUse)} value={m.scores.easeOfUse} />
+              <ScoreBar label={scoreLabel('overall', t('scores.overall'), m.scores.overall)} value={m.scores.overall} />
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-2">
@@ -139,11 +157,14 @@ export default function Compare() {
   )
 }
 
-function Row({ label, value }) {
+function Row({ label, value, best, t }) {
   return (
     <div className="flex flex-col">
       <dt className="text-xs text-slate-400">{label}</dt>
-      <dd className="font-semibold text-slate-800">{value}</dd>
+      <dd className={`flex items-center gap-1 font-semibold ${best ? 'text-emerald-700' : 'text-slate-800'}`}>
+        {best && <Icon name="star" size={12} className="shrink-0 text-emerald-500" aria-label={t('compare.best')} />}
+        {value}
+      </dd>
     </div>
   )
 }

@@ -5,6 +5,7 @@ import { useTranslation } from '../i18n/useTranslation.js'
 import { memberships, getMembership } from '../data/memberships.js'
 import { cities } from '../data/cities.js'
 import { getVoucherPack } from '../data/voucherPacks.js'
+import { localizeVoucher } from '../data/voucherI18n.js'
 import { daysUntil, formatDate } from '../utils/format.js'
 import { getCurrentPosition, nearestCity } from '../utils/geo.js'
 import MembershipCard from '../components/MembershipCard.jsx'
@@ -44,19 +45,21 @@ export default function Home() {
     .sort((a, b) => b.scores.overall - a.scores.overall)
     .slice(0, 2)
 
-  // Alerts: vouchers expiring within 30 days + in-progress reservations.
+  // Alerts: usable vouchers that are expired-unused or expiring within 30 days,
+  // most urgent first; plus in-progress reservations.
   const owned = savedIds.map(getMembership).filter(Boolean)
   const expiringAlerts = owned
     .flatMap((m) => getVoucherPack(m.id).map((tpl) => ({ m, tpl })))
-    .filter(({ m, tpl }) => {
-      const avail = getVoucherStats(m.id, tpl).available
-      const d = daysUntil(tpl.validUntil)
-      return avail > 0 && d != null && d >= 0 && d <= 30
-    })
-    .map(({ tpl }) => ({
+    .map(({ m, tpl }) => ({ m, tpl, avail: getVoucherStats(m.id, tpl).available, d: daysUntil(tpl.validUntil) }))
+    .filter(({ avail, d }) => avail > 0 && d != null && d <= 30)
+    .sort((a, b) => a.d - b.d)
+    .map(({ tpl, d }) => ({
       kind: 'expiring',
       key: `e-${tpl.templateId}`,
-      text: t('alerts.expiring', { title: tpl.title, date: formatDate(tpl.validUntil, lang) }),
+      text: t(d < 0 ? 'alerts.expired' : 'alerts.expiring', {
+        title: localizeVoucher(tpl, lang).title,
+        date: formatDate(tpl.validUntil, lang),
+      }),
     }))
   const pendingAlerts = reservations
     .filter((r) => r.status === 'requested' || r.status === 'confirmed')
