@@ -1,17 +1,60 @@
 import { client } from './client.js'
 
-// Admin API (operator console). All routes are under /admin/* and require an
-// admin account; non-admins get 403 with code ADMIN_REQUIRED. Mirrors
-// backend/server.js admin routes (bare JSON responses).
+// Admin / back-office API. All routes under /admin/* require an admin (or, for
+// reads, operator) account; non-authorized → 403 ADMIN_REQUIRED.
 export const adminApi = {
+  // Overview
+  dashboard: () => client.get('/admin/dashboard'),
+  auditLogs: () => client.get('/admin/audit-logs'),
+
+  // Orders / reservations / assistance
   listOrders: () => client.get('/admin/orders'),
   setOrderStatus: (id, status) => client.patch(`/admin/orders/${id}/status`, { status }),
-
   listReservations: () => client.get('/admin/reservations'),
   setReservationStatus: (id, status) => client.patch(`/admin/reservations/${id}/status`, { status }),
-
   listAssistance: () => client.get('/admin/assistance-requests'),
   updateAssistance: (id, patch) => client.patch(`/admin/assistance-requests/${id}`, patch),
 
+  // Catalog
+  listMemberships: () => client.get('/admin/memberships'),
+  membershipVouchers: (id) => client.get(`/admin/memberships/${id}/vouchers`),
+
+  // Availability + holidays
+  getAvailability: (templateId) => client.get(`/admin/vouchers/${templateId}/availability`),
+  setAvailability: (templateId, rule) => client.put(`/admin/vouchers/${templateId}/availability`, rule),
+  listHolidays: () => client.get('/admin/holidays'),
+
+  // Members
+  listUsers: () => client.get('/admin/users'),
+  getUser: (id) => client.get(`/admin/users/${id}`),
+
+  // Settlement
   settlement: () => client.get('/admin/settlements/summary'),
+}
+
+// Lists come back as { items, meta } (paginated) or a bare array; normalize.
+export const itemsOf = (res) => (Array.isArray(res) ? res : res?.items || res?.data || [])
+
+// Download an admin CSV report (auth header can't ride on a plain <a>, so fetch
+// the blob with the bearer token and trigger a client-side download).
+export async function downloadCsv(path, filename) {
+  const base = import.meta.env.VITE_API_BASE_URL || ''
+  const prefix = import.meta.env.VITE_API_PREFIX ?? '/api/v1'
+  let tok = null
+  try {
+    const a = JSON.parse(window.localStorage.getItem('stayeasy.auth') || 'null')
+    tok = a && (a.accessToken || a.token)
+  } catch {
+    /* ignore */
+  }
+  const res = await fetch(`${base}${prefix}${path}`, { headers: tok ? { Authorization: `Bearer ${tok}` } : {} })
+  const blob = await res.blob()
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
 }

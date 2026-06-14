@@ -123,14 +123,15 @@ test('Admin website: admin advances an order + sees settlement', async ({ page }
   // The admin is a SEPARATE website (/admin/). Same-origin localStorage carries
   // the session, so it auto-authenticates as the admin (no 403 ADMIN_REQUIRED).
   await page.goto('/admin/')
-  await expect(page.getByRole('heading', { name: 'Admin Console' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible() // default tab loads
 
-  // The just-created order is listed; advance it via the admin API.
+  // Orders tab: the just-created order is listed; advance it via the admin API.
+  await page.getByRole('button', { name: 'Orders' }).first().click()
   await expect(page.getByText('Club Marriott Vietnam').first()).toBeVisible()
   await page.getByRole('button', { name: 'Invoice issued' }).first().click()
   await expect(page.getByText('Invoice issued').first()).toBeVisible() // status badge after refetch
 
   // Settlement tab loads from /admin/settlements/summary.
-  await page.getByRole('button', { name: 'Settlement' }).click()
-  await expect(page.getByText('Total paid (GMV)')).toBeVisible()
+  await page.getByRole('button', { name: 'Settlement' }).first().click()
+  await expect(page.getByText('Total paid (GMV)').first()).toBeVisible()
 })
