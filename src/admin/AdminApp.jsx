@@ -801,25 +801,110 @@ function HolidaysPanel({ t, lang }) {
 /* ── Members ───────────────────────────────────────────────────────────── */
 function MembersTab({ t, lang }) {
   const { data, loading, error, reload } = useAsync(() => api.admin.listUsers())
+  const [selected, setSelected] = useState(null)
+  if (selected) return <MemberDetail key={selected} id={selected} t={t} lang={lang} onBack={() => setSelected(null)} />
   if (loading) return <Loading t={t} />
   if (error) return <ErrBlock t={t} onRetry={reload} />
   const rows = itemsOf(data)
   if (!rows.length) return <Empty t={t} />
   return (
     <Panel>
-      <Table head={[t('admin.requester'), t('partner.memberships'), t('admin.memberSince')]}>
+      <Table head={[t('admin.requester'), t('partner.memberships'), t('admin.memberSince'), '']}>
         {rows.map((u) => (
-          <tr key={u.id} className="border-t border-slate-100">
+          <tr key={u.id} className="cursor-pointer border-t border-slate-100 hover:bg-slate-50" onClick={() => setSelected(u.id)}>
             <Td>
               <p className="font-semibold text-slate-800">{u.name || '—'}</p>
               <p className="text-xs text-slate-400">{u.email}</p>
             </Td>
             <Td className="tabular-nums text-slate-600">{u.membershipsCount ?? 0}</Td>
             <Td className="text-slate-500">{u.createdAt ? formatDate(u.createdAt, lang) : '—'}</Td>
+            <Td className="text-right"><Icon name="chevronRight" size={16} className="text-slate-300" /></Td>
           </tr>
         ))}
       </Table>
     </Panel>
+  )
+}
+
+// One member's full footprint: profile + wallet (memberships / vouchers /
+// orders / reservations). Re-fetched per id via the key prop in MembersTab.
+function MemberDetail({ id, t, lang, onBack }) {
+  const { data, loading, error, reload } = useAsync(() => api.admin.getUser(id))
+  if (loading) return <Loading t={t} />
+  if (error || !data) return <ErrBlock t={t} onRetry={reload} />
+  const u = data
+  const memberships = itemsOf(u.memberships)
+  const vouchers = itemsOf(u.vouchers)
+  const orders = itemsOf(u.orders)
+  const reservations = itemsOf(u.reservations)
+  return (
+    <div className="space-y-5">
+      <button onClick={onBack} className="flex items-center gap-1 text-sm font-semibold text-brand-600">
+        <Icon name="chevronLeft" size={15} /> {t('admin.back')}
+      </button>
+
+      <Panel>
+        <div className="p-4">
+          <p className="text-lg font-extrabold text-slate-900">{u.name || '—'}</p>
+          <p className="text-sm text-slate-500">{u.email}</p>
+          {u.createdAt && <p className="mt-1 text-xs text-slate-400">{t('admin.memberSince')} · {formatDate(u.createdAt, lang)}</p>}
+        </div>
+      </Panel>
+
+      <div className="grid gap-3 sm:grid-cols-4">
+        <StatCard label={t('partner.memberships')} value={memberships.length} icon="bookmark" tone="brand" />
+        <StatCard label={t('admin.vouchersHeld')} value={vouchers.length} icon="tag" tone="slate" />
+        <StatCard label={t('admin.tabOrders')} value={orders.length} icon="tag" tone="slate" />
+        <StatCard label={t('admin.tabReservations')} value={reservations.length} icon="calendar" tone="slate" />
+      </div>
+
+      {orders.length > 0 && (
+        <Panel>
+          <div className="border-b border-slate-100 px-4 py-2.5 text-sm font-bold text-slate-700">{t('admin.tabOrders')}</div>
+          <Table head={[t('common.brand'), t('order.amount'), t('admin.auditAction')]}>
+            {orders.map((o) => (
+              <tr key={o.id} className="border-t border-slate-100">
+                <Td className="font-semibold text-slate-800">{membershipName(o.membershipId)}</Td>
+                <Td className="tabular-nums">{formatMoney(o.paidAmount, o.currency, lang)}</Td>
+                <Td><Badge tone={ORDER_TONE[o.status] || 'slate'}>{t(`order.status${cap(o.status)}`)}</Badge></Td>
+              </tr>
+            ))}
+          </Table>
+        </Panel>
+      )}
+
+      {reservations.length > 0 && (
+        <Panel>
+          <div className="border-b border-slate-100 px-4 py-2.5 text-sm font-bold text-slate-700">{t('admin.tabReservations')}</div>
+          <Table head={['Voucher', t('reservation.date'), t('admin.auditAction')]}>
+            {reservations.map((r) => (
+              <tr key={r.id} className="border-t border-slate-100">
+                <Td className="font-semibold text-slate-800">{r.title || r.templateId}</Td>
+                <Td>{r.date ? formatDate(r.date, lang) : '—'}</Td>
+                <Td><Badge tone={RES_TONE[r.status] || 'slate'}>{t(`reservation.status${cap(r.status)}`)}</Badge></Td>
+              </tr>
+            ))}
+          </Table>
+        </Panel>
+      )}
+
+      {vouchers.length > 0 && (
+        <Panel>
+          <div className="border-b border-slate-100 px-4 py-2.5 text-sm font-bold text-slate-700">{t('admin.vouchersHeld')}</div>
+          <Table head={['Voucher', t('common.brand'), t('admin.auditAction')]}>
+            {vouchers.map((v, i) => (
+              <tr key={v.id || v.templateId || i} className="border-t border-slate-100">
+                <Td className="font-semibold text-slate-800">{v.title || v.templateId}</Td>
+                <Td className="text-slate-500">{membershipName(v.membershipId)}</Td>
+                <Td>{v.status ? <Badge tone="slate">{v.status}</Badge> : '—'}</Td>
+              </tr>
+            ))}
+          </Table>
+        </Panel>
+      )}
+
+      {!orders.length && !reservations.length && !vouchers.length && !memberships.length && <Empty t={t} />}
+    </div>
   )
 }
 

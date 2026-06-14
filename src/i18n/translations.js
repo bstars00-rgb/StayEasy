@@ -455,6 +455,8 @@ const en = {
     target_order: 'Order',
     target_reservation: 'Reservation',
     target_assistance: 'Assistance',
+    back: 'Back to list',
+    vouchersHeld: 'Vouchers held',
   },
   purchase: {
     buy: 'Purchase',
@@ -964,6 +966,8 @@ const ko = {
     target_order: '주문',
     target_reservation: '예약',
     target_assistance: '문의',
+    back: '목록으로',
+    vouchersHeld: '보유 바우처',
   },
   purchase: {
     buy: '구매하기',
@@ -1473,6 +1477,8 @@ const vi = {
     target_order: 'Đơn hàng',
     target_reservation: 'Đặt chỗ',
     target_assistance: 'Hỗ trợ',
+    back: 'Về danh sách',
+    vouchersHeld: 'Phiếu đang giữ',
   },
   purchase: {
     buy: 'Mua',
@@ -1982,6 +1988,8 @@ const zh = {
     target_order: '订单',
     target_reservation: '预订',
     target_assistance: '咨询',
+    back: '返回列表',
+    vouchersHeld: '持有礼券',
   },
   purchase: {
     buy: '购买',
@@ -2491,6 +2499,8 @@ const ja = {
     target_order: '注文',
     target_reservation: '予約',
     target_assistance: 'お問い合わせ',
+    back: '一覧へ戻る',
+    vouchersHeld: '保有バウチャー',
   },
   purchase: {
     buy: '購入する',

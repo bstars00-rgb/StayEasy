@@ -139,4 +139,13 @@ test('Admin website: admin advances an order + sees settlement', async ({ page }
   // empty state — never the error block).
   await page.getByRole('button', { name: 'Audit log' }).first().click()
   await expect(page.getByRole('heading', { name: 'Audit log' })).toBeVisible()
+
+  // Members tab → drill into the buyer (demo user) → their wallet detail loads
+  // (/admin/users/:id). Assert the right member opened, robust to cross-test
+  // wallet contents. The profile name is stable; the row email differs from the
+  // login email (demo.user@gmail.com → demo-esk-user@ohmyselect.local).
+  await page.getByRole('button', { name: 'Members' }).first().click()
+  await page.getByText('OhmySelect Demo User').first().click()
+  await expect(page.getByRole('button', { name: 'Back to list' })).toBeVisible()
+  await expect(page.getByText('Vouchers held')).toBeVisible() // MemberDetail mounted
 })
