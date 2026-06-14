@@ -77,3 +77,27 @@ test('back-office: server-side booking availability enforcement (DATE_NOT_AVAILA
   expect(res.status(), 'weekday-only voucher on a Saturday must be rejected').toBe(409)
   expect(unwrap(await res.json()).code).toBe('DATE_NOT_AVAILABLE')
 })
+
+test('back-office: create a voucher (auto-gets availability) then delete it', async ({ request }) => {
+  const admin = await signIn(request, 'demo-google-user')
+  const AH = { Authorization: `Bearer ${admin.accessToken}` }
+  const tpl = 'qa-new-voucher'
+  const mId = 'hilton-honors-vietnam'
+
+  const created = await request.post(`${api}/admin/memberships/${mId}/vouchers`, {
+    headers: AH,
+    data: { templateId: tpl, title: 'QA Test Voucher', category: 'dining', quantity: 5, validUntil: '2026-12-31' },
+  })
+  expect(created.status(), 'create voucher → 201').toBe(201)
+
+  // It appears in the membership's vouchers...
+  const list = arr(unwrap(await (await request.get(`${api}/admin/memberships/${mId}/vouchers`, { headers: AH })).json()))
+  expect(list.map((v) => v.templateId)).toContain(tpl)
+  // ...and an availability rule was auto-created (so it shows in the Availability tab).
+  const av = await request.get(`${api}/admin/vouchers/${tpl}/availability`, { headers: AH })
+  expect(av.status(), 'new voucher has an availability rule').toBe(200)
+  expect(unwrap(await av.json())).toHaveProperty('daysOfWeek')
+
+  // Clean up.
+  expect((await request.delete(`${api}/admin/vouchers/${tpl}`, { headers: AH })).ok()).toBeTruthy()
+})

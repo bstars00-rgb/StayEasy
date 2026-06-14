@@ -356,24 +356,81 @@ function CatalogTab({ t, lang }) {
   )
 }
 
-function VoucherInventory({ membershipId, t, lang }) {
-  const { data, loading } = useAsync(() => api.admin.membershipVouchers(membershipId))
+const VOUCHER_CATS = ['dining', 'room', 'spa', 'discount', 'gift', 'other']
+
+function VoucherInventory({ membershipId, t }) {
+  const { data, loading, reload } = useAsync(() => api.admin.membershipVouchers(membershipId))
+  const blank = { templateId: '', title: '', category: 'dining', quantity: 1, validUntil: '2026-12-31', transferable: false }
+  const [adding, setAdding] = useState(false)
+  const [form, setForm] = useState(blank)
+  const [busy, setBusy] = useState(false)
+  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
+
+  const create = async () => {
+    if (!form.templateId.trim() || !form.title.trim()) return
+    setBusy(true)
+    try {
+      await api.admin.createVoucher(membershipId, {
+        templateId: form.templateId.trim(),
+        title: form.title.trim(),
+        category: form.category,
+        quantity: Number(form.quantity) || 1,
+        validUntil: form.validUntil,
+        transferable: form.transferable,
+      })
+      setForm(blank)
+      setAdding(false)
+      reload()
+    } catch {
+      /* 403 for operators / validation */
+    } finally {
+      setBusy(false)
+    }
+  }
+  const remove = (templateId) => api.admin.deleteVoucher(templateId).catch(() => {}).then(reload)
+
   if (loading) return <p className="text-xs text-slate-400">{t('admin.loading')}</p>
   const rows = itemsOf(data)
-  if (!rows.length) return <p className="text-xs text-slate-400">{t('admin.empty')}</p>
   return (
     <div className="space-y-1.5">
       {rows.map((v) => (
         <div key={v.templateId} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white px-3 py-2 text-sm">
           <span className="font-medium text-slate-700">{v.title}</span>
-          <span className="flex gap-3 text-xs tabular-nums text-slate-500">
+          <span className="flex items-center gap-3 text-xs tabular-nums text-slate-500">
             <span>{t('voucher.total')} {v.quantity}</span>
             <span className="text-emerald-600">{t('voucher.available')} {v.available ?? '—'}</span>
             <span>{t('voucher.used')} {v.used ?? 0}</span>
-            <span className="text-slate-400">{t('reservation.statusConfirmed')} {v.held ?? 0}</span>
+            <button onClick={() => remove(v.templateId)} aria-label={t('common.delete')} className="rounded p-1 text-slate-300 hover:text-rose-500">
+              <Icon name="trash" size={14} />
+            </button>
           </span>
         </div>
       ))}
+
+      {adding ? (
+        <div className="space-y-2 rounded-lg border border-brand-100 bg-brand-50/40 p-3">
+          <div className="grid gap-2 sm:grid-cols-2">
+            <input value={form.templateId} onChange={(e) => set('templateId', e.target.value)} placeholder={t('admin.voucherId')} className="input !py-1.5 text-sm" />
+            <input value={form.title} onChange={(e) => set('title', e.target.value)} placeholder={t('admin.fieldTitle')} className="input !py-1.5 text-sm" />
+            <select value={form.category} onChange={(e) => set('category', e.target.value)} className="input !py-1.5 text-sm">
+              {VOUCHER_CATS.map((c) => <option key={c} value={c}>{t(`voucherCat.${c}`)}</option>)}
+            </select>
+            <input type="number" min="1" value={form.quantity} onChange={(e) => set('quantity', e.target.value)} className="input !py-1.5 text-sm" placeholder={t('admin.quantity')} />
+            <input type="date" value={form.validUntil} onChange={(e) => set('validUntil', e.target.value)} className="input !py-1.5 text-sm" />
+            <label className="flex items-center gap-2 text-sm text-slate-600">
+              <input type="checkbox" checked={form.transferable} onChange={(e) => set('transferable', e.target.checked)} /> {t('voucher.transferable')}
+            </label>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={create} disabled={busy} className="btn-primary !px-3 !py-1.5 text-xs disabled:opacity-50">{t('admin.addVoucher')}</button>
+            <button onClick={() => setAdding(false)} className="btn-ghost !px-3 !py-1.5 text-xs text-slate-500">{t('common.cancel')}</button>
+          </div>
+        </div>
+      ) : (
+        <button onClick={() => setAdding(true)} className="mt-1 flex items-center gap-1 text-xs font-semibold text-brand-600">
+          <Icon name="plus" size={14} /> {t('admin.addVoucher')}
+        </button>
+      )}
     </div>
   )
 }

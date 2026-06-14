@@ -18,6 +18,9 @@ export const adminApi = {
   // Catalog
   listMemberships: () => client.get('/admin/memberships'),
   membershipVouchers: (id) => client.get(`/admin/memberships/${id}/vouchers`),
+  createVoucher: (membershipId, body) => client.post(`/admin/memberships/${membershipId}/vouchers`, body),
+  updateVoucher: (templateId, patch) => client.patch(`/admin/vouchers/${templateId}`, patch),
+  deleteVoucher: (templateId) => client.del(`/admin/vouchers/${templateId}`),
 
   // Availability + holidays
   getAvailability: (templateId) => client.get(`/admin/vouchers/${templateId}/availability`),
