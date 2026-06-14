@@ -4,6 +4,7 @@ import { DEFAULT_CITY } from '../data/cities.js'
 import { getVoucherTemplate } from '../data/voucherPacks.js'
 import { voucherStats, countOpenReservations, countTransfers } from '../utils/vouchers.js'
 import { api, USE_API } from '../api/index.js'
+import { syncCatalog } from '../data/catalog.js'
 import * as storage from '../utils/storage.js'
 
 const MAX_COMPARE = 3
@@ -29,6 +30,8 @@ export function AppProvider({ children }) {
   // API-mode wallet hydration status (offline mode is always "ready").
   const [walletReady, setWalletReady] = useState(() => !(USE_API && storage.getAuthUser()))
   const [walletError, setWalletError] = useState(false)
+  // Bumped after the backend catalog is hydrated in place, to re-render readers.
+  const [catalogVersion, setCatalogVersion] = useState(0)
   const [toast, setToast] = useState(null)
   const toastTimer = useRef(null)
 
@@ -84,6 +87,12 @@ export function AppProvider({ children }) {
   useEffect(() => {
     if (USE_API && storage.getAuthUser()) loadWallet()
   }, [loadWallet])
+
+  // Hydrate the catalog from the backend (API mode) so admin-managed
+  // memberships/vouchers/pricing reach the consumer; static is the fallback.
+  useEffect(() => {
+    if (USE_API) syncCatalog().then((ok) => ok && setCatalogVersion((v) => v + 1))
+  }, [])
 
   /* ----- saved memberships ----- */
   const isSaved = useCallback((id) => savedIds.includes(id), [savedIds])
@@ -308,6 +317,7 @@ export function AppProvider({ children }) {
       orders, createOrder, setOrderStatus, deleteOrder,
       reloadForUser,
       walletReady, walletError, reloadWallet: loadWallet,
+      catalogVersion,
       toast, showToast,
     }),
     [
@@ -320,6 +330,7 @@ export function AppProvider({ children }) {
       orders, createOrder, setOrderStatus, deleteOrder,
       reloadForUser,
       walletReady, walletError, loadWallet,
+      catalogVersion,
       toast, showToast,
     ]
   )

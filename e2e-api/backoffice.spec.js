@@ -103,3 +103,22 @@ test('back-office: create a voucher (auto-gets availability) then delete it', as
   // Clean up.
   expect((await request.delete(`${api}/admin/vouchers/${tpl}`, { headers: AH })).ok()).toBeTruthy()
 })
+
+test('catalog sync: an admin-created voucher appears in the consumer app', async ({ page, request }) => {
+  const admin = await signIn(request, 'demo-google-user')
+  const AH = { Authorization: `Bearer ${admin.accessToken}` }
+  const tpl = 'qa-consumer-voucher'
+  const title = 'QA Consumer Voucher 7788'
+  await request.post(`${api}/admin/memberships/hilton-honors-vietnam/vouchers`, {
+    headers: AH,
+    data: { templateId: tpl, title, category: 'dining', quantity: 3, validUntil: '2026-12-31', description: 'Shown to users' },
+  })
+  try {
+    // Consumer app (API mode) hydrates the catalog from the backend → the new
+    // voucher shows on the membership detail page (admin → consumer is connected).
+    await page.goto('/membership/hilton-honors-vietnam')
+    await expect(page.getByText(title)).toBeVisible({ timeout: 15000 })
+  } finally {
+    await request.delete(`${api}/admin/vouchers/${tpl}`, { headers: AH })
+  }
+})
