@@ -134,4 +134,9 @@ test('Admin website: admin advances an order + sees settlement', async ({ page }
   // Settlement tab loads from /admin/settlements/summary.
   await page.getByRole('button', { name: 'Settlement' }).first().click()
   await expect(page.getByText('Total paid (GMV)').first()).toBeVisible()
+
+  // Audit log tab mounts and the /admin/audit-logs call resolves (table or
+  // empty state — never the error block).
+  await page.getByRole('button', { name: 'Audit log' }).first().click()
+  await expect(page.getByRole('heading', { name: 'Audit log' })).toBeVisible()
 })

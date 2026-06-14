@@ -25,6 +25,7 @@ const NAV = [
   ['availability', 'admin.tabAvailability', 'clock'],
   ['members', 'admin.tabMembers', 'users'],
   ['settlement', 'admin.tabSettlement', 'sparkles'],
+  ['audit', 'admin.tabAudit', 'history'],
 ]
 
 // Run an async fetch once on mount; expose {loading,error,data,reload}.
@@ -132,6 +133,7 @@ function Console({ t, lang, onUnauthorized }) {
     availability: <AvailabilityTab t={t} lang={lang} />,
     members: <MembersTab t={t} lang={lang} />,
     settlement: <SettlementTab t={t} lang={lang} />,
+    audit: <AuditTab t={t} lang={lang} />,
   }
 
   return (
@@ -860,6 +862,41 @@ function SettlementTab({ t, lang }) {
         </button>
       </div>
     </div>
+  )
+}
+
+/* ── Audit log ─────────────────────────────────────────────────────────── */
+const AUDIT_TONE = { create: 'emerald', update: 'amber', delete: 'slate', activate: 'brand', deactivate: 'slate' }
+
+function AuditTab({ t, lang }) {
+  const { data, loading, error, reload } = useAsync(() => api.admin.auditLogs())
+  // Translate a known key, else fall back to the raw backend value (robust to
+  // any action/target the backend may add later).
+  const labelOr = (key, raw) => {
+    if (!raw) return '—'
+    const v = t(key)
+    return v === key ? raw : v
+  }
+  if (loading) return <Loading t={t} />
+  if (error) return <ErrBlock t={t} onRetry={reload} />
+  const rows = itemsOf(data)
+  if (!rows.length) return <Empty t={t} />
+  return (
+    <Panel>
+      <Table head={[t('admin.auditTime'), t('admin.auditActor'), t('admin.auditAction'), t('admin.auditTarget')]}>
+        {rows.map((a) => (
+          <tr key={a.id} className="border-t border-slate-100">
+            <Td className="whitespace-nowrap text-slate-500">{a.createdAt ? formatDate(a.createdAt, lang) : '—'}</Td>
+            <Td className="text-slate-600">{a.actorEmail || '—'}</Td>
+            <Td><Badge tone={AUDIT_TONE[a.action] || 'slate'}>{labelOr(`admin.action_${a.action}`, a.action)}</Badge></Td>
+            <Td className="text-right">
+              <span className="font-medium text-slate-700">{labelOr(`admin.target_${a.targetType}`, a.targetType)}</span>
+              {a.targetId && <span className="ml-1.5 text-xs text-slate-400">{a.targetId}</span>}
+            </Td>
+          </tr>
+        ))}
+      </Table>
+    </Panel>
   )
 }
 

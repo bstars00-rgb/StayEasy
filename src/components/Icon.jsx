@@ -99,6 +99,12 @@ const paths = {
       <path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18" />
     </>
   ),
+  history: (
+    <>
+      <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+      <path d="M3 4v4h4M12 8v4l3 2" />
+    </>
+  ),
   check: <path d="m5 12 4.5 4.5L19 7" />,
   plus: <path d="M12 5v14M5 12h14" />,
   close: <path d="M6 6l12 12M18 6 6 18" />,
