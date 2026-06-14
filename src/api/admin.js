@@ -17,6 +17,9 @@ export const adminApi = {
 
   // Catalog
   listMemberships: () => client.get('/admin/memberships'),
+  createMembership: (body) => client.post('/admin/memberships', body),
+  updateMembership: (id, patch) => client.patch(`/admin/memberships/${id}`, patch),
+  deleteMembership: (id) => client.del(`/admin/memberships/${id}`),
   membershipVouchers: (id) => client.get(`/admin/memberships/${id}/vouchers`),
   createVoucher: (membershipId, body) => client.post(`/admin/memberships/${membershipId}/vouchers`, body),
   updateVoucher: (templateId, patch) => client.patch(`/admin/vouchers/${templateId}`, patch),

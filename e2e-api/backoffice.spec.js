@@ -129,3 +129,22 @@ test('catalog sync: an admin-created voucher appears in the consumer app', async
     await request.delete(`${api}/admin/vouchers/${tpl}`, { headers: AH })
   }
 })
+
+test('back-office: membership create → update (pricing/active) → soft-delete', async ({ request }) => {
+  const admin = await signIn(request, 'demo-google-user')
+  const AH = { Authorization: `Bearer ${admin.accessToken}` }
+  const id = 'qa-membership'
+
+  const created = await request.post(`${api}/admin/memberships`, {
+    headers: AH,
+    data: { id, name: 'QA Membership', brand: 'QA Brand', country: 'vietnam', currency: 'VND', annualFee: 1000000, salePrice: 900000, commissionRate: 0.1 },
+  })
+  expect(created.status(), 'create membership → 201').toBe(201)
+
+  const patched = await request.patch(`${api}/admin/memberships/${id}`, { headers: AH, data: { salePrice: 800000 } })
+  expect(patched.status(), 'update membership → 200').toBe(200)
+  expect(unwrap(await patched.json()).salePrice).toBe(800000)
+
+  const del = await request.delete(`${api}/admin/memberships/${id}`, { headers: AH })
+  expect(del.ok(), 'soft-delete membership').toBeTruthy()
+})

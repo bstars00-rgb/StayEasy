@@ -319,40 +319,143 @@ function AssistanceRow({ item, t, onSave }) {
 }
 
 /* ── Catalog ───────────────────────────────────────────────────────────── */
+const CURRENCIES = ['VND', 'USD', 'KRW', 'THB', 'JPY']
+const COUNTRIES = ['vietnam', 'korea', 'thailand', 'japan']
+const BLANK_MEMBERSHIP = { id: '', name: '', brand: '', country: 'vietnam', currency: 'VND', annualFee: 0, salePrice: '', commissionPct: 0, active: true }
+
+function MembershipForm({ initial, lockId, submitLabel, onSubmit, onCancel, t }) {
+  const [form, setForm] = useState(initial)
+  const [busy, setBusy] = useState(false)
+  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
+  const submit = async () => {
+    if (!String(form.id).trim() || !String(form.name).trim() || !String(form.brand).trim()) return
+    setBusy(true)
+    try {
+      await onSubmit({
+        id: String(form.id).trim(),
+        name: form.name.trim(),
+        brand: form.brand.trim(),
+        country: form.country,
+        currency: form.currency,
+        annualFee: Number(form.annualFee) || 0,
+        salePrice: form.salePrice === '' || form.salePrice == null ? null : Number(form.salePrice),
+        commissionRate: (Number(form.commissionPct) || 0) / 100,
+        active: form.active !== false,
+      })
+    } catch {
+      /* 403 / validation */
+    } finally {
+      setBusy(false)
+    }
+  }
+  return (
+    <div className="space-y-2">
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        <input value={form.id} onChange={(e) => set('id', e.target.value)} placeholder={t('admin.membershipId')} disabled={lockId} className="input !py-1.5 text-sm disabled:bg-slate-100 disabled:text-slate-400" />
+        <input value={form.name} onChange={(e) => set('name', e.target.value)} placeholder={t('admin.name')} className="input !py-1.5 text-sm" />
+        <input value={form.brand} onChange={(e) => set('brand', e.target.value)} placeholder={t('common.brand')} className="input !py-1.5 text-sm" />
+        <select value={form.country} onChange={(e) => set('country', e.target.value)} className="input !py-1.5 text-sm">
+          {COUNTRIES.map((c) => <option key={c} value={c}>{t(`countries.${c}`)}</option>)}
+        </select>
+        <select value={form.currency} onChange={(e) => set('currency', e.target.value)} className="input !py-1.5 text-sm">
+          {CURRENCIES.map((c) => <option key={c} value={c}>{c}</option>)}
+        </select>
+        <input type="number" min="0" value={form.annualFee} onChange={(e) => set('annualFee', e.target.value)} placeholder={t('common.annualFee')} className="input !py-1.5 text-sm" />
+        <input type="number" min="0" value={form.salePrice} onChange={(e) => set('salePrice', e.target.value)} placeholder={t('admin.salePrice')} className="input !py-1.5 text-sm" />
+        <input type="number" min="0" max="100" value={form.commissionPct} onChange={(e) => set('commissionPct', e.target.value)} placeholder={`${t('admin.commissionRate')} %`} className="input !py-1.5 text-sm" />
+        <label className="flex items-center gap-2 text-sm text-slate-600">
+          <input type="checkbox" checked={form.active !== false} onChange={(e) => set('active', e.target.checked)} /> {t('admin.active')}
+        </label>
+      </div>
+      <div className="flex gap-2">
+        <button onClick={submit} disabled={busy} className="btn-primary !px-3 !py-1.5 text-xs disabled:opacity-50">{submitLabel}</button>
+        <button onClick={onCancel} className="btn-ghost !px-3 !py-1.5 text-xs text-slate-500">{t('common.cancel')}</button>
+      </div>
+    </div>
+  )
+}
+
 function CatalogTab({ t, lang }) {
   const { data, loading, error, reload } = useAsync(() => api.admin.listMemberships())
   const [openId, setOpenId] = useState(null)
+  const [editId, setEditId] = useState(null)
+  const [adding, setAdding] = useState(false)
   if (loading) return <Loading t={t} />
   if (error) return <ErrBlock t={t} onRetry={reload} />
   const rows = itemsOf(data)
-  if (!rows.length) return <Empty t={t} />
+
+  const createM = async (f) => {
+    await api.admin.createMembership(f)
+    setAdding(false)
+    reload()
+  }
+  const saveM = async (f) => {
+    await api.admin.updateMembership(f.id, f)
+    setEditId(null)
+    reload()
+  }
+  const removeM = (id) => api.admin.deleteMembership(id).catch(() => {}).then(reload)
+
   return (
-    <Panel>
-      <Table head={[t('common.brand'), t('common.annualFee'), t('admin.salePrice'), t('admin.commissionRate'), t('common.cities'), '']}>
-        {rows.map((m) => (
-          <Fragment key={m.id}>
-            <tr className="cursor-pointer border-t border-slate-100 hover:bg-slate-50" onClick={() => setOpenId(openId === m.id ? null : m.id)}>
-              <Td>
-                <p className="font-semibold text-slate-800">{m.name}</p>
-                <p className="text-xs text-slate-400">{m.brand}{m.active === false && <span className="ml-2 text-rose-500">· {t('admin.inactive')}</span>}</p>
-              </Td>
-              <Td className="tabular-nums">{m.annualFee ? formatMoney(m.annualFee, m.currency, lang) : t('common.free')}</Td>
-              <Td className="tabular-nums">{m.salePrice != null ? formatMoney(m.salePrice, m.currency, lang) : '—'}</Td>
-              <Td className="tabular-nums text-slate-500">{m.commissionRate != null ? `${Math.round(m.commissionRate * 100)}%` : '—'}</Td>
-              <Td className="text-slate-500">{(m.cities || []).length}</Td>
-              <Td className="text-right"><Icon name="chevronRight" size={16} className={`text-slate-300 transition ${openId === m.id ? 'rotate-90' : ''}`} /></Td>
-            </tr>
-            {openId === m.id && (
-              <tr className="border-t border-slate-100 bg-slate-50/60">
-                <td colSpan={6} className="px-4 py-3">
-                  <VoucherInventory membershipId={m.id} t={t} lang={lang} />
-                </td>
+    <div className="space-y-3">
+      <div className="flex justify-end">
+        <button onClick={() => setAdding((a) => !a)} className="btn-secondary !px-3 !py-1.5 text-sm">
+          <Icon name="plus" size={14} /> {t('admin.addMembership')}
+        </button>
+      </div>
+      {adding && (
+        <Panel>
+          <div className="p-3">
+            <MembershipForm initial={BLANK_MEMBERSHIP} submitLabel={t('admin.addMembership')} onSubmit={createM} onCancel={() => setAdding(false)} t={t} />
+          </div>
+        </Panel>
+      )}
+      <Panel>
+        <Table head={[t('common.brand'), t('common.annualFee'), t('admin.salePrice'), t('admin.commissionRate'), t('common.cities'), '']}>
+          {rows.map((m) => (
+            <Fragment key={m.id}>
+              <tr className="border-t border-slate-100 hover:bg-slate-50">
+                <Td className="cursor-pointer" onClick={() => setOpenId(openId === m.id ? null : m.id)}>
+                  <p className="font-semibold text-slate-800">{m.name}</p>
+                  <p className="text-xs text-slate-400">{m.brand}{m.active === false && <span className="ml-2 text-rose-500">· {t('admin.inactive')}</span>}</p>
+                </Td>
+                <Td className="tabular-nums">{m.annualFee ? formatMoney(m.annualFee, m.currency, lang) : t('common.free')}</Td>
+                <Td className="tabular-nums">{m.salePrice != null ? formatMoney(m.salePrice, m.currency, lang) : '—'}</Td>
+                <Td className="tabular-nums text-slate-500">{m.commissionRate != null ? `${Math.round(m.commissionRate * 100)}%` : '—'}</Td>
+                <Td className="text-slate-500">{(m.cities || []).length}</Td>
+                <Td className="whitespace-nowrap text-right">
+                  <button onClick={() => setEditId(editId === m.id ? null : m.id)} className="mr-2 font-semibold text-brand-600 hover:underline">{t('admin.edit')}</button>
+                  <button onClick={() => removeM(m.id)} aria-label={t('common.delete')} className="rounded p-1 align-middle text-slate-300 hover:text-rose-500">
+                    <Icon name="trash" size={14} />
+                  </button>
+                </Td>
               </tr>
-            )}
-          </Fragment>
-        ))}
-      </Table>
-    </Panel>
+              {editId === m.id && (
+                <tr className="border-t border-slate-100 bg-brand-50/30">
+                  <td colSpan={6} className="px-4 py-3">
+                    <MembershipForm
+                      initial={{ id: m.id, name: m.name, brand: m.brand, country: m.country || 'vietnam', currency: m.currency || 'VND', annualFee: m.annualFee || 0, salePrice: m.salePrice ?? '', commissionPct: m.commissionRate != null ? Math.round(m.commissionRate * 100) : 0, active: m.active !== false }}
+                      lockId
+                      submitLabel={t('common.save')}
+                      onSubmit={saveM}
+                      onCancel={() => setEditId(null)}
+                      t={t}
+                    />
+                  </td>
+                </tr>
+              )}
+              {openId === m.id && (
+                <tr className="border-t border-slate-100 bg-slate-50/60">
+                  <td colSpan={6} className="px-4 py-3">
+                    <VoucherInventory membershipId={m.id} t={t} />
+                  </td>
+                </tr>
+              )}
+            </Fragment>
+          ))}
+        </Table>
+      </Panel>
+    </div>
   )
 }
 
