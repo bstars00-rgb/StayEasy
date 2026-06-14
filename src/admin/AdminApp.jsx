@@ -332,17 +332,46 @@ function ReservationsTab({ t, lang }) {
   )
 }
 
+const ASSIST_FILTERS = [['all', 'common.all'], ['open', 'admin.statusOpen'], ['handled', 'admin.statusHandled']]
+
 function AssistanceTab({ t }) {
   const { data, loading, error, reload } = useAsync(() => api.admin.listAssistance())
+  const [status, setStatus] = useState('all')
+  const [q, setQ] = useState('')
   if (loading) return <Loading t={t} />
   if (error) return <ErrBlock t={t} onRetry={reload} />
   const rows = itemsOf(data)
   if (!rows.length) return <Empty t={t} />
+  const needle = q.trim().toLowerCase()
+  const filtered = rows.filter(
+    (a) =>
+      (status === 'all' || a.status === status) &&
+      (!needle || [a.name, a.contact, a.message, a.requestType].some((f) => (f || '').toLowerCase().includes(needle))),
+  )
   return (
     <div className="space-y-3">
-      {rows.map((a) => (
-        <AssistanceRow key={a.id} item={a} t={t} onSave={(patch) => api.admin.updateAssistance(a.id, patch).catch(() => {}).then(reload)} />
-      ))}
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex gap-1">
+          {ASSIST_FILTERS.map(([key, labelKey]) => (
+            <button
+              key={key}
+              onClick={() => setStatus(key)}
+              className={`rounded-full px-3 py-1.5 text-xs font-semibold ${status === key ? 'bg-brand-600 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200'}`}
+            >
+              {t(labelKey)}
+            </button>
+          ))}
+        </div>
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('admin.searchInbox')} className="input !py-1.5 text-sm sm:max-w-xs" />
+        <span className="text-xs text-slate-400">{filtered.length}/{rows.length}</span>
+      </div>
+      {filtered.length === 0 ? (
+        <Empty t={t} />
+      ) : (
+        filtered.map((a) => (
+          <AssistanceRow key={a.id} item={a} t={t} onSave={(patch) => api.admin.updateAssistance(a.id, patch).catch(() => {}).then(reload)} />
+        ))
+      )}
     </div>
   )
 }
