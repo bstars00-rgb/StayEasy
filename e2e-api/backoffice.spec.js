@@ -148,3 +148,16 @@ test('back-office: membership create → update (pricing/active) → soft-delete
   const del = await request.delete(`${api}/admin/memberships/${id}`, { headers: AH })
   expect(del.ok(), 'soft-delete membership').toBeTruthy()
 })
+
+test('back-office: holiday create → delete', async ({ request }) => {
+  const admin = await signIn(request, 'demo-google-user')
+  const AH = { Authorization: `Bearer ${admin.accessToken}` }
+  const created = await request.post(`${api}/admin/holidays`, {
+    headers: AH,
+    data: { country: 'vietnam', label: 'QA Holiday', from: '2027-01-01', to: '2027-01-03', key: 'qa-holiday' },
+  })
+  expect(created.status(), 'create holiday → 201').toBe(201)
+  const id = unwrap(await created.json()).id
+  expect(id).toBeTruthy()
+  expect((await request.delete(`${api}/admin/holidays/${id}`, { headers: AH })).ok()).toBeTruthy()
+})

@@ -618,6 +618,7 @@ function AvailabilityTab({ t, lang }) {
 
   return (
     <div className="space-y-4">
+      <HolidaysPanel t={t} lang={lang} />
       <div className="grid gap-3 sm:grid-cols-2">
         <select value={mId} onChange={(e) => setMId(e.target.value)} className="input">
           <option value="">— {t('common.brand')} —</option>
@@ -677,6 +678,65 @@ function AvailabilityTab({ t, lang }) {
         </Panel>
       )}
     </div>
+  )
+}
+
+const HOLIDAY_BLANK = { country: 'vietnam', label: '', from: '', to: '', key: '' }
+
+function HolidaysPanel({ t, lang }) {
+  const { data, loading, error, reload } = useAsync(() => api.admin.listHolidays())
+  const [adding, setAdding] = useState(false)
+  const [form, setForm] = useState(HOLIDAY_BLANK)
+  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
+  const create = async () => {
+    if (!form.from || !form.to || !form.label.trim()) return
+    await api.admin
+      .createHoliday({ country: form.country, label: form.label.trim(), from: form.from, to: form.to, key: (form.key || form.label.toLowerCase().replace(/\s+/g, '-')).trim() })
+      .catch(() => {})
+    setForm(HOLIDAY_BLANK)
+    setAdding(false)
+    reload()
+  }
+  const remove = (id) => api.admin.deleteHoliday(id).catch(() => {}).then(reload)
+  if (loading || error) return null
+  const rows = itemsOf(data)
+  return (
+    <Panel>
+      <div className="flex items-center justify-between border-b border-slate-100 px-4 py-2.5">
+        <span className="text-sm font-bold text-slate-700">{t('admin.blackouts')}</span>
+        <button onClick={() => setAdding((a) => !a)} className="flex items-center gap-1 text-xs font-semibold text-brand-600">
+          <Icon name="plus" size={13} /> {t('admin.addHoliday')}
+        </button>
+      </div>
+      <div className="space-y-1.5 p-3">
+        {rows.length === 0 && !adding && <p className="text-xs text-slate-400">{t('admin.empty')}</p>}
+        {rows.map((h) => (
+          <div key={h.id} className="flex items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm">
+            <span className="min-w-0">
+              <span className="font-medium text-slate-700">{h.label || h.key}</span>
+              <span className="ml-2 text-xs text-slate-400">{t(`countries.${h.country}`)} · {formatDate(h.from, lang)} – {formatDate(h.to, lang)}</span>
+            </span>
+            <button onClick={() => remove(h.id)} aria-label={t('common.delete')} className="rounded p-1 text-slate-300 hover:text-rose-500">
+              <Icon name="trash" size={14} />
+            </button>
+          </div>
+        ))}
+        {adding && (
+          <div className="grid gap-2 rounded-lg border border-brand-100 bg-brand-50/40 p-3 sm:grid-cols-2">
+            <select value={form.country} onChange={(e) => set('country', e.target.value)} className="input !py-1.5 text-sm">
+              {COUNTRIES.map((c) => <option key={c} value={c}>{t(`countries.${c}`)}</option>)}
+            </select>
+            <input value={form.label} onChange={(e) => set('label', e.target.value)} placeholder={t('admin.fieldTitle')} className="input !py-1.5 text-sm" />
+            <input type="date" value={form.from} onChange={(e) => set('from', e.target.value)} className="input !py-1.5 text-sm" />
+            <input type="date" value={form.to} onChange={(e) => set('to', e.target.value)} className="input !py-1.5 text-sm" />
+            <div className="flex gap-2 sm:col-span-2">
+              <button onClick={create} className="btn-primary !px-3 !py-1.5 text-xs">{t('admin.addHoliday')}</button>
+              <button onClick={() => setAdding(false)} className="btn-ghost !px-3 !py-1.5 text-xs text-slate-500">{t('common.cancel')}</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </Panel>
   )
 }
 

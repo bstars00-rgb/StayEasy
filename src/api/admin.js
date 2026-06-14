@@ -29,6 +29,9 @@ export const adminApi = {
   getAvailability: (templateId) => client.get(`/admin/vouchers/${templateId}/availability`),
   setAvailability: (templateId, rule) => client.put(`/admin/vouchers/${templateId}/availability`, rule),
   listHolidays: () => client.get('/admin/holidays'),
+  createHoliday: (body) => client.post('/admin/holidays', body),
+  updateHoliday: (id, patch) => client.patch(`/admin/holidays/${id}`, patch),
+  deleteHoliday: (id) => client.del(`/admin/holidays/${id}`),
 
   // Members
   listUsers: () => client.get('/admin/users'),

@@ -435,6 +435,7 @@ const en = {
     name: 'Name',
     membershipId: 'Membership ID',
     currency: 'Currency',
+    addHoliday: 'Add holiday',
   },
   purchase: {
     buy: 'Purchase',
@@ -924,6 +925,7 @@ const ko = {
     name: '이름',
     membershipId: '멤버십 ID',
     currency: '통화',
+    addHoliday: '공휴일 추가',
   },
   purchase: {
     buy: '구매하기',
@@ -1413,6 +1415,7 @@ const vi = {
     name: 'Tên',
     membershipId: 'Mã thành viên',
     currency: 'Tiền tệ',
+    addHoliday: 'Thêm ngày lễ',
   },
   purchase: {
     buy: 'Mua',
@@ -1902,6 +1905,7 @@ const zh = {
     name: '名称',
     membershipId: '会员ID',
     currency: '货币',
+    addHoliday: '添加假期',
   },
   purchase: {
     buy: '购买',
@@ -2391,6 +2395,7 @@ const ja = {
     name: '名称',
     membershipId: '会員ID',
     currency: '通貨',
+    addHoliday: '休業日を追加',
   },
   purchase: {
     buy: '購入する',
