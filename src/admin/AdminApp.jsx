@@ -204,27 +204,76 @@ function DashboardTab({ t, lang, data }) {
         ))}
       </div>
       <Panel>
-        <div className="p-4">
-          <p className="mb-2 text-sm font-bold text-slate-700">{t('partner.byStatus')}</p>
-          <div className="flex flex-wrap gap-2">
-            {Object.entries(d.orders.byStatus).map(([s, n]) => (
-              <Badge key={s} tone={ORDER_TONE[s]}>{t(`order.status${cap(s)}`)}: {n}</Badge>
-            ))}
+        <div className="space-y-5 p-4">
+          <div>
+            <p className="mb-2.5 text-sm font-bold text-slate-700">{t('admin.tabOrders')} · {t('partner.byStatus')}</p>
+            <div className="space-y-2">
+              {Object.entries(d.orders.byStatus).map(([s, n]) => (
+                <DistBar key={s} label={t(`order.status${cap(s)}`)} count={n} total={d.orders.total} tone={ORDER_TONE[s]} />
+              ))}
+            </div>
           </div>
-          <p className="mb-2 mt-4 text-sm font-bold text-slate-700">{t('admin.tabReservations')}</p>
-          <div className="flex flex-wrap gap-2">
-            {Object.entries(d.reservations.byStatus).map(([s, n]) => (
-              <Badge key={s} tone={RES_TONE[s]}>{t(`reservation.status${cap(s)}`)}: {n}</Badge>
-            ))}
+          <div>
+            <p className="mb-2.5 text-sm font-bold text-slate-700">{t('admin.tabReservations')} · {t('partner.byStatus')}</p>
+            <div className="space-y-2">
+              {Object.entries(d.reservations.byStatus).map(([s, n]) => (
+                <DistBar key={s} label={t(`reservation.status${cap(s)}`)} count={n} total={d.reservations.total} tone={RES_TONE[s]} />
+              ))}
+            </div>
           </div>
-          <p className="mb-2 mt-4 text-sm font-bold text-slate-700">{t('admin.tabAssistance')}</p>
-          <div className="flex flex-wrap gap-2">
-            <Badge tone="amber">{t('admin.statusOpen')}: {d.assistance.open}</Badge>
-            <Badge tone="emerald">{t('admin.statusHandled')}: {d.assistance.handled}</Badge>
+          <div>
+            <p className="mb-2.5 text-sm font-bold text-slate-700">{t('admin.tabAssistance')}</p>
+            <div className="space-y-2">
+              <DistBar label={t('admin.statusOpen')} count={d.assistance.open} total={d.assistance.open + d.assistance.handled} tone="amber" />
+              <DistBar label={t('admin.statusHandled')} count={d.assistance.handled} total={d.assistance.open + d.assistance.handled} tone="emerald" />
+            </div>
           </div>
         </div>
       </Panel>
+
+      <TopBrandsPanel t={t} lang={lang} />
     </div>
+  )
+}
+
+const BAR_FILL = { amber: 'bg-amber-400', sky: 'bg-sky-400', emerald: 'bg-emerald-500', brand: 'bg-brand-500', slate: 'bg-slate-300' }
+
+// One labelled proportion bar (count / total).
+function DistBar({ label, count, total, tone }) {
+  const pct = total > 0 ? Math.round((count / total) * 100) : 0
+  return (
+    <div className="flex items-center gap-3">
+      <span className="w-28 shrink-0 truncate text-xs text-slate-500">{label}</span>
+      <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-100">
+        <div className={`h-full rounded-full ${BAR_FILL[tone] || BAR_FILL.slate}`} style={{ width: `${pct}%` }} />
+      </div>
+      <span className="w-10 shrink-0 text-right text-xs font-semibold tabular-nums text-slate-600">{count}</span>
+    </div>
+  )
+}
+
+// Top brands by GMV (reuses the settlement summary; renders nothing if unavailable).
+function TopBrandsPanel({ t, lang }) {
+  const { data, loading, error } = useAsync(() => api.admin.settlement())
+  if (loading || error || !data) return null
+  const brands = itemsOf(data.byBrand).slice().sort((a, b) => (b.gmv || 0) - (a.gmv || 0)).slice(0, 5)
+  if (!brands.length) return null
+  const max = Math.max(...brands.map((b) => b.gmv || 0), 1)
+  return (
+    <Panel>
+      <div className="border-b border-slate-100 px-4 py-2.5 text-sm font-bold text-slate-700">{t('admin.topBrands')}</div>
+      <div className="space-y-2.5 p-4">
+        {brands.map((b) => (
+          <div key={b.membershipId} className="flex items-center gap-3">
+            <span className="w-36 shrink-0 truncate text-xs font-medium text-slate-600">{membershipName(b.membershipId)}</span>
+            <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-100">
+              <div className="h-full rounded-full bg-brand-500" style={{ width: `${Math.round(((b.gmv || 0) / max) * 100)}%` }} />
+            </div>
+            <span className="w-24 shrink-0 text-right text-xs font-semibold tabular-nums text-slate-600">{formatMoney(b.gmv, data.currency, lang)}</span>
+          </div>
+        ))}
+      </div>
+    </Panel>
   )
 }
 

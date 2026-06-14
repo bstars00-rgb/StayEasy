@@ -457,6 +457,7 @@ const en = {
     target_assistance: 'Assistance',
     back: 'Back to list',
     vouchersHeld: 'Vouchers held',
+    topBrands: 'Top brands by GMV',
   },
   purchase: {
     buy: 'Purchase',
@@ -968,6 +969,7 @@ const ko = {
     target_assistance: '문의',
     back: '목록으로',
     vouchersHeld: '보유 바우처',
+    topBrands: 'GMV 상위 브랜드',
   },
   purchase: {
     buy: '구매하기',
@@ -1479,6 +1481,7 @@ const vi = {
     target_assistance: 'Hỗ trợ',
     back: 'Về danh sách',
     vouchersHeld: 'Phiếu đang giữ',
+    topBrands: 'Thương hiệu hàng đầu theo GMV',
   },
   purchase: {
     buy: 'Mua',
@@ -1990,6 +1993,7 @@ const zh = {
     target_assistance: '咨询',
     back: '返回列表',
     vouchersHeld: '持有礼券',
+    topBrands: 'GMV 排名品牌',
   },
   purchase: {
     buy: '购买',
@@ -2501,6 +2505,7 @@ const ja = {
     target_assistance: 'お問い合わせ',
     back: '一覧へ戻る',
     vouchersHeld: '保有バウチャー',
+    topBrands: 'GMV上位ブランド',
   },
   purchase: {
     buy: '購入する',
