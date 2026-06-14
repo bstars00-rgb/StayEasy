@@ -32,6 +32,7 @@ const COPY = {
     navBenefits: '혜택',
     navHow: '이용 방법',
     navMemberships: '멤버십',
+    navFaq: 'FAQ',
     navPartner: '호텔 제휴',
     openApp: '앱 열기',
     badge: 'by Ohmyhotel · 엄선된 호텔 혜택',
@@ -67,6 +68,14 @@ const COPY = {
     partnerTitle: '호텔 파트너이신가요?',
     partnerSub: 'OhmySelect와 함께 멤버십 혜택을 더 많은 고객에게 전하세요. 결제는 브랜드 인보이스로, 운영은 OhmySelect가 함께합니다.',
     partnerCta: '제휴 문의하기',
+    faqTitle: '자주 묻는 질문',
+    faq: [
+      { q: 'OhmySelect은 무엇인가요?', a: '오마이호텔이 엄선한 호텔 멤버십·바우처·혜택을 한 곳에서 발견·비교·관리·예약하는 플랫폼입니다.' },
+      { q: '결제는 어떻게 진행되나요?', a: '결제는 각 호텔 브랜드의 공식 인보이스로 이뤄지며, OhmySelect는 가입·구매 절차를 도와드립니다.' },
+      { q: '어떤 도시에서 이용할 수 있나요?', a: '호치민을 비롯한 주요 6개 도시에서 멤버십 혜택을 제공하며, 5개 언어를 지원합니다.' },
+      { q: '바우처 만료는 어떻게 관리하나요?', a: '혜택 지갑에서 카테고리별로 관리하고, 만료가 임박한 바우처를 미리 알려드립니다.' },
+      { q: '호텔 제휴는 어떻게 신청하나요?', a: "아래 '호텔 제휴 문의'로 연락 주시면 운영팀이 절차를 안내해 드립니다." },
+    ],
     finalTitle: '지금, 호텔 혜택을 더 쉽게.',
     finalSub: '발견하고, 비교하고, 사용하세요 — OhmySelect.',
     footerTagline: '엄선된 호텔 멤버십 혜택 플랫폼',
@@ -82,6 +91,7 @@ const COPY = {
     navBenefits: 'Benefits',
     navHow: 'How it works',
     navMemberships: 'Memberships',
+    navFaq: 'FAQ',
     navPartner: 'For hotels',
     openApp: 'Open app',
     badge: 'by Ohmyhotel · Selected hotel benefits',
@@ -117,6 +127,14 @@ const COPY = {
     partnerTitle: 'Are you a hotel partner?',
     partnerSub: 'Bring your membership benefits to more guests with OhmySelect. Payment stays on your brand invoice; we handle operations together.',
     partnerCta: 'Contact us',
+    faqTitle: 'Frequently asked questions',
+    faq: [
+      { q: 'What is OhmySelect?', a: 'A platform to discover, compare, manage and book hotel memberships, vouchers and perks curated by Ohmyhotel — all in one place.' },
+      { q: 'How does payment work?', a: 'Payment is made via each hotel brand’s official invoice; OhmySelect helps you through the join and purchase flow.' },
+      { q: 'Which cities are supported?', a: 'We offer membership benefits in 6 key cities including Ho Chi Minh City, with 5 supported languages.' },
+      { q: 'How do I manage voucher expiry?', a: 'Manage vouchers by category in your benefit wallet and get notified before they expire.' },
+      { q: 'How can my hotel partner with you?', a: 'Reach out via “Partner with us” below and our operations team will guide you through it.' },
+    ],
     finalTitle: 'Hotel benefits, made easier.',
     finalSub: 'Discover, compare, and use — OhmySelect.',
     footerTagline: 'Curated hotel membership benefit platform',
@@ -146,6 +164,7 @@ export default function SiteApp() {
       <Values t={t} />
       <How t={t} />
       <Featured t={t} lang={lang} />
+      <Faq t={t} />
       <Partner t={t} />
       <FinalCTA t={t} onDownload={openDownload} />
       <Footer t={t} />
@@ -172,6 +191,7 @@ function Nav({ t, lang, setLang }) {
           <a href="#benefits" className="hover:text-brand-900">{t.navBenefits}</a>
           <a href="#how" className="hover:text-brand-900">{t.navHow}</a>
           <a href="#memberships" className="hover:text-brand-900">{t.navMemberships}</a>
+          <a href="#faq" className="hover:text-brand-900">{t.navFaq}</a>
           <a href="#partner" className="hover:text-brand-900">{t.navPartner}</a>
         </nav>
         <div className="flex items-center gap-2">
@@ -351,6 +371,27 @@ function Featured({ t, lang }) {
             </div>
           </a>
         ))}
+      </div>
+    </section>
+  )
+}
+
+function Faq({ t }) {
+  return (
+    <section id="faq" className="border-t border-beige/60 bg-ivory">
+      <div className="mx-auto max-w-3xl px-5 py-20">
+        <h2 className="text-3xl font-extrabold tracking-tight text-brand-900 sm:text-4xl">{t.faqTitle}</h2>
+        <div className="mt-8 divide-y divide-beige border-y border-beige">
+          {t.faq.map(({ q, a }) => (
+            <details key={q} className="group py-4">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-bold text-brand-900">
+                {q}
+                <Icon name="chevronDown" size={18} className="shrink-0 text-brand-400 transition group-open:rotate-180" />
+              </summary>
+              <p className="mt-3 text-sm leading-relaxed text-brand-600">{a}</p>
+            </details>
+          ))}
+        </div>
       </div>
     </section>
   )
