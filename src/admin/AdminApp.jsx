@@ -460,13 +460,33 @@ function CatalogTab({ t, lang }) {
 }
 
 const VOUCHER_CATS = ['dining', 'room', 'spa', 'discount', 'gift', 'other']
-const BLANK_VOUCHER = { templateId: '', title: '', category: 'dining', quantity: 1, validUntil: '2026-12-31', transferable: false, description: '', note: '' }
+// Languages an admin can translate a voucher into (English is the source row).
+const TRANSLATABLE = LANGUAGES.filter((l) => l.code !== 'en')
+const BLANK_VOUCHER = { templateId: '', title: '', category: 'dining', quantity: 1, validUntil: '2026-12-31', transferable: false, description: '', note: '', i18n: {} }
+
+// Drop empty language entries so we only persist real translations.
+function cleanI18n(i18n) {
+  const out = {}
+  for (const [lng, v] of Object.entries(i18n || {})) {
+    const title = (v?.title || '').trim()
+    const description = (v?.description || '').trim()
+    const note = (v?.note || '').trim()
+    if (title || description || note) out[lng] = { title, description, note }
+  }
+  return out
+}
 
 // Shared create/edit form. lockId disables the id field (editing).
 function VoucherForm({ initial, lockId, submitLabel, onSubmit, onCancel, t }) {
   const [form, setForm] = useState(initial)
   const [busy, setBusy] = useState(false)
+  const [trOpen, setTrOpen] = useState(false)
+  const [trLang, setTrLang] = useState(TRANSLATABLE[0]?.code || 'ko')
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
+  const setTr = (field, v) =>
+    setForm((f) => ({ ...f, i18n: { ...f.i18n, [trLang]: { ...f.i18n?.[trLang], [field]: v } } }))
+  const tr = form.i18n?.[trLang] || {}
+  const translatedCount = Object.keys(cleanI18n(form.i18n)).length
   const submit = async () => {
     if (!String(form.templateId).trim() || !String(form.title).trim()) return
     setBusy(true)
@@ -480,6 +500,7 @@ function VoucherForm({ initial, lockId, submitLabel, onSubmit, onCancel, t }) {
         transferable: form.transferable,
         description: (form.description || '').trim(),
         note: (form.note || '').trim(),
+        i18n: cleanI18n(form.i18n),
       })
     } catch {
       /* 403 for operators / validation */
@@ -501,8 +522,43 @@ function VoucherForm({ initial, lockId, submitLabel, onSubmit, onCancel, t }) {
           <input type="checkbox" checked={form.transferable} onChange={(e) => set('transferable', e.target.checked)} /> {t('voucher.transferable')}
         </label>
       </div>
+      <p className="text-[11px] text-slate-400">{t('admin.englishSource')}</p>
       <textarea value={form.description} onChange={(e) => set('description', e.target.value)} placeholder={t('voucher.aboutThis')} rows={2} className="input resize-none !py-1.5 text-sm" />
       <input value={form.note} onChange={(e) => set('note', e.target.value)} placeholder={t('voucher.onSiteNote')} className="input !py-1.5 text-sm" />
+
+      {/* Per-language translations (optional; blank fields fall back to English) */}
+      <div className="rounded-lg border border-slate-200 bg-white">
+        <button type="button" onClick={() => setTrOpen((o) => !o)} className="flex w-full items-center justify-between px-3 py-2 text-xs font-semibold text-slate-600">
+          <span className="flex items-center gap-1.5">
+            <Icon name="globe" size={13} /> {t('admin.translations')}
+            {translatedCount > 0 && <span className="rounded-full bg-brand-100 px-1.5 text-[10px] text-brand-700">{translatedCount}</span>}
+          </span>
+          <Icon name={trOpen ? 'chevronDown' : 'chevronRight'} size={14} />
+        </button>
+        {trOpen && (
+          <div className="space-y-2 border-t border-slate-100 p-3">
+            <div className="flex flex-wrap gap-1">
+              {TRANSLATABLE.map((l) => {
+                const has = !!cleanI18n(form.i18n)[l.code]
+                return (
+                  <button
+                    key={l.code}
+                    type="button"
+                    onClick={() => setTrLang(l.code)}
+                    className={`rounded-full px-2.5 py-1 text-xs font-medium ${trLang === l.code ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-600'}`}
+                  >
+                    {l.label}{has ? ' ✓' : ''}
+                  </button>
+                )
+              })}
+            </div>
+            <input value={tr.title || ''} onChange={(e) => setTr('title', e.target.value)} placeholder={t('admin.fieldTitle')} className="input !py-1.5 text-sm" />
+            <textarea value={tr.description || ''} onChange={(e) => setTr('description', e.target.value)} placeholder={t('voucher.aboutThis')} rows={2} className="input resize-none !py-1.5 text-sm" />
+            <input value={tr.note || ''} onChange={(e) => setTr('note', e.target.value)} placeholder={t('voucher.onSiteNote')} className="input !py-1.5 text-sm" />
+          </div>
+        )}
+      </div>
+
       <div className="flex gap-2">
         <button onClick={submit} disabled={busy} className="btn-primary !px-3 !py-1.5 text-xs disabled:opacity-50">{submitLabel}</button>
         <button onClick={onCancel} className="btn-ghost !px-3 !py-1.5 text-xs text-slate-500">{t('common.cancel')}</button>
@@ -536,7 +592,7 @@ function VoucherInventory({ membershipId, t }) {
         editing === v.templateId ? (
           <VoucherForm
             key={v.templateId}
-            initial={{ templateId: v.templateId, title: v.title, category: v.category || 'other', quantity: v.quantity, validUntil: (v.validUntil || '').slice(0, 10), transferable: !!v.transferable, description: v.description || '', note: v.note || '' }}
+            initial={{ templateId: v.templateId, title: v.title, category: v.category || 'other', quantity: v.quantity, validUntil: (v.validUntil || '').slice(0, 10), transferable: !!v.transferable, description: v.description || '', note: v.note || '', i18n: v.i18n || {} }}
             lockId
             submitLabel={t('common.save')}
             onSubmit={saveEdit}

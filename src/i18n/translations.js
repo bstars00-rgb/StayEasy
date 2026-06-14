@@ -436,6 +436,8 @@ const en = {
     membershipId: 'Membership ID',
     currency: 'Currency',
     addHoliday: 'Add holiday',
+    translations: 'Translations',
+    englishSource: 'English (used as the fallback for every language)',
   },
   purchase: {
     buy: 'Purchase',
@@ -926,6 +928,8 @@ const ko = {
     membershipId: '멤버십 ID',
     currency: '통화',
     addHoliday: '공휴일 추가',
+    translations: '다국어',
+    englishSource: '영어 (모든 언어의 대체 기본값)',
   },
   purchase: {
     buy: '구매하기',
@@ -1416,6 +1420,8 @@ const vi = {
     membershipId: 'Mã thành viên',
     currency: 'Tiền tệ',
     addHoliday: 'Thêm ngày lễ',
+    translations: 'Bản dịch',
+    englishSource: 'Tiếng Anh (dùng làm bản dự phòng cho mọi ngôn ngữ)',
   },
   purchase: {
     buy: 'Mua',
@@ -1906,6 +1912,8 @@ const zh = {
     membershipId: '会员ID',
     currency: '货币',
     addHoliday: '添加假期',
+    translations: '多语言',
+    englishSource: '英语（作为所有语言的后备）',
   },
   purchase: {
     buy: '购买',
@@ -2396,6 +2404,8 @@ const ja = {
     membershipId: '会員ID',
     currency: '通貨',
     addHoliday: '休業日を追加',
+    translations: '多言語',
+    englishSource: '英語（全言語のフォールバックとして使用）',
   },
   purchase: {
     buy: '購入する',

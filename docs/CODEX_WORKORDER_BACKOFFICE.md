@@ -121,3 +121,33 @@ DB가 카탈로그의 source of truth가 되도록. **시드는 `src/data/{membe
 - 그러면 **Claude가 `/admin` 웹사이트에 대시보드/카탈로그/가용일/회원·정산 탭 UI를 붙여**
   이 API를 연결하고 라이브 검증합니다.
 - 프론트/계약을 바꿔야 할 일이 보이면 멋대로 바꾸지 말고 `INTEGRATION_STATUS.md`에 적어 둘 것.
+
+---
+
+## 12) [추가] 바우처 다국어(i18n) 영속화 — 2026-06-14 (Claude)
+
+**왜:** 어드민이 새로 만든 바우처는 지금 단일 언어 텍스트만 저장돼, 소비자 앱 5개국어에서 영어(원문) 폴백만 노출됨. 프론트는 이미 언어별 입력 UI(VoucherForm "다국어" 섹션)와 inline `i18n` 우선 로컬라이즈(`localizeVoucher`)를 구현해 두 통신만 붙이면 됨.
+
+**계약 (프론트가 이미 보냄):**
+- `POST /admin/memberships/:id/vouchers` 와 `PATCH /admin/vouchers/:templateId` 요청 body에 선택적 필드 `i18n` 포함:
+  ```json
+  "i18n": {
+    "ko": { "title": "...", "description": "...", "note": "..." },
+    "vi": { "title": "...", "description": "...", "note": "..." },
+    "zh": { ... }, "ja": { ... }
+  }
+  ```
+  - 키는 언어코드(ko/vi/zh/ja). en은 보내지 않음(원문이 곧 영어).
+  - 비어있는 언어는 프론트가 제거하고 보냄(빈 객체 `{}` 가능).
+
+**해야 할 일:**
+1. `voucher_templates`에 `i18n` 컬럼(JSON/TEXT) 추가. idempotent 마이그레이션.
+2. create/update 시 `i18n`을 그대로 저장(JSON 직렬화). PATCH는 부분 병합 또는 전체 교체(프론트는 항상 전체 i18n을 보냄 → 전체 교체 OK).
+3. **두 경로 모두에서 `i18n`을 응답에 echo**:
+   - 어드민: `GET /admin/memberships/:id/vouchers`
+   - **소비자 카탈로그**: `GET /memberships/:id` 의 `vouchers[]` (이게 핵심 — 소비자 앱이 여기서 hydrate).
+4. 값이 없으면 `i18n` 생략 또는 `{}` — 프론트는 둘 다 안전.
+
+**DoD:** create(i18n 포함) → `GET /memberships/:id` 응답 voucher에 동일 `i18n` 라운드트립. e2e:api 가드 추가 권장(생성→조회→i18n.ko.title 일치→삭제).
+
+회신 시 **"바우처 i18n 영속화 완료"** 한 줄이면 Claude가 e2e:api 라운드트립 가드를 켜고 라이브 검증함.

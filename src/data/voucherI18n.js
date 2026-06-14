@@ -208,18 +208,26 @@ export const voucherI18n = {
 
 /**
  * Return a template with localized title/description/note for `lang`.
- * English (the values already on the template) is the fallback for any
- * missing language or field. Other fields are passed through untouched.
+ *
+ * Translation precedence (per field, independently):
+ *   1. inline `template.i18n[lang]` — admin-authored, comes from the backend
+ *      for catalog-managed vouchers, so new vouchers can be multilingual too;
+ *   2. the static `voucherI18n` map above (built-in English catalog);
+ *   3. English (the values already on the template).
+ *
+ * Other fields are passed through untouched.
  */
 export function localizeVoucher(template, lang) {
   if (!template) return template
   if (!lang || lang === 'en') return template
+  const inline = template.i18n?.[lang]
   const tr = voucherI18n[template.templateId]?.[lang]
-  if (!tr) return template
+  if (!inline && !tr) return template
+  const pick = (field) => inline?.[field] || tr?.[field] || template[field]
   return {
     ...template,
-    title: tr.title || template.title,
-    description: tr.description || template.description,
-    note: tr.note || template.note,
+    title: pick('title'),
+    description: pick('description'),
+    note: pick('note'),
   }
 }

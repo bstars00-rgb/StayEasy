@@ -30,6 +30,25 @@ describe('localizeVoucher', () => {
     expect(localizeVoucher(null, 'ko')).toBe(null)
     expect(localizeVoucher(undefined, 'ko')).toBe(undefined)
   })
+
+  it('prefers inline template.i18n over the static map and English', () => {
+    // Admin-authored voucher (not in the static map) with inline translations.
+    const v = { templateId: 'admin-made', title: 'EN', description: 'EN desc', note: 'EN note', i18n: { ko: { title: '한글 제목', description: '한글 설명', note: '한글 노트' } } }
+    const ko = localizeVoucher(v, 'ko')
+    expect(ko.title).toBe('한글 제목')
+    expect(ko.description).toBe('한글 설명')
+    expect(ko.note).toBe('한글 노트')
+    // a language with no inline entry falls back to English
+    expect(localizeVoucher(v, 'ja')).toBe(v)
+  })
+
+  it('inline i18n wins over the static map for known template ids', () => {
+    const v = { ...sample, i18n: { ko: { title: 'OVERRIDE' } } }
+    const ko = localizeVoucher(v, 'ko')
+    expect(ko.title).toBe('OVERRIDE')
+    // unspecified fields fall back to the static map, then English
+    expect(ko.description).toBe(voucherI18n['cm-dinner'].ko.description)
+  })
 })
 
 describe('voucherI18n coverage', () => {
