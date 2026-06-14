@@ -6,6 +6,7 @@ import { formatDate } from '../utils/format.js'
 import { childPolicyHints } from '../utils/childPolicy.js'
 import { localizeVoucher } from '../data/voucherI18n.js'
 import { getAvailability, evaluateDate } from '../data/availability.js'
+import { api, USE_API } from '../api/index.js'
 import { Modal } from './ui.jsx'
 import AvailabilityCalendar from './AvailabilityCalendar.jsx'
 import CTAButton from './CTAButton.jsx'
@@ -26,25 +27,33 @@ export default function BookingRequestModal({ open, onClose, membership, templat
   const [childAges, setChildAges] = useState([]) // one entry per child
   const [hotel, setHotel] = useState('')
   const [note, setNote] = useState('')
+  const [apiRule, setApiRule] = useState(null) // live DB availability (API mode)
 
   const hotels = template?.hotels?.length ? template.hotels : []
 
-  // Reset when a new voucher opens.
+  // Reset when a new voucher opens, and pull the live availability rule so the
+  // calendar reflects admin edits (weekdays/blackouts). Static is the fallback.
   useEffect(() => {
-    if (open) {
-      setDate('')
-      setAdults(2)
-      setChildAges([])
-      setHotel(hotels[0] || '')
-      setNote('')
+    if (!open) return
+    setDate('')
+    setAdults(2)
+    setChildAges([])
+    setHotel(hotels[0] || '')
+    setNote('')
+    setApiRule(null)
+    if (USE_API && template?.templateId) {
+      api.catalog
+        .availability(template.templateId)
+        .then((r) => r && setApiRule({ ...r, validUntil: r.validUntil || template.validUntil }))
+        .catch(() => {})
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, template?.templateId])
 
   if (!template) return null
 
-  // Per-voucher booking availability (weekday rules, blackout/holiday closures).
-  const rule = getAvailability(membership, template)
+  // Per-voucher booking availability: live DB rule if loaded, else static.
+  const rule = apiRule || getAvailability(membership, template)
   const dateValid = !!date && evaluateDate(rule, date).ok
 
   const children = childAges.length
