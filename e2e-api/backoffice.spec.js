@@ -86,13 +86,15 @@ test('back-office: create a voucher (auto-gets availability) then delete it', as
 
   const created = await request.post(`${api}/admin/memberships/${mId}/vouchers`, {
     headers: AH,
-    data: { templateId: tpl, title: 'QA Test Voucher', category: 'dining', quantity: 5, validUntil: '2026-12-31' },
+    data: { templateId: tpl, title: 'QA Test Voucher', category: 'dining', quantity: 5, validUntil: '2026-12-31', description: 'QA description', note: 'QA note' },
   })
   expect(created.status(), 'create voucher → 201').toBe(201)
 
-  // It appears in the membership's vouchers...
+  // It appears in the membership's vouchers, with the description we sent...
   const list = arr(unwrap(await (await request.get(`${api}/admin/memberships/${mId}/vouchers`, { headers: AH })).json()))
-  expect(list.map((v) => v.templateId)).toContain(tpl)
+  const mine = list.find((v) => v.templateId === tpl)
+  expect(mine, 'created voucher is listed').toBeTruthy()
+  expect(mine.description).toBe('QA description')
   // ...and an availability rule was auto-created (so it shows in the Availability tab).
   const av = await request.get(`${api}/admin/vouchers/${tpl}/availability`, { headers: AH })
   expect(av.status(), 'new voucher has an availability rule').toBe(200)

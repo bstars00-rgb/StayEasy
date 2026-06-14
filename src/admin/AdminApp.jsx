@@ -360,7 +360,7 @@ const VOUCHER_CATS = ['dining', 'room', 'spa', 'discount', 'gift', 'other']
 
 function VoucherInventory({ membershipId, t }) {
   const { data, loading, reload } = useAsync(() => api.admin.membershipVouchers(membershipId))
-  const blank = { templateId: '', title: '', category: 'dining', quantity: 1, validUntil: '2026-12-31', transferable: false }
+  const blank = { templateId: '', title: '', category: 'dining', quantity: 1, validUntil: '2026-12-31', transferable: false, description: '', note: '' }
   const [adding, setAdding] = useState(false)
   const [form, setForm] = useState(blank)
   const [busy, setBusy] = useState(false)
@@ -377,6 +377,8 @@ function VoucherInventory({ membershipId, t }) {
         quantity: Number(form.quantity) || 1,
         validUntil: form.validUntil,
         transferable: form.transferable,
+        description: form.description.trim(),
+        note: form.note.trim(),
       })
       setForm(blank)
       setAdding(false)
@@ -421,6 +423,19 @@ function VoucherInventory({ membershipId, t }) {
               <input type="checkbox" checked={form.transferable} onChange={(e) => set('transferable', e.target.checked)} /> {t('voucher.transferable')}
             </label>
           </div>
+          <textarea
+            value={form.description}
+            onChange={(e) => set('description', e.target.value)}
+            placeholder={t('voucher.aboutThis')}
+            rows={2}
+            className="input resize-none !py-1.5 text-sm"
+          />
+          <input
+            value={form.note}
+            onChange={(e) => set('note', e.target.value)}
+            placeholder={t('voucher.onSiteNote')}
+            className="input !py-1.5 text-sm"
+          />
           <div className="flex gap-2">
             <button onClick={create} disabled={busy} className="btn-primary !px-3 !py-1.5 text-xs disabled:opacity-50">{t('admin.addVoucher')}</button>
             <button onClick={() => setAdding(false)} className="btn-ghost !px-3 !py-1.5 text-xs text-slate-500">{t('common.cancel')}</button>
