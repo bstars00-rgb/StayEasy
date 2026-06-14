@@ -100,6 +100,13 @@ test('back-office: create a voucher (auto-gets availability) then delete it', as
   expect(av.status(), 'new voucher has an availability rule').toBe(200)
   expect(unwrap(await av.json())).toHaveProperty('daysOfWeek')
 
+  // Edit it (PATCH) — title + quantity change persists.
+  const patched = await request.patch(`${api}/admin/vouchers/${tpl}`, { headers: AH, data: { title: 'QA Edited', quantity: 9 } })
+  expect(patched.status(), 'update voucher → 200').toBe(200)
+  const after = unwrap(await patched.json())
+  expect(after.title).toBe('QA Edited')
+  expect(after.quantity).toBe(9)
+
   // Clean up.
   expect((await request.delete(`${api}/admin/vouchers/${tpl}`, { headers: AH })).ok()).toBeTruthy()
 })

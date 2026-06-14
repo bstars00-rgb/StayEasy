@@ -430,6 +430,7 @@ const en = {
     quantity: 'Quantity',
     validUntil: 'Valid until',
     voucherAdded: 'Voucher created',
+    edit: 'Edit',
   },
   purchase: {
     buy: 'Purchase',
@@ -914,6 +915,7 @@ const ko = {
     quantity: '수량',
     validUntil: '유효기간',
     voucherAdded: '바우처를 생성했어요',
+    edit: '수정',
   },
   purchase: {
     buy: '구매하기',
@@ -1398,6 +1400,7 @@ const vi = {
     quantity: 'Số lượng',
     validUntil: 'Hết hạn',
     voucherAdded: 'Đã tạo voucher',
+    edit: 'Sửa',
   },
   purchase: {
     buy: 'Mua',
@@ -1882,6 +1885,7 @@ const zh = {
     quantity: '数量',
     validUntil: '有效期至',
     voucherAdded: '已创建优惠券',
+    edit: '编辑',
   },
   purchase: {
     buy: '购买',
@@ -2366,6 +2370,7 @@ const ja = {
     quantity: '数量',
     validUntil: '有効期限',
     voucherAdded: 'バウチャーを作成しました',
+    edit: '編集',
   },
   purchase: {
     buy: '購入する',
