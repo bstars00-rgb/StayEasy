@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useTranslation } from '../i18n/useTranslation.js'
 import { isPaid } from '../data/memberships.js'
+import { localizeMembership } from '../data/membershipI18n.js'
 import { membershipPhoto } from '../data/media.js'
 import { accentFor } from './brandTheme.js'
 import { formatMoney } from '../utils/format.js'
@@ -83,7 +84,7 @@ export default function MembershipCard({ membership: m }) {
           </div>
         </div>
 
-        <p className="mt-3 line-clamp-2 text-sm text-slate-600">{m.benefits[0]}</p>
+        <p className="mt-3 line-clamp-2 text-sm text-slate-600">{localizeMembership(m, lang).benefits[0]}</p>
 
         <div className="mt-3 flex flex-wrap gap-1.5">
           {m.bestFor.slice(0, 3).map((tag) => (

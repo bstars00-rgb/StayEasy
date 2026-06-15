@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { getMembership, getPricing, isPaid } from '../data/memberships.js'
 import { getVoucherPack } from '../data/voucherPacks.js'
 import { localizeVoucher } from '../data/voucherI18n.js'
+import { localizeMembership } from '../data/membershipI18n.js'
 import { membershipPhoto, membershipGallery, hotelPhoto, voucherPhoto, categoryMeta } from '../data/media.js'
 import { formatMoney, formatDate } from '../utils/format.js'
 import PurchaseModal from '../components/PurchaseModal.jsx'
@@ -40,6 +41,7 @@ export default function MembershipDetail() {
     )
   }
 
+  const localized = localizeMembership(m, lang)
   const saved = isSaved(m.id)
   const comparing = inCompare(m.id)
   const free = m.annualFee === 0
@@ -177,7 +179,7 @@ export default function MembershipDetail() {
             </div>
           </div>
           <ul className="mt-3 space-y-2">
-            {m.benefits.map((b) => (
+            {localized.benefits.map((b) => (
               <li key={b} className="flex items-start gap-2.5">
                 <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-500">
                   <Icon name="check" size={14} />
@@ -281,10 +283,10 @@ export default function MembershipDetail() {
                 {t(`detail.note${n}`)}
               </p>
             ))}
-            {m.notes && (
+            {localized.notes && (
               <p className="mt-2 rounded-xl bg-amber-50 p-3 text-amber-800">
                 <span className="font-semibold">{t('detail.programNote')}: </span>
-                {m.notes}
+                {localized.notes}
               </p>
             )}
           </div>

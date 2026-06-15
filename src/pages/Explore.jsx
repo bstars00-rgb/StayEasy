@@ -3,13 +3,14 @@ import { useApp } from '../context/AppContext.jsx'
 import { useTranslation } from '../i18n/useTranslation.js'
 import { memberships } from '../data/memberships.js'
 import { TAGS } from '../data/memberships.js'
+import { localizeMembership } from '../data/membershipI18n.js'
 import { cities } from '../data/cities.js'
 import MembershipCard from '../components/MembershipCard.jsx'
 import EmptyState from '../components/EmptyState.jsx'
 import CTAButton from '../components/CTAButton.jsx'
 
 export default function Explore() {
-  const { t } = useTranslation()
+  const { t, lang } = useTranslation()
   const { city, setCity } = useApp()
   const [cityFilter, setCityFilter] = useState(city)
   const [benefit, setBenefit] = useState('all')
@@ -22,14 +23,14 @@ export default function Explore() {
     const q = query.trim().toLowerCase()
     if (q) {
       list = list.filter((m) =>
-        [m.name, m.brand, ...(m.hotels || []), ...(m.benefits || [])]
+        [m.name, m.brand, ...(m.hotels || []), ...(m.benefits || []), ...(localizeMembership(m, lang).benefits || [])]
           .join(' ')
           .toLowerCase()
           .includes(q),
       )
     }
     return [...list].sort((a, b) => b.scores.overall - a.scores.overall)
-  }, [cityFilter, benefit, query])
+  }, [cityFilter, benefit, query, lang])
 
   function onCityChange(value) {
     setCityFilter(value)
